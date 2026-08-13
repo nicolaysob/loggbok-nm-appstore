@@ -17,7 +17,7 @@ export function ManualEntryDisclosure({
           ▾
         </span>
       </summary>
-      <div className="border-t border-line px-4 pb-4 pt-4">{children}</div>
+      <div className="px-4 pb-4 pt-4">{children}</div>
     </details>
   );
 }

@@ -3,11 +3,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
 import { requireUser } from "@/lib/dal";
-import {
-  backLinkClass,
-  outlineActionClass,
-  solidActionClass,
-} from "@/lib/ui";
+import { BackLink } from "@/components/back-link";
+import { outlineActionClass, solidActionClass } from "@/lib/ui";
 import { PageLoading } from "@/components/page-loading";
 import { CustomerBody } from "./customer-body";
 
@@ -61,22 +58,22 @@ export default async function CustomerPage({
   if (!customer) notFound();
 
   return (
-    <div className="flex animate-rise flex-col gap-8">
+    <div className="mx-auto flex w-full max-w-lg animate-rise flex-col gap-8">
       {lagret && (
         <p
           role="status"
-          className="rounded-md border border-green-700/20 bg-green-50 px-4 py-3 text-body font-semibold text-green-700"
+          className="rounded-md bg-green-50 px-4 py-3.5 text-body font-semibold text-green-700 shadow-card"
         >
           Registreringen er lagret.
         </p>
       )}
 
-      <div className="flex flex-col gap-2">
-        <Link href="/" className={backLinkClass}>
-          ← Kunder
-        </Link>
-        <h1 className="text-display tracking-tight">{customer.name}</h1>
-        <p className="text-body text-navy-700">Hva skal registreres?</p>
+      <div className="flex flex-col gap-4">
+        <BackLink />
+        <div className="flex flex-col gap-1">
+          <h1 className="text-display tracking-tight">{customer.name}</h1>
+          <p className="text-body text-navy-700">Hva skal registreres?</p>
+        </div>
       </div>
 
       <div className="flex flex-col gap-3">
@@ -85,11 +82,11 @@ export default async function CustomerPage({
             key={action.href}
             href={`/kunde/${customer.id}/${action.href}`}
             prefetch
-            className={`flex min-h-20 items-center justify-between gap-3 rounded-md px-5 py-4 ${
+            className={`flex min-h-[4.5rem] items-center justify-between gap-3 rounded-md px-4 py-3.5 ${
               action.primary ? solidActionClass : outlineActionClass
             }`}
           >
-            <span className="flex flex-col gap-0.5 text-left">
+            <span className="flex min-w-0 flex-1 flex-col gap-0.5 text-left">
               <span className="text-heading font-semibold">{action.title}</span>
               <span
                 className={`text-meta font-medium ${
@@ -101,8 +98,8 @@ export default async function CustomerPage({
             </span>
             <span
               aria-hidden
-              className={`text-display leading-none ${
-                action.primary ? "text-white/50" : "text-navy-100"
+              className={`flex size-11 shrink-0 items-center justify-center rounded-full ${
+                action.primary ? "bg-white/15" : "bg-navy-50"
               }`}
             >
               ›

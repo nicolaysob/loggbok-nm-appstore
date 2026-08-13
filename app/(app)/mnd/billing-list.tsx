@@ -35,7 +35,9 @@ export function BillingList({
       <h2 className="text-heading">{title}</h2>
 
       {groups.length === 0 ? (
-        <p className="text-body text-navy-700">{emptyText}</p>
+        <p className="rounded-md bg-white px-5 py-5 text-body text-navy-700 shadow-card">
+          {emptyText}
+        </p>
       ) : (
         <ul className="flex flex-col gap-4">
           {groups.map((group) => (
@@ -52,7 +54,7 @@ export function BillingList({
                 </span>
               </div>
 
-              <ul className="mt-3 flex flex-col gap-3 border-t border-line pt-3">
+              <ul className="mt-3 flex flex-col gap-3 pt-1">
                 {group.lines.map((line) => (
                   <li key={line.id} className="flex items-start gap-3">
                     <form
@@ -61,7 +63,7 @@ export function BillingList({
                         line.id,
                         !handled,
                       )}
-                      className="pt-1"
+                      className="shrink-0"
                     >
                       <button
                         type="submit"
@@ -71,10 +73,10 @@ export function BillingList({
                             ? "Merk som ikke håndtert"
                             : "Merk som håndtert"
                         }
-                        className={`flex size-8 shrink-0 items-center justify-center rounded-lg border text-meta font-bold ${
+                        className={`flex size-11 shrink-0 items-center justify-center rounded-full text-heading font-bold ${
                           handled
-                            ? "border-green-700/30 bg-green-50 text-green-700"
-                            : "border-line bg-white text-navy-100"
+                            ? "bg-brand text-white shadow-brand"
+                            : "bg-white text-navy-100 shadow-card"
                         }`}
                       >
                         {handled ? "✓" : ""}

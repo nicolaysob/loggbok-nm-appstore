@@ -15,7 +15,7 @@ Dette repoet er **App Store-kopien**. Hovedappen på Vercel endres ikke herfra.
 3. Noter:
    - Team ID
    - Apple ID brukt til kontoen
-   - Støtte-e-post (f.eks. firmaets eksisterende e-post)
+   - Støtte-e-post: midlertidig `nicolaysob2002@gmail.com` (bytt når bedriften har fast adresse — før innsending)
 4. Når kontoen er godkjent: opprett app i [App Store Connect](https://appstoreconnect.apple.com) med bundle id `no.nmvaktmester.loggbok`.
 
 Uten dette kan vi bygge lokalt i Xcode Simulator, men **ikke** TestFlight/App Store.

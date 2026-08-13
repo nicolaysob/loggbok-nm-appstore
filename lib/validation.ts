@@ -161,6 +161,30 @@ export const resetPasswordSchema = z.object({
     .max(72, { error: "Passord er for langt" }),
 });
 
+export const updateOwnNameSchema = z.object({
+  name: z
+    .string()
+    .trim()
+    .min(1, { error: "Navn må fylles ut" })
+    .max(80, { error: "Navnet er for langt" }),
+});
+
+export const updateOwnPasswordSchema = z
+  .object({
+    currentPassword: z
+      .string()
+      .min(1, { error: "Skriv nåværende passord" }),
+    password: z
+      .string()
+      .min(4, { error: "Passord må ha minst 4 tegn" })
+      .max(72, { error: "Passord er for langt" }),
+    confirmPassword: z.string(),
+  })
+  .refine((value) => value.password === value.confirmPassword, {
+    message: "Passordene er ikke like",
+    path: ["confirmPassword"],
+  });
+
 export const customerMessageSchema = z.object({
   body: z
     .string()

@@ -27,7 +27,7 @@ export function IssueForm({ customerId }: { customerId: string }) {
   }
 
   return (
-    <form action={submit} className="flex flex-col gap-4 pb-4">
+    <form action={submit} className="flex flex-col gap-6 pb-4">
       <label htmlFor="description" className={labelClass}>
         Hva er avviket?
       </label>

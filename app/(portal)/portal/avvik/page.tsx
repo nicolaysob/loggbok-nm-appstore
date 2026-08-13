@@ -1,10 +1,10 @@
-import Link from "next/link";
 import { db } from "@/lib/db";
 import { requireCustomer } from "@/lib/dal";
 import { listCustomerClosedIssueMonths } from "@/lib/customer-activity";
 import { calendarMonth, parseYearMonth } from "@/lib/period";
 import { formatDate } from "@/lib/time";
-import { backLinkClass, cardStaticClass } from "@/lib/ui";
+import { cardStaticClass } from "@/lib/ui";
+import { BackLink } from "@/components/back-link";
 import { MonthFolderList } from "@/components/month-folder-list";
 import { PortalIssueList } from "@/components/portal-issue-list";
 
@@ -47,16 +47,16 @@ export default async function PortalIssueArchivePage({
 
     return (
       <div className="flex animate-rise flex-col gap-6">
-        <div className="flex flex-col gap-2">
-          <Link href="/portal/avvik" className={backLinkClass}>
-            ← Avvikarkiv
-          </Link>
-          <h1 className="text-display tracking-tight text-navy-900">
-            {period.label}
-          </h1>
-          <p className="text-body text-navy-700">
-            Utbedrede avvik lukket denne måneden.
-          </p>
+        <div className="flex flex-col gap-4">
+          <BackLink fallback="/portal/avvik" />
+          <div className="flex flex-col gap-1">
+            <h1 className="text-display tracking-tight text-navy-900">
+              {period.label}
+            </h1>
+            <p className="text-body text-navy-700">
+              Utbedrede avvik lukket denne måneden.
+            </p>
+          </div>
         </div>
 
         {issues.length === 0 ? (
@@ -84,16 +84,16 @@ export default async function PortalIssueArchivePage({
 
   return (
     <div className="flex animate-rise flex-col gap-6">
-      <div className="flex flex-col gap-2">
-        <Link href="/portal" className={backLinkClass}>
-          ← Forside
-        </Link>
-        <h1 className="text-display tracking-tight text-navy-900">
-          Avvikarkiv
-        </h1>
-        <p className="text-body text-navy-700">
-          Når N&amp;M lukker et avvik, ligger det her. Velg en måned.
-        </p>
+      <div className="flex flex-col gap-4">
+        <BackLink fallback="/portal" />
+        <div className="flex flex-col gap-1">
+          <h1 className="text-display tracking-tight text-navy-900">
+            Avvikarkiv
+          </h1>
+          <p className="text-body text-navy-700">
+            Når N&amp;M lukker et avvik, ligger det her. Velg en måned.
+          </p>
+        </div>
       </div>
 
       <MonthFolderList

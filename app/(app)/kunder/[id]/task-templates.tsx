@@ -19,7 +19,7 @@ export type TaskTemplateData = {
 };
 
 const iconButtonClass =
-  "rounded-lg border border-line bg-white px-2 py-2 text-meta hover:bg-navy-50 disabled:opacity-40";
+  "flex size-11 items-center justify-center rounded-md bg-white text-meta shadow-card active:bg-navy-50 disabled:opacity-40";
 
 function TaskTemplateRow({
   template,
@@ -38,7 +38,7 @@ function TaskTemplateRow({
   return (
     // Flytteknappene til venstre, Slett helt til høyre bak en skillelinje.
     // Skjemaene er søsken — nøstede form-elementer er ugyldig HTML.
-    <li className="flex items-end gap-2 border-b border-line py-3">
+    <li className="flex flex-col gap-3 rounded-md bg-white px-4 py-4 shadow-card">
       <div className="flex gap-1 pb-1">
         <form action={moveTaskTemplate.bind(null, template.id, "up")}>
           <button
@@ -110,11 +110,11 @@ function TaskTemplateRow({
             event.preventDefault();
           }
         }}
-        className="ml-8 border-l border-line pl-6"
+        className="self-end"
       >
         <button
           type="submit"
-          className="rounded-lg border border-red-700/30 px-3 py-2 text-meta text-red-700 hover:bg-red-50"
+          className="min-h-12 rounded-md bg-white px-3 text-meta font-semibold text-red-700 shadow-card active:bg-red-50"
         >
           Slett
         </button>
@@ -136,7 +136,11 @@ function NewTaskTemplateForm({ customerId }: { customerId: string }) {
   }, [state]);
 
   return (
-    <form ref={formRef} action={formAction} className="flex items-end gap-2">
+    <form
+      ref={formRef}
+      action={formAction}
+      className="flex flex-col gap-3 rounded-md bg-white p-5 shadow-card"
+    >
       <div className="flex-1">
         <Field label="Tittel" htmlFor="new-title" errors={state?.errors?.title}>
           <input id="new-title" name="title" required className={inputClass} />
@@ -180,11 +184,11 @@ export function TaskTemplates({
   return (
     <div className="flex max-w-4xl flex-col gap-4">
       {templates.length === 0 ? (
-        <p className="text-meta font-medium text-navy-700">
+        <p className="rounded-md bg-white px-5 py-5 text-body text-navy-700 shadow-card">
           Ingen oppgavemaler er lagt inn på denne kunden ennå.
         </p>
       ) : (
-        <ul className="flex flex-col">
+        <ul className="flex flex-col gap-3">
           {templates.map((template, index) => (
             <TaskTemplateRow
               key={template.id}

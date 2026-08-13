@@ -55,7 +55,7 @@ export function PortalMessageForm() {
       <button
         type="submit"
         disabled={pending}
-        className={`min-h-14 w-full rounded-md text-body font-semibold ${solidActionClass}`}
+        className={`min-h-16 w-full rounded-md text-body font-semibold ${solidActionClass}`}
       >
         {pending ? "Sender …" : "Send melding"}
       </button>

@@ -1,6 +1,5 @@
 import type { IssueStatus } from "@/generated/prisma/enums";
 import { issueStatusLabels } from "@/lib/labels";
-import { cardStaticClass } from "@/lib/ui";
 import { PhotoThumbs } from "@/components/photo-thumbs";
 
 export type PortalIssueItem = {
@@ -29,7 +28,9 @@ export function PortalIssueList({
 }) {
   if (issues.length === 0) {
     return emptyText ? (
-      <p className="text-body text-navy-700">{emptyText}</p>
+      <p className="rounded-md bg-white px-5 py-5 text-body text-navy-700 shadow-card">
+        {emptyText}
+      </p>
     ) : null;
   }
 
@@ -38,12 +39,12 @@ export function PortalIssueList({
       {issues.map((issue) => (
         <li
           key={issue.id}
-          className={`flex flex-col gap-2 px-4 py-3.5 ${cardStaticClass} ${
+          className={`flex flex-col gap-2 rounded-md px-4 py-4 shadow-card ${
             issue.status === "OPEN"
-              ? "border-red-700/25 bg-red-50/50"
+              ? "bg-red-50"
               : issue.status === "IN_PROGRESS"
-                ? "border-amber-700/20 bg-amber-50/40"
-                : ""
+                ? "bg-amber-50"
+                : "bg-white"
           }`}
         >
           <div className="flex flex-wrap items-center gap-2">

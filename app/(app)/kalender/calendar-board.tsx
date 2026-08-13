@@ -10,7 +10,7 @@ import {
 } from "@/app/actions/jobs";
 import { jobScheduleOptions } from "@/lib/labels";
 import type { FormState } from "@/lib/validation";
-import { solidActionClass } from "@/lib/ui";
+import { outlineActionClass, solidActionClass } from "@/lib/ui";
 
 export type CalendarItem = {
   jobId: string;
@@ -44,14 +44,11 @@ export function CalendarBoard({
   jobTypes: CalendarOption[];
 }) {
   return (
-    <div className="overflow-hidden rounded-md border border-line bg-white">
-      <div className="border-b border-line px-4 py-3">
-        <p className="text-meta font-medium text-navy-700">Uke</p>
-        <p className="text-heading text-navy-900">{weekLabel}</p>
-      </div>
+    <div className="flex flex-col gap-3">
+      <p className="px-0.5 text-meta font-medium text-navy-700">{weekLabel}</p>
 
       <div className="overflow-x-auto">
-        <div className="grid min-w-[56rem] grid-cols-7 divide-x divide-line">
+        <div className="grid min-w-[56rem] grid-cols-7 gap-2">
           {days.map((day) => (
             <DayCell
               key={day.key}
@@ -86,12 +83,8 @@ function DayCell({
   const [adding, setAdding] = useState(false);
 
   return (
-    <section className="flex min-h-[28rem] flex-col bg-white">
-      <header
-        className={`border-b border-line px-2 py-3 text-center ${
-          day.isToday ? "bg-brand/10" : "bg-navy-50/40"
-        }`}
-      >
+    <section className="flex min-h-[28rem] flex-col rounded-md bg-white shadow-card">
+      <header className="px-2 py-3 text-center">
         <p className="text-meta font-semibold tracking-wide text-navy-700 uppercase">
           {day.weekday.slice(0, 3)}
         </p>
@@ -111,7 +104,7 @@ function DayCell({
         {day.pending.map((item) => (
           <article
             key={`${item.jobId}-${item.dayKey}`}
-            className="rounded-lg border border-brand/20 bg-brand-50 px-2 py-2"
+            className="rounded-md bg-brand-50 px-2 py-2"
           >
             <Link
               href={`/kunde/${item.customerId}`}
@@ -126,7 +119,7 @@ function DayCell({
             >
               <button
                 type="submit"
-                className={`min-h-10 w-full rounded-lg text-meta font-semibold ${solidActionClass}`}
+                className={`min-h-10 w-full rounded-md text-meta font-semibold ${solidActionClass}`}
               >
                 Ferdig
               </button>
@@ -137,7 +130,7 @@ function DayCell({
         {day.done.map((item) => (
           <article
             key={`done-${item.jobId}-${item.dayKey}`}
-            className="rounded-lg border border-green-700/15 bg-green-50 px-2 py-2 opacity-90"
+            className="rounded-md bg-navy-50 px-2 py-2"
           >
             <p className="truncate text-meta font-semibold text-green-700 line-through">
               {item.customerName}
@@ -149,7 +142,7 @@ function DayCell({
             >
               <button
                 type="submit"
-                className="text-meta font-semibold text-navy-700 underline"
+                className="text-meta font-semibold text-navy-700"
               >
                 Angre
               </button>
@@ -169,7 +162,7 @@ function DayCell({
           <button
             type="button"
             onClick={() => setAdding(true)}
-            className="mt-auto min-h-11 rounded-lg border border-dashed border-line text-meta font-semibold text-navy-700 active:bg-navy-50"
+            className={`mt-auto min-h-11 rounded-md text-meta font-semibold ${outlineActionClass}`}
           >
             + Legg til
           </button>
@@ -203,16 +196,16 @@ function AddJobForm({
   }, [state, onDone]);
 
   const field =
-    "w-full rounded-lg border border-line bg-white px-2 py-2 text-meta text-navy-900 outline-none focus:border-navy-700";
+    "w-full rounded-md bg-white px-2 py-2 text-meta text-navy-900 shadow-card outline-none focus:ring-2 focus:ring-brand/20";
 
   if (customers.length === 0) {
     return (
-      <div className="rounded-lg border border-line bg-navy-50/60 px-2 py-2 text-meta text-navy-700">
+      <div className="rounded-md bg-navy-50 px-2 py-2 text-meta text-navy-700">
         Mangler aktive kunder.
         <button
           type="button"
           onClick={onCancel}
-          className="mt-2 block font-semibold underline"
+          className="mt-2 block font-semibold"
         >
           Lukk
         </button>
@@ -221,7 +214,7 @@ function AddJobForm({
   }
 
   return (
-    <form action={formAction} className="flex flex-col gap-2 rounded-lg border border-line bg-navy-50/50 p-2">
+    <form action={formAction} className="flex flex-col gap-2 rounded-md bg-navy-50 p-2">
       <input type="hidden" name="dayKey" value={dayKey} />
 
       <label className="flex flex-col gap-1">
@@ -290,14 +283,14 @@ function AddJobForm({
         <button
           type="submit"
           disabled={pending}
-          className={`min-h-10 flex-1 rounded-lg text-meta font-semibold ${solidActionClass}`}
+          className={`min-h-10 flex-1 rounded-md text-meta font-semibold ${solidActionClass}`}
         >
           {pending ? "…" : "Lagre"}
         </button>
         <button
           type="button"
           onClick={onCancel}
-          className="min-h-10 rounded-lg px-3 text-meta font-semibold text-navy-700"
+          className="min-h-10 rounded-md px-3 text-meta font-semibold text-navy-700"
         >
           Avbryt
         </button>

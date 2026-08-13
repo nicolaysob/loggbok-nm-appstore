@@ -1,18 +1,15 @@
-import Link from "next/link";
 import { requireAdmin } from "@/lib/dal";
 import { createCustomer } from "@/app/actions/customers";
-import { adminBackLinkClass as backLinkClass } from "@/lib/ui";
+import { BackLink } from "@/components/back-link";
 import { CustomerForm, emptyCustomer } from "../customer-form";
 
 export default async function NewCustomerPage() {
   await requireAdmin();
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex flex-col gap-1">
-        <Link href="/kunder" className={backLinkClass}>
-          ← Kunder
-        </Link>
+    <div className="mx-auto flex w-full max-w-lg animate-rise flex-col gap-6">
+      <div className="flex flex-col gap-4">
+        <BackLink fallback="/kunder" />
         <h1 className="text-display tracking-tight">Ny kunde</h1>
       </div>
 

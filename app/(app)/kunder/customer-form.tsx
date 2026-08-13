@@ -70,7 +70,7 @@ export function CustomerForm({
           type="checkbox"
           name="active"
           defaultChecked={values.active}
-          className="size-5"
+          className="size-7 shrink-0 accent-green-700"
         />
         Aktiv
       </label>

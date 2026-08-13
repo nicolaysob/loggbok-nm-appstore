@@ -51,13 +51,16 @@ function FolderCard({ folder }: { folder: PayrollFolder }) {
         <span className="shrink-0 font-mono text-body tabular-nums text-navy-700">
           {formatHours(folder.hours)} t
         </span>
-        <span aria-hidden className="text-heading text-navy-100">
+        <span
+          aria-hidden
+          className="flex size-11 shrink-0 items-center justify-center rounded-full bg-navy-50"
+        >
           {open ? "▾" : "›"}
         </span>
       </button>
 
       {open && (
-        <ul className="flex flex-col gap-2 border-t border-line px-4 py-3">
+        <ul className="flex flex-col gap-2 px-4 py-3">
           {folder.rows.map((row) => (
             <li
               key={row.id}

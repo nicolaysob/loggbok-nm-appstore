@@ -5,53 +5,51 @@
 }
 
 @theme {
-  /* Verksted-profesjonell: kjølig nøytral, mindre «lek» */
+  /* Myk helse-app-følelse: luft, én aksent, runde kort */
   --color-navy-900: #111827;
-  --color-navy-800: #1f2937;
-  --color-navy-700: #4b5563;
-  --color-navy-100: #d1d5db;
+  --color-navy-800: #374151;
+  --color-navy-700: #6b7280;
+  --color-navy-100: #e5e7eb;
   --color-navy-50: #f3f4f6;
 
-  --color-line: #e5e7eb;
-  --color-line-strong: #d1d5db;
+  --color-line: #eef0f3;
+  --color-line-strong: #e5e7eb;
 
-  --color-page: #f5f6f8;
+  --color-page: #f4f5f7;
 
-  --color-brand: #166534;
-  --color-brand-dark: #14532d;
+  --color-brand: #16a34a;
+  --color-brand-dark: #15803d;
   --color-brand-50: #f0fdf4;
 
   --color-green-700: #15803d;
   --color-green-50: #f0fdf4;
 
-  --color-red-700: #b91c1c;
+  --color-red-700: #dc2626;
   --color-red-50: #fef2f2;
 
-  --color-amber-700: #b45309;
+  --color-amber-700: #d97706;
   --color-amber-50: #fffbeb;
 
-  /* Strammere hjørner — mindre «app for barn» */
-  --radius-md: 0.5rem;
-  --radius-lg: 0.75rem;
+  --radius-md: 1.5rem;
+  --radius-lg: 2rem;
 
   --text-display: 1.75rem;
   --text-display--line-height: 1.2;
-  --text-display--font-weight: 650;
-  --text-display--letter-spacing: -0.02em;
+  --text-display--font-weight: 700;
+  --text-display--letter-spacing: -0.03em;
   --text-heading: 1.0625rem;
   --text-heading--line-height: 1.35;
   --text-heading--font-weight: 600;
-  --text-heading--letter-spacing: -0.01em;
+  --text-heading--letter-spacing: -0.015em;
   --text-body: 1rem;
   --text-body--line-height: 1.5;
   --text-meta: 0.8125rem;
   --text-meta--line-height: 1.4;
 
-  /* Flatere skygger */
-  --shadow-card: 0 1px 2px rgb(17 24 39 / 0.04);
-  --shadow-soft: 0 1px 3px rgb(17 24 39 / 0.06);
-  --shadow-lift: 0 2px 8px rgb(17 24 39 / 0.08);
-  --shadow-brand: 0 1px 2px rgb(22 101 52 / 0.2);
+  --shadow-card: 0 2px 4px rgb(17 24 39 / 0.06), 0 8px 18px rgb(17 24 39 / 0.12);
+  --shadow-soft: 0 4px 8px rgb(17 24 39 / 0.08), 0 12px 24px rgb(17 24 39 / 0.12);
+  --shadow-lift: 0 6px 12px rgb(17 24 39 / 0.1), 0 16px 32px rgb(17 24 39 / 0.14);
+  --shadow-brand: 0 4px 8px rgb(22 163 74 / 0.22), 0 10px 22px rgb(22 163 74 / 0.28);
 }
 
 @theme inline {
@@ -74,7 +72,7 @@ body {
 @keyframes rise-in {
   from {
     opacity: 0;
-    transform: translateY(3px);
+    transform: translateY(6px);
   }
   to {
     opacity: 1;
@@ -82,9 +80,42 @@ body {
   }
 }
 
+@keyframes profile-drawer {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes profile-drawer-dim {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.profile-drawer {
+  animation: profile-drawer 0.32s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.profile-drawer-dim {
+  animation: profile-drawer-dim 0.28s ease-out both;
+}
+
 @media (prefers-reduced-motion: no-preference) {
   .animate-rise {
-    animation: rise-in 0.2s ease-out both;
+    animation: rise-in 0.28s ease-out both;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .profile-drawer,
+  .profile-drawer-dim {
+    animation: none;
   }
 }
 

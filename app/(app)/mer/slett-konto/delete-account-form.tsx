@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import Link from "next/link";
 import { deleteOwnAccount } from "@/app/actions/account";
-import { outlineActionClass, solidActionClass } from "@/lib/ui";
+import { outlineActionClass } from "@/lib/ui";
 
 export function DeleteAccountForm() {
   const [confirmed, setConfirmed] = useState(false);
@@ -10,13 +11,13 @@ export function DeleteAccountForm() {
   const [pending, startTransition] = useTransition();
 
   return (
-    <div className="flex flex-col gap-4">
-      <label className="flex items-start gap-3 text-body text-navy-800">
+    <div className="flex flex-col gap-5">
+      <label className="flex items-start gap-4 text-body text-navy-800">
         <input
           type="checkbox"
           checked={confirmed}
           onChange={(event) => setConfirmed(event.target.checked)}
-          className="mt-1 size-5 rounded border-line"
+          className="mt-0.5 size-7 shrink-0 accent-red-700"
         />
         <span>
           Jeg forstår at kontoen deaktiveres og at jeg mister tilgang til
@@ -40,17 +41,17 @@ export function DeleteAccountForm() {
             if (result?.error) setError(result.error);
           });
         }}
-        className={`min-h-14 w-full rounded-md text-body font-semibold ${solidActionClass} bg-red-700 hover:bg-red-700 active:bg-red-700`}
+        className="min-h-16 w-full rounded-md bg-red-700 text-body font-semibold text-white shadow-card active:bg-red-700 disabled:opacity-50"
       >
         {pending ? "Sletter …" : "Slett kontoen min"}
       </button>
 
-      <a
+      <Link
         href="/mer"
-        className={`flex min-h-12 items-center justify-center rounded-md text-body font-medium ${outlineActionClass}`}
+        className={`flex min-h-16 items-center justify-center rounded-md text-body font-semibold ${outlineActionClass}`}
       >
         Avbryt
-      </a>
+      </Link>
     </div>
   );
 }

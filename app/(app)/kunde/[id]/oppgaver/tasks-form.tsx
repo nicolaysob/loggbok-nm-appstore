@@ -34,7 +34,7 @@ export function TasksForm({
   );
 
   return (
-    <form action={formAction} className="flex flex-col gap-8 pb-4">
+    <form action={formAction} className="flex flex-col gap-6 pb-4">
       <div className="flex flex-col gap-1.5">
         <label htmlFor="occurredAt" className={labelClass}>
           Tidspunkt
@@ -63,9 +63,9 @@ export function TasksForm({
                 {/* Hele raden er trykkbar fordi avkryssingsboksen ligger inni label.
                     Avhuket rad blir grønn — grønt betyr utført. */}
                 <label
-                  className={`flex min-h-16 cursor-pointer items-center gap-4 px-4 py-3
-                             text-navy-900 has-checked:border-green-700/40
-                             has-checked:bg-green-50 has-checked:shadow-none ${cardClass}`}
+                  className={`group flex min-h-[4.5rem] cursor-pointer items-center gap-4 px-4 py-3.5
+                             text-navy-900 has-checked:bg-brand has-checked:text-white
+                             has-checked:shadow-brand ${cardClass}`}
                 >
                   <input
                     type="checkbox"
@@ -73,9 +73,9 @@ export function TasksForm({
                     value={task.id}
                     className="size-7 shrink-0 accent-green-700"
                   />
-                  <span className="flex min-w-0 flex-col">
-                    <span className="text-heading">{task.title}</span>
-                    <span className="font-mono text-meta font-medium text-navy-700">
+                  <span className="flex min-w-0 flex-col gap-0.5">
+                    <span className="text-heading font-semibold">{task.title}</span>
+                    <span className="font-mono text-meta font-medium text-navy-700 group-has-checked:text-white/75">
                       {task.lastDone ?? "Aldri utført"}
                     </span>
                   </span>

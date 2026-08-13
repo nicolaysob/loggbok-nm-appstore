@@ -2,6 +2,8 @@
 
 import { useFormStatus } from "react-dom";
 
+import { outlineActionClass, solidActionClass } from "@/lib/ui";
+
 export { inputClass, adminBackLinkClass as backLinkClass } from "@/lib/ui";
 
 export function Field({
@@ -32,8 +34,8 @@ export function Field({
 
 // Fylt er reservert sidens ene primærhandling. Alt annet er outline.
 const submitVariants = {
-  solid: "bg-brand text-white hover:bg-brand-dark",
-  outline: "border border-line bg-white text-navy-900 hover:bg-navy-50",
+  solid: solidActionClass,
+  outline: outlineActionClass,
 } as const;
 
 export function SubmitButton({
@@ -51,7 +53,7 @@ export function SubmitButton({
     <button
       type="submit"
       disabled={pending}
-      className={`rounded-md px-4 py-2 text-meta font-semibold disabled:opacity-60 ${submitVariants[variant]}`}
+      className={`min-h-12 rounded-md px-4 text-meta font-semibold disabled:opacity-60 ${submitVariants[variant]}`}
     >
       {pending ? pendingLabel : children}
     </button>

@@ -22,8 +22,8 @@ export default async function LoginPage({
   const { slettet } = await searchParams;
 
   return (
-    <main className="flex min-h-full flex-1 flex-col bg-white">
-      <div className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center px-6 py-12 animate-rise">
+    <main className="flex min-h-full flex-1 flex-col bg-page">
+      <div className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center px-5 pt-[max(1.25rem,env(safe-area-inset-top))] pb-8 animate-rise">
         <header className="mb-8">
           <BrandLogo priority className="w-[11.5rem]" />
           <h1 className="mt-8 text-display tracking-tight text-navy-900">
@@ -37,7 +37,7 @@ export default async function LoginPage({
         {slettet === "1" && (
           <p
             role="status"
-            className="mb-5 rounded-md border border-line bg-navy-50 px-3.5 py-3 text-body text-navy-800"
+            className="mb-5 rounded-md bg-white px-4 py-3.5 text-body text-navy-800 shadow-card"
           >
             Kontoen er slettet. Kontakt support hvis dette var en feil.
           </p>
@@ -46,21 +46,15 @@ export default async function LoginPage({
         <LoginForm />
       </div>
 
-      <footer className="border-t border-line px-6 py-4 text-center">
+      <footer className="px-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-2 text-center">
         <p className="text-meta text-navy-700">
           N&amp;M Vaktmesterservice AS
           {" · "}
-          <Link
-            href="/support"
-            className="font-medium text-navy-700 underline underline-offset-2 hover:text-navy-900"
-          >
+          <Link href="/support" className="font-medium text-navy-700">
             Support
           </Link>
           {" · "}
-          <Link
-            href="/personvern"
-            className="font-medium text-navy-700 underline underline-offset-2 hover:text-navy-900"
-          >
+          <Link href="/personvern" className="font-medium text-navy-700">
             Personvern
           </Link>
         </p>

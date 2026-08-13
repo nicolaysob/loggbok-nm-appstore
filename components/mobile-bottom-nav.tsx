@@ -108,23 +108,21 @@ export function MobileBottomNav({ showTimelist }: { showTimelist: boolean }) {
   return (
     <nav
       aria-label="Hovedmeny"
-      className="fixed inset-x-0 bottom-0 z-[110] px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:hidden"
+      className="fixed inset-x-0 bottom-0 z-[110] px-4 pb-[max(0.85rem,env(safe-area-inset-bottom))] sm:hidden"
     >
-      <div className="mx-auto flex max-w-md items-center gap-0.5 rounded-xl border border-line bg-white px-1.5 py-1.5">
+      <div className="mx-auto flex max-w-md items-center rounded-[1.75rem] bg-white px-2 py-2 shadow-soft">
         {tabs.map((tab) => {
           const active = isLinkActive(tab.href, pathname);
           return (
             <Link
               key={tab.href}
               href={tab.href}
-              className={`flex min-h-11 min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-lg px-1.5 touch-manipulation ${
-                active
-                  ? "bg-navy-900 text-white"
-                  : "text-navy-700 active:bg-navy-50"
+              className={`flex min-h-12 min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-2xl px-1.5 touch-manipulation ${
+                active ? "text-brand" : "text-navy-700 active:bg-navy-50"
               }`}
             >
-              <TabIcon name={tab.icon} className="size-[1.15rem]" />
-              <span className="text-[0.625rem] font-medium leading-none tracking-wide">
+              <TabIcon name={tab.icon} className="size-6" />
+              <span className="text-[0.6875rem] font-semibold leading-none">
                 {tab.label}
               </span>
             </Link>

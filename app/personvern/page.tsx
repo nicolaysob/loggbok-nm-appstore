@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { BrandLogo } from "@/components/brand";
-import { backLinkClass } from "@/lib/ui";
+import { BackLink } from "@/components/back-link";
 
 export const metadata: Metadata = {
   title: "Personvern – N&M",
@@ -9,19 +8,20 @@ export const metadata: Metadata = {
 
 export default function PrivacyPage() {
   return (
-    <main className="flex min-h-full flex-1 flex-col bg-white">
-      <div className="mx-auto w-full max-w-2xl flex-1 px-6 py-10 animate-rise">
-        <BrandLogo className="w-40" />
-        <Link href="/login" className={`${backLinkClass} mt-6`}>
-          ← Tilbake til innlogging
-        </Link>
-
-        <h1 className="mt-6 text-display tracking-tight text-navy-900">
-          Personvernerklæring
-        </h1>
-        <p className="mt-2 text-meta text-navy-700">
-          Sist oppdatert 13. august 2026
-        </p>
+    <main className="flex min-h-full flex-1 flex-col">
+      <div className="mx-auto w-full max-w-lg flex-1 px-5 pt-[max(1.25rem,env(safe-area-inset-top))] pb-8 animate-rise">
+        <div className="flex flex-col gap-4">
+          <BackLink fallback="/login" />
+          <BrandLogo className="w-40" />
+          <div className="flex flex-col gap-1">
+            <h1 className="text-display tracking-tight text-navy-900">
+              Personvernerklæring
+            </h1>
+            <p className="text-meta text-navy-700">
+              Sist oppdatert 13. august 2026
+            </p>
+          </div>
+        </div>
 
         <div className="mt-8 flex flex-col gap-6 text-body text-navy-900">
           <section className="flex flex-col gap-2">
@@ -142,7 +142,7 @@ export default function PrivacyPage() {
         </div>
       </div>
 
-      <footer className="border-t border-line px-6 py-4 text-center">
+      <footer className="px-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-2 text-center">
         <p className="text-meta text-navy-700">N&amp;M Vaktmesterservice AS</p>
       </footer>
     </main>

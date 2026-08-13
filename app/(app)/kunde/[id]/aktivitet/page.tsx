@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
 import { requireUser } from "@/lib/dal";
@@ -7,7 +6,7 @@ import {
   listCustomerActivityMonths,
 } from "@/lib/customer-activity";
 import { calendarMonth, parseYearMonth } from "@/lib/period";
-import { backLinkClass } from "@/lib/ui";
+import { BackLink } from "@/components/back-link";
 import { ActivityList } from "@/components/activity-list";
 import { MonthFolderList } from "@/components/month-folder-list";
 
@@ -38,18 +37,15 @@ export default async function CustomerActivityArchivePage({
     });
 
     return (
-      <div className="flex animate-rise flex-col gap-6">
-        <div className="flex flex-col gap-2">
-          <Link
-            href={`/kunde/${customer.id}/aktivitet`}
-            className={backLinkClass}
-          >
-            ← Aktivitetsarkiv
-          </Link>
-          <h1 className="text-display tracking-tight">{period.label}</h1>
-          <p className="text-body text-navy-700">
-            Besøk, oppgaver, ekstraarbeid og avvik denne måneden.
-          </p>
+      <div className="mx-auto flex w-full max-w-lg animate-rise flex-col gap-6">
+        <div className="flex flex-col gap-4">
+          <BackLink fallback={`/kunde/${customer.id}/aktivitet`} />
+          <div className="flex flex-col gap-1">
+            <h1 className="text-display tracking-tight">{period.label}</h1>
+            <p className="text-body text-navy-700">
+              Besøk, oppgaver, ekstraarbeid og avvik denne måneden.
+            </p>
+          </div>
         </div>
 
         <ActivityList
@@ -66,15 +62,15 @@ export default async function CustomerActivityArchivePage({
   const folders = await listCustomerActivityMonths(customer.id);
 
   return (
-    <div className="flex animate-rise flex-col gap-6">
-      <div className="flex flex-col gap-2">
-        <Link href={`/kunde/${customer.id}`} className={backLinkClass}>
-          ← {customer.name}
-        </Link>
-        <h1 className="text-display tracking-tight">Aktivitetsarkiv</h1>
-        <p className="text-body text-navy-700">
-          Velg en måned. Når måneden er over, ligger den igjen som mappe.
-        </p>
+    <div className="mx-auto flex w-full max-w-lg animate-rise flex-col gap-6">
+      <div className="flex flex-col gap-4">
+        <BackLink fallback={`/kunde/${customer.id}`} />
+        <div className="flex flex-col gap-1">
+          <h1 className="text-display tracking-tight">Aktivitetsarkiv</h1>
+          <p className="text-body text-navy-700">
+            Velg en måned. Når måneden er over, ligger den igjen som mappe.
+          </p>
+        </div>
       </div>
 
       <MonthFolderList

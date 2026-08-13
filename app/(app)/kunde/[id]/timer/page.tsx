@@ -1,10 +1,9 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getOpenTimeClock } from "@/lib/time-clock-query";
 import { db } from "@/lib/db";
 import { requireStaff } from "@/lib/dal";
 import { osloDateTimeLocalKey } from "@/lib/period";
-import { backLinkClass } from "@/lib/ui";
+import { BackLink } from "@/components/back-link";
 import { ManualEntryDisclosure } from "@/components/manual-entry-disclosure";
 import { TimeClockPanel } from "@/components/time-clock-panel";
 import { HoursForm } from "./hours-form";
@@ -35,12 +34,13 @@ export default async function ExtraWorkPage({
     : null;
 
   return (
-    <div className="flex flex-col gap-8">
-      <div className="flex flex-col gap-2">
-        <Link href={`/kunde/${customer.id}`} className={backLinkClass}>
-          ← {customer.name}
-        </Link>
-        <h1 className="text-display tracking-tight">Timeregistrering</h1>
+    <div className="flex animate-rise flex-col gap-8">
+      <div className="flex flex-col gap-4">
+        <BackLink fallback={`/kunde/${customer.id}`} />
+        <div className="flex flex-col gap-1">
+          <h1 className="text-display tracking-tight">Timeregistrering</h1>
+          <p className="text-body text-navy-700">{customer.name}</p>
+        </div>
       </div>
 
       <TimeClockPanel

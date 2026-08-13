@@ -94,7 +94,7 @@ export async function CustomerBody({
             {openMessages.map((message) => (
               <li
                 key={message.id}
-                className={`border-navy-100 bg-navy-50 px-4 py-3.5 ${cardStaticClass}`}
+                className={`bg-navy-50 px-4 py-3.5 ${cardStaticClass}`}
               >
                 <p className="text-meta font-medium text-navy-700">
                   <span className="font-mono">
@@ -119,7 +119,7 @@ export async function CustomerBody({
             <h2 className="text-heading text-red-700">Åpne avvik</h2>
             <Link
               href={`/kunde/${customerId}/avvik`}
-              className="text-meta font-semibold text-red-700 underline"
+              className="text-meta font-semibold text-red-700"
             >
               Se alle
             </Link>
@@ -176,10 +176,13 @@ export async function CustomerBody({
         />
         <Link
           href={`/kunde/${customerId}/aktivitet`}
-          className={`flex min-h-14 items-center justify-between rounded-md px-4 text-body font-semibold ${outlineActionClass}`}
+          className={`flex min-h-[4.5rem] items-center justify-between rounded-md px-4 text-body font-semibold ${outlineActionClass}`}
         >
           Aktivitetsarkiv
-          <span aria-hidden className="text-display leading-none text-navy-100">
+          <span
+            aria-hidden
+            className="flex size-11 items-center justify-center rounded-full bg-navy-50"
+          >
             ›
           </span>
         </Link>

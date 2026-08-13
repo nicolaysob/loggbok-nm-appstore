@@ -1,10 +1,9 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/dal";
 import { formatDate } from "@/lib/time";
 import { updateCustomer } from "@/app/actions/customers";
-import { adminBackLinkClass as backLinkClass } from "@/lib/ui";
+import { BackLink } from "@/components/back-link";
 import { CustomerForm } from "../customer-form";
 import { CustomerJobs } from "./customer-jobs";
 import { DeleteCustomerButton } from "./delete-customer-button";
@@ -57,12 +56,10 @@ export default async function CustomerAdminPage({
   const area = customer.areas[0];
 
   return (
-    <div className="flex flex-col gap-10">
+    <div className="mx-auto flex w-full max-w-lg animate-rise flex-col gap-10">
       <section className="flex flex-col gap-6">
-        <div className="flex flex-col gap-1">
-          <Link href="/kunder" className={backLinkClass}>
-            ← Kunder
-          </Link>
+        <div className="flex flex-col gap-4">
+          <BackLink fallback="/kunder" />
           <h1 className="text-display tracking-tight">{customer.name}</h1>
         </div>
 
@@ -76,7 +73,7 @@ export default async function CustomerAdminPage({
           submitLabel="Lagre kunde"
         />
 
-        <div className="max-w-lg border-t border-line pt-6">
+        <div className="max-w-lg pt-2">
           <p className="mb-3 text-meta text-navy-700">
             Sletting fjerner kunden og all historikk permanent. Bruk heller
             «Aktiv»-avhukingen hvis kunden bare skal skjules fra lista.

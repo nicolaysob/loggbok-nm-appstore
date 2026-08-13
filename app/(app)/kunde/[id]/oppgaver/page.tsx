@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Frequency } from "@/generated/prisma/enums";
 import { db } from "@/lib/db";
@@ -7,7 +6,7 @@ import { primaryAreaId } from "@/lib/customer";
 import { frequencyOrder } from "@/lib/labels";
 import { osloDateTimeLocalKey } from "@/lib/period";
 import { formatDate } from "@/lib/time";
-import { backLinkClass } from "@/lib/ui";
+import { BackLink } from "@/components/back-link";
 import { TasksForm, type TaskGroup } from "./tasks-form";
 
 export default async function TasksPage({
@@ -72,16 +71,17 @@ export default async function TasksPage({
     .filter((group) => group.tasks.length > 0);
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex flex-col gap-2">
-        <Link href={`/kunde/${customer.id}`} className={backLinkClass}>
-          ← {customer.name}
-        </Link>
-        <h1 className="text-display tracking-tight">Oppgaver</h1>
+    <div className="mx-auto flex w-full max-w-lg animate-rise flex-col gap-6">
+      <div className="flex flex-col gap-4">
+        <BackLink fallback={`/kunde/${customer.id}`} />
+        <div className="flex flex-col gap-1">
+          <h1 className="text-display tracking-tight">Oppgaver</h1>
+          <p className="text-body text-navy-700">{customer.name}</p>
+        </div>
       </div>
 
       {groups.length === 0 ? (
-        <p className="text-body">
+        <p className="rounded-md bg-white px-5 py-5 text-body text-navy-700 shadow-card">
           Ingen oppgaver er satt opp for denne kunden ennå.
         </p>
       ) : (

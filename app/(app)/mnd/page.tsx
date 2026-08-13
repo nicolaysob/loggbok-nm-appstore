@@ -9,7 +9,7 @@ import {
   shiftMonth,
   yearMonthParam,
 } from "@/lib/period";
-import { backLinkClass, cardStaticClass } from "@/lib/ui";
+import { outlineActionClass } from "@/lib/ui";
 import { BillingList, type BillingGroup } from "./billing-list";
 
 function groupEntries(
@@ -98,8 +98,8 @@ export default async function BillingPage({
   const doneHours = done.reduce((sum, group) => sum + group.hours, 0);
 
   return (
-    <div className="flex flex-col gap-8">
-      <div className="flex flex-col gap-3">
+    <div className="mx-auto flex w-full max-w-lg animate-rise flex-col gap-6">
+      <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-1">
           <h1 className="text-display tracking-tight">Fakturering</h1>
           <p className="text-body text-navy-700">
@@ -108,37 +108,40 @@ export default async function BillingPage({
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-4">
+        <div className="flex gap-2">
           <Link
             href={`/mnd?maaned=${yearMonthParam(previous.year, previous.month)}`}
-            className={backLinkClass}
+            className={`flex min-h-12 flex-1 items-center justify-center px-3 text-center text-body font-semibold ${outlineActionClass}`}
           >
-            ← {previous.label}
+            {previous.label}
           </Link>
           {!isCurrent && (
-            <Link href="/mnd" className={backLinkClass}>
-              Denne måneden
+            <Link
+              href="/mnd"
+              className={`flex min-h-12 flex-1 items-center justify-center px-3 text-center text-body font-semibold ${outlineActionClass}`}
+            >
+              Denne
             </Link>
           )}
           <Link
             href={`/mnd?maaned=${yearMonthParam(next.year, next.month)}`}
-            className={backLinkClass}
+            className={`flex min-h-12 flex-1 items-center justify-center px-3 text-center text-body font-semibold ${outlineActionClass}`}
           >
-            {next.label} →
+            {next.label}
           </Link>
         </div>
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-2">
-        <div className={`px-4 py-4 ${cardStaticClass}`}>
-          <p className="text-meta font-medium text-navy-700">Til faktura</p>
-          <p className="font-mono text-display tabular-nums text-navy-900">
+      <div className="grid grid-cols-2 gap-2.5">
+        <div className="rounded-md bg-white px-3.5 py-4 shadow-card">
+          <p className="text-meta text-navy-700">Til faktura</p>
+          <p className="mt-1.5 font-mono text-[1.35rem] font-bold leading-tight text-navy-900">
             {formatHours(openHours)} t
           </p>
         </div>
-        <div className={`px-4 py-4 ${cardStaticClass}`}>
-          <p className="text-meta font-medium text-navy-700">Håndtert</p>
-          <p className="font-mono text-display tabular-nums text-navy-900">
+        <div className="rounded-md bg-white px-3.5 py-4 shadow-card">
+          <p className="text-meta text-navy-700">Håndtert</p>
+          <p className="mt-1.5 font-mono text-[1.35rem] font-bold leading-tight text-navy-900">
             {formatHours(doneHours)} t
           </p>
         </div>

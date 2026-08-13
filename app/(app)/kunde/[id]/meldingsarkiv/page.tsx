@@ -1,11 +1,11 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
 import { requireUser } from "@/lib/dal";
 import { listCustomerMessageMonths } from "@/lib/customer-activity";
 import { calendarMonth, parseYearMonth } from "@/lib/period";
 import { formatDate } from "@/lib/time";
-import { backLinkClass, cardStaticClass } from "@/lib/ui";
+import { cardStaticClass } from "@/lib/ui";
+import { BackLink } from "@/components/back-link";
 import { MonthFolderList } from "@/components/month-folder-list";
 
 export default async function MessageArchivePage({
@@ -47,18 +47,15 @@ export default async function MessageArchivePage({
     });
 
     return (
-      <div className="flex animate-rise flex-col gap-6">
-        <div className="flex flex-col gap-2">
-          <Link
-            href={`/kunde/${customer.id}/meldingsarkiv`}
-            className={backLinkClass}
-          >
-            ← Meldingsarkiv
-          </Link>
-          <h1 className="text-display tracking-tight">{period.label}</h1>
-          <p className="text-body text-navy-700">
-            Signerte meldinger denne måneden.
-          </p>
+      <div className="mx-auto flex w-full max-w-lg animate-rise flex-col gap-6">
+        <div className="flex flex-col gap-4">
+          <BackLink fallback={`/kunde/${customer.id}/meldingsarkiv`} />
+          <div className="flex flex-col gap-1">
+            <h1 className="text-display tracking-tight">{period.label}</h1>
+            <p className="text-body text-navy-700">
+              Signerte meldinger denne måneden.
+            </p>
+          </div>
         </div>
 
         {messages.length === 0 ? (
@@ -66,9 +63,12 @@ export default async function MessageArchivePage({
             Ingen signerte meldinger denne måneden.
           </p>
         ) : (
-          <ul className="divide-y divide-line overflow-hidden rounded-md border border-line bg-white shadow-card">
+          <ul className="flex flex-col gap-3">
             {messages.map((message) => (
-              <li key={message.id} className="flex flex-col gap-1 px-4 py-3.5">
+              <li
+                key={message.id}
+                className={`flex flex-col gap-1 px-4 py-3.5 ${cardStaticClass}`}
+              >
                 <p className="text-meta font-medium text-navy-700">
                   <span className="font-mono">
                     {formatDate(message.createdAt)}
@@ -96,15 +96,15 @@ export default async function MessageArchivePage({
   const folders = await listCustomerMessageMonths(customer.id);
 
   return (
-    <div className="flex animate-rise flex-col gap-6">
-      <div className="flex flex-col gap-2">
-        <Link href={`/kunde/${customer.id}`} className={backLinkClass}>
-          ← {customer.name}
-        </Link>
-        <h1 className="text-display tracking-tight">Meldingsarkiv</h1>
-        <p className="text-body text-navy-700">
-          Velg en måned. Når måneden er over, ligger den igjen som mappe.
-        </p>
+    <div className="mx-auto flex w-full max-w-lg animate-rise flex-col gap-6">
+      <div className="flex flex-col gap-4">
+        <BackLink fallback={`/kunde/${customer.id}`} />
+        <div className="flex flex-col gap-1">
+          <h1 className="text-display tracking-tight">Meldingsarkiv</h1>
+          <p className="text-body text-navy-700">
+            Velg en måned. Når måneden er over, ligger den igjen som mappe.
+          </p>
+        </div>
       </div>
 
       <MonthFolderList

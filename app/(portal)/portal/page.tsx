@@ -11,6 +11,7 @@ import { formatDate, formatLastVisit } from "@/lib/time";
 import { cardStaticClass, outlineActionClass } from "@/lib/ui";
 import { ActivityList } from "@/components/activity-list";
 import { PortalIssueList } from "@/components/portal-issue-list";
+import { ProfileMenu } from "@/components/profile-menu";
 import { PortalMessageForm } from "./message-form";
 
 export default async function CustomerPortalPage() {
@@ -74,59 +75,68 @@ export default async function CustomerPortalPage() {
   const lastVisitLabel = formatLastVisit(lastVisit);
   const openIssueCount = openIssues.length;
   const issuesOk = openIssueCount === 0;
+  const initial = user.name.charAt(0).toUpperCase();
+  const todayLabel = new Intl.DateTimeFormat("nb-NO", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    timeZone: "Europe/Oslo",
+  }).format(new Date());
+  const today = todayLabel.charAt(0).toUpperCase() + todayLabel.slice(1);
 
   return (
-    <div className="flex animate-rise flex-col gap-8">
-      <div className="flex flex-col gap-1">
-        <p className="text-meta font-semibold text-brand">
-          N&amp;M Vaktmesterservice
-        </p>
-        <h1 className="text-display tracking-tight text-navy-900">
-          {customer.name}
-        </h1>
-        <p className="text-body text-navy-700">
-          Her ser dere besøk og kan sende melding til N&amp;M.
-        </p>
+    <div className="flex animate-rise flex-col gap-6">
+      <div className="flex items-end justify-between gap-3 px-0.5">
+        <div className="flex min-w-0 flex-col gap-1">
+          <p className="text-meta font-medium text-navy-700">{today}</p>
+          <h1 className="text-display tracking-tight text-navy-900">
+            {customer.name}
+          </h1>
+        </div>
+        <ProfileMenu
+          initial={initial}
+          name={user.name}
+          subtitle="Kundeportal"
+          links={[
+            { href: "/personvern", label: "Personvern" },
+            { href: "/support", label: "Support" },
+          ]}
+        />
       </div>
 
-      <section
-        aria-label="Status"
-        className={`grid grid-cols-2 gap-3 p-4 ${cardStaticClass}`}
-      >
-        <div className="flex flex-col gap-0.5">
-          <span className="text-meta font-medium text-navy-700">
-            Siste besøk
-          </span>
-          <span
-            className={`font-mono text-heading ${
+      <section aria-label="Status" className="grid grid-cols-2 gap-2.5">
+        <div className="rounded-md bg-white px-3.5 py-4 shadow-card">
+          <p className="text-meta text-navy-700">Siste besøk</p>
+          <p
+            className={`mt-1.5 font-mono text-[1.35rem] font-bold leading-tight ${
               !lastVisit ? "text-amber-700" : "text-navy-900"
             }`}
           >
             {lastVisitLabel}
-          </span>
+          </p>
           {lastVisit && (
-            <span className="font-mono text-meta text-navy-700">
+            <p className="mt-1 font-mono text-meta text-navy-700">
               {formatDate(lastVisit)}
-            </span>
+            </p>
           )}
         </div>
-        <div className="flex flex-col gap-0.5">
-          <span className="text-meta font-medium text-navy-700">Avvik</span>
-          <span
-            className={`text-heading ${
-              issuesOk ? "text-green-700" : "text-red-700"
-            }`}
-          >
-            {issuesOk
-              ? "Ingen åpne"
-              : openIssueCount === 1
-                ? "1 åpent"
-                : `${openIssueCount} åpne`}
-          </span>
-          <span className="text-meta text-navy-700">
-            {issuesOk ? "Alt i orden" : "Se listen under"}
-          </span>
-        </div>
+        {issuesOk ? (
+          <div className="rounded-md bg-brand px-3.5 py-4 shadow-brand">
+            <p className="text-meta text-white/85">Avvik</p>
+            <p className="mt-1.5 font-mono text-[1.35rem] font-bold leading-tight text-white">
+              0
+            </p>
+            <p className="mt-1 text-meta text-white/85">Alt i orden</p>
+          </div>
+        ) : (
+          <div className="rounded-md bg-white px-3.5 py-4 shadow-card">
+            <p className="text-meta text-navy-700">Avvik</p>
+            <p className="mt-1.5 font-mono text-[1.35rem] font-bold leading-tight text-red-700">
+              {openIssueCount}
+            </p>
+            <p className="mt-1 text-meta text-navy-700">Åpne</p>
+          </div>
+        )}
       </section>
 
       {!issuesOk && (
@@ -158,11 +168,12 @@ export default async function CustomerPortalPage() {
             <h2 className="text-meta font-semibold text-navy-900">
               Venter på oppfølging
             </h2>
-            <ul
-              className={`divide-y divide-line overflow-hidden ${cardStaticClass}`}
-            >
+            <ul className="flex flex-col gap-3">
               {openMessages.map((message) => (
-                <li key={message.id} className="flex flex-col gap-1 px-4 py-3.5">
+                <li
+                  key={message.id}
+                  className={`flex flex-col gap-1 px-4 py-3.5 ${cardStaticClass}`}
+                >
                   <span className="font-mono text-meta font-medium text-navy-700">
                     {formatDate(message.createdAt)}
                   </span>
@@ -193,36 +204,36 @@ export default async function CustomerPortalPage() {
         <div className="flex flex-col gap-3 pt-1">
           <Link
             href="/portal/avvik"
-            className={`flex min-h-14 items-center justify-between rounded-md px-4 text-body font-semibold ${outlineActionClass}`}
+            className={`flex min-h-[4.5rem] items-center justify-between rounded-md px-4 text-body font-semibold ${outlineActionClass}`}
           >
             Avvikarkiv
             <span
               aria-hidden
-              className="text-display leading-none text-navy-100"
+              className="flex size-11 items-center justify-center rounded-full bg-navy-50"
             >
               ›
             </span>
           </Link>
           <Link
             href="/portal/aktivitet"
-            className={`flex min-h-14 items-center justify-between rounded-md px-4 text-body font-semibold ${outlineActionClass}`}
+            className={`flex min-h-[4.5rem] items-center justify-between rounded-md px-4 text-body font-semibold ${outlineActionClass}`}
           >
             Se all aktivitet
             <span
               aria-hidden
-              className="text-display leading-none text-navy-100"
+              className="flex size-11 items-center justify-center rounded-full bg-navy-50"
             >
               ›
             </span>
           </Link>
           <Link
             href="/portal/meldinger"
-            className={`flex min-h-14 items-center justify-between rounded-md px-4 text-body font-semibold ${outlineActionClass}`}
+            className={`flex min-h-[4.5rem] items-center justify-between rounded-md px-4 text-body font-semibold ${outlineActionClass}`}
           >
             Se meldinger
             <span
               aria-hidden
-              className="text-display leading-none text-navy-100"
+              className="flex size-11 items-center justify-center rounded-full bg-navy-50"
             >
               ›
             </span>

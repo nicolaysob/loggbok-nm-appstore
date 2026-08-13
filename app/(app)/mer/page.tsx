@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { logout } from "@/app/actions/auth";
 import { requireStaff } from "@/lib/dal";
-import { outlineActionClass, cardStaticClass } from "@/lib/ui";
+import { outlineActionClass, cardClass } from "@/lib/ui";
 
 export default async function MorePage() {
   const user = await requireStaff();
@@ -12,6 +12,7 @@ export default async function MorePage() {
     [
       {
         links: [
+          { href: "/profil", label: "Profil" },
           { href: "/", label: "Hjem" },
           { href: "/kalender", label: "Kalender" },
           ...(isAdmin ? [{ href: "/ukeplan", label: "Ukeplan" }] : []),
@@ -41,27 +42,35 @@ export default async function MorePage() {
     ];
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="mx-auto flex w-full max-w-lg animate-rise flex-col gap-6">
       <h1 className="text-display tracking-tight">Mer</h1>
 
       {sections.map((section) => (
         <section
           key={section.title ?? "main"}
-          className={`flex flex-col overflow-hidden ${cardStaticClass}`}
+          className="flex flex-col gap-3"
         >
           {section.title && (
-            <p className="border-b border-line px-4 py-2.5 text-meta font-medium text-navy-700">
+            <p className="px-0.5 text-meta font-medium text-navy-700">
               {section.title}
             </p>
           )}
-          <ul className="flex flex-col divide-y divide-line">
+          <ul className="flex flex-col gap-3">
             {section.links.map((link) => (
               <li key={link.href}>
                 <Link
                   href={link.href}
-                  className="flex min-h-14 items-center px-4 text-body font-medium text-navy-900 active:bg-navy-50"
+                  className={`flex min-h-[4.5rem] items-center justify-between gap-3 px-4 ${cardClass}`}
                 >
-                  {link.label}
+                  <span className="text-heading font-semibold text-navy-900">
+                    {link.label}
+                  </span>
+                  <span
+                    aria-hidden
+                    className="flex size-11 items-center justify-center rounded-full bg-navy-50"
+                  >
+                    ›
+                  </span>
                 </Link>
               </li>
             ))}
@@ -72,7 +81,7 @@ export default async function MorePage() {
       <form action={logout}>
         <button
           type="submit"
-          className={`flex min-h-14 w-full items-center justify-center rounded-md px-4 text-body font-medium ${outlineActionClass}`}
+          className={`flex min-h-16 w-full items-center justify-center rounded-md px-4 text-body font-semibold ${outlineActionClass}`}
         >
           Logg ut
         </button>

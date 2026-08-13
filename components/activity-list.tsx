@@ -21,7 +21,7 @@ export function ActivityList({
 }) {
   if (items.length === 0) {
     return (
-      <p className="border-y border-line py-5 text-body text-navy-700">
+      <p className="rounded-md bg-white px-4 py-5 text-body text-navy-700 shadow-card">
         {emptyText}
       </p>
     );
@@ -35,7 +35,7 @@ export function ActivityList({
 
   if (!useMonthGroups) {
     return (
-      <ul className="divide-y divide-line overflow-hidden rounded-md border border-line bg-white shadow-card">
+      <ul className="divide-y divide-line overflow-hidden rounded-md bg-white shadow-card">
         {items.map((item) => (
           <ActivityRow key={item.key} item={item} {...rowProps(item)} />
         ))}
@@ -50,7 +50,7 @@ export function ActivityList({
       {groups.map((group) => (
         <section key={group.key} className="flex flex-col gap-2">
           <h2 className="text-heading text-navy-900">{group.label}</h2>
-          <ul className="divide-y divide-line overflow-hidden rounded-md border border-line bg-white shadow-card">
+          <ul className="divide-y divide-line overflow-hidden rounded-md bg-white shadow-card">
             {group.items.map((item) => (
               <ActivityRow key={item.key} item={item} {...rowProps(item)} />
             ))}

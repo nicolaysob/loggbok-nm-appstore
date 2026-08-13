@@ -16,7 +16,7 @@ import {
   labelClass,
   textareaClass,
 } from "@/components/mobile-form";
-import { outlineActionClass, inputClass } from "@/lib/ui";
+import { outlineActionClass, inputClass, solidActionClass } from "@/lib/ui";
 
 function commentLines(comment: string): string[] {
   return comment
@@ -100,7 +100,7 @@ export function LogForm({
   }
 
   return (
-    <form action={submit} className="flex flex-col gap-4 pb-4">
+    <form action={submit} className="flex flex-col gap-6 pb-4">
       <div className="flex flex-col gap-1.5">
         <label htmlFor="occurredAt" className={labelClass}>
           Tidspunkt
@@ -132,10 +132,8 @@ export function LogForm({
                   type="button"
                   aria-pressed={active}
                   onClick={() => togglePreset(preset.text)}
-                  className={`min-h-12 rounded-md px-4 text-meta font-semibold transition-all duration-150 ${
-                    active
-                      ? "border border-brand bg-brand-50 text-green-700"
-                      : outlineActionClass
+                  className={`min-h-12 rounded-md px-4 text-meta font-semibold ${
+                    active ? solidActionClass : outlineActionClass
                   }`}
                 >
                   {active ? "✓ " : ""}
@@ -156,10 +154,8 @@ export function LogForm({
                   type="button"
                   aria-expanded={open}
                   onClick={() => toggleGroupOpen(preset.label)}
-                  className={`flex min-h-12 w-full items-center justify-between rounded-md px-4 text-left text-meta font-semibold transition-all duration-150 ${
-                    groupActive
-                      ? "border border-brand bg-brand-50 text-green-700"
-                      : outlineActionClass
+                  className={`flex min-h-12 w-full items-center justify-between rounded-md px-4 text-left text-meta font-semibold ${
+                    groupActive ? solidActionClass : outlineActionClass
                   }`}
                 >
                   <span>
@@ -167,13 +163,18 @@ export function LogForm({
                     {preset.label}
                     {groupActive ? ` (${selectedCount})` : ""}
                   </span>
-                  <span aria-hidden className="text-heading text-navy-100">
+                  <span
+                    aria-hidden
+                    className={`flex size-9 items-center justify-center rounded-full ${
+                      groupActive ? "bg-white/15" : "bg-navy-50"
+                    }`}
+                  >
                     {open ? "▾" : "›"}
                   </span>
                 </button>
 
                 {open && (
-                  <div className="flex flex-wrap gap-2 rounded-md border border-line bg-navy-50/60 p-3">
+                  <div className="flex flex-wrap gap-2 rounded-md bg-white p-3 shadow-card">
                     {preset.items.map((item) => {
                       const active = activePresets.has(groupItemLine(item));
                       return (
@@ -182,10 +183,8 @@ export function LogForm({
                           type="button"
                           aria-pressed={active}
                           onClick={() => toggleGroupItem(preset, item)}
-                          className={`min-h-12 rounded-md px-4 text-meta font-semibold transition-all duration-150 ${
-                            active
-                              ? "border border-brand bg-brand-50 text-green-700"
-                              : outlineActionClass
+                          className={`min-h-12 rounded-md px-4 text-meta font-semibold ${
+                            active ? solidActionClass : outlineActionClass
                           }`}
                         >
                           {active ? "✓ " : ""}

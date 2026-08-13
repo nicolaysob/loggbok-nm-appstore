@@ -22,6 +22,7 @@ import type { FormState } from "@/lib/validation";
 import {
   cardStaticClass,
   noticeClass,
+  outlineActionClass,
   solidActionClass,
   textareaClass,
 } from "@/lib/ui";
@@ -60,10 +61,12 @@ function isActiveHere(
   );
 }
 
-const roundButtonClass =
-  "flex size-16 shrink-0 items-center justify-center rounded-md " +
-  "bg-navy-900 text-white transition-colors duration-150 " +
-  "hover:bg-navy-800 active:bg-navy-800 disabled:opacity-50";
+const clockFaceClass =
+  "font-mono text-[3.25rem] leading-none tracking-tight tabular-nums sm:text-[3.5rem]";
+
+const fullActionClass =
+  "flex min-h-16 w-full items-center justify-center rounded-md " +
+  "text-body font-semibold";
 
 export function TimeClockPanel({
   mode,
@@ -78,7 +81,7 @@ export function TimeClockPanel({
   const foreign = openClock && !active;
 
   return (
-    <section className={`flex flex-col gap-4 px-4 py-5 ${cardStaticClass}`}>
+    <section className={`flex flex-col gap-5 px-5 py-6 ${cardStaticClass}`}>
       {foreign && openClock ? (
         <ForeignClockNotice openClock={openClock} />
       ) : active && openClock ? (
@@ -145,36 +148,36 @@ function IdleClock({
   const [message, setMessage] = useState<string | null>(null);
 
   return (
-    <div className="flex flex-col gap-3">
-      <div className="flex items-center justify-between gap-4">
-        <p
-          className="font-mono text-[2.5rem] leading-none tracking-tight tabular-nums text-navy-100 sm:text-[2.75rem]"
-          aria-hidden
-        >
+    <div className="flex flex-col gap-5">
+      <div className="flex flex-col gap-2">
+        <p className="text-meta font-medium text-navy-700">
+          {mode === "PAYROLL" ? "Lønnstimer" : "Ekstraarbeid"}
+        </p>
+        <p className={`${clockFaceClass} text-navy-700`} aria-hidden>
           00:00:00
         </p>
-        <button
-          type="button"
-          disabled={pending}
-          aria-label={pending ? "Starter stempling" : "Start stempling"}
-          onClick={() => {
-            setMessage(null);
-            startTransition(async () => {
-              const result =
-                mode === "PAYROLL"
-                  ? await startPayrollClock()
-                  : await startExtraWorkClock(customerId!);
-              if (result?.message && !result.message.includes("startet")) {
-                setMessage(result.message);
-              }
-              router.refresh();
-            });
-          }}
-          className={`${roundButtonClass} text-body font-semibold`}
-        >
-          {pending ? "…" : "Start"}
-        </button>
       </div>
+      <button
+        type="button"
+        disabled={pending}
+        aria-label={pending ? "Starter stempling" : "Start stempling"}
+        onClick={() => {
+          setMessage(null);
+          startTransition(async () => {
+            const result =
+              mode === "PAYROLL"
+                ? await startPayrollClock()
+                : await startExtraWorkClock(customerId!);
+            if (result?.message && !result.message.includes("startet")) {
+              setMessage(result.message);
+            }
+            router.refresh();
+          });
+        }}
+        className={`${fullActionClass} ${solidActionClass}`}
+      >
+        {pending ? "Starter …" : "Start"}
+      </button>
       {message && (
         <p role="status" className="text-body font-medium text-navy-800">
           {message}
@@ -239,39 +242,44 @@ function ActiveClock({
   }
 
   return (
-    <div className="flex flex-col gap-3">
-      <div className="flex items-center justify-between gap-4">
+    <div className="flex flex-col gap-5">
+      <div className="flex flex-col gap-2">
         <p
-          className="font-mono text-[2.5rem] leading-none tracking-tight tabular-nums text-navy-900 sm:text-[2.75rem]"
+          className={`text-meta font-medium ${
+            saving ? "text-navy-700" : "text-brand"
+          }`}
+        >
+          {saving ? `Stoppet · ${title}` : `Pågår · ${title}`}
+        </p>
+        <p
+          className={`${clockFaceClass} text-navy-900`}
           aria-live="off"
           aria-label={saving ? `Stoppet på ${digital}` : `Pågår, ${digital}`}
         >
           {digital}
         </p>
-
-        {saving ? (
-          <button
-            type="button"
-            disabled={pending}
-            aria-label="Fortsett stempling"
-            onClick={resumeClock}
-            className={`${roundButtonClass} text-meta font-semibold`}
-          >
-            Fortsett
-          </button>
-        ) : (
-          <button
-            type="button"
-            aria-label="Stopp stempling"
-            onClick={captureStopTime}
-            className={roundButtonClass}
-          >
-            <span className="size-7 rounded-sm bg-white" aria-hidden />
-          </button>
-        )}
       </div>
 
-      <p className="text-body font-semibold text-navy-900">{title}</p>
+      {saving ? (
+        <button
+          type="button"
+          disabled={pending}
+          aria-label="Fortsett stempling"
+          onClick={resumeClock}
+          className={`${fullActionClass} ${outlineActionClass}`}
+        >
+          Fortsett
+        </button>
+      ) : (
+        <button
+          type="button"
+          aria-label="Stopp stempling"
+          onClick={captureStopTime}
+          className={`${fullActionClass} bg-navy-900 text-white shadow-lift active:bg-navy-800`}
+        >
+          Stopp
+        </button>
+      )}
 
       {saving && (
         <form action={formAction} className="flex flex-col gap-3">

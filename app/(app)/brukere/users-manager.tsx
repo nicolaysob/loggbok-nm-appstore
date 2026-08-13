@@ -50,7 +50,9 @@ export function UsersManager({
       <section className="flex flex-col gap-3">
         <h2 className="text-heading text-navy-900">Ansatte</h2>
         {staff.length === 0 ? (
-          <p className="text-body text-navy-700">Ingen ansatte ennå.</p>
+          <p className="rounded-md bg-white px-5 py-5 text-body text-navy-700 shadow-card">
+            Ingen ansatte ennå.
+          </p>
         ) : (
           <ul className="flex flex-col gap-3">
             {staff.map((user) => (
@@ -63,7 +65,7 @@ export function UsersManager({
       <section className="flex flex-col gap-3">
         <h2 className="text-heading text-navy-900">Kunder</h2>
         {customerUsers.length === 0 ? (
-          <p className="text-body text-navy-700">
+          <p className="rounded-md bg-white px-5 py-5 text-body text-navy-700 shadow-card">
             Ingen kundekontoer ennå. Opprett med rolle «Kunde».
           </p>
         ) : (
@@ -87,7 +89,7 @@ function UserCard({ user }: { user: UserRow }) {
 
   return (
     <li
-      className={`rounded-md border border-line bg-white ${
+      className={`rounded-md bg-white shadow-card ${
         user.active ? "" : "opacity-70"
       }`}
     >
@@ -127,13 +129,16 @@ function UserCard({ user }: { user: UserRow }) {
           {roleLabels[user.role]}
           {!user.active && " · av"}
         </span>
-        <span aria-hidden className="text-heading text-navy-100">
+        <span
+          aria-hidden
+          className="flex size-11 shrink-0 items-center justify-center rounded-full bg-navy-50"
+        >
           {open ? "▾" : "›"}
         </span>
       </button>
 
       {open && (
-        <div className="flex flex-col gap-3 border-t border-line px-4 py-4">
+        <div className="flex flex-col gap-3 px-4 py-4">
           {user.role !== "CUSTOMER" && (
             <>
               <p className="text-meta font-semibold text-navy-700">Rolle</p>
@@ -217,7 +222,7 @@ function UserCard({ user }: { user: UserRow }) {
             >
               <button
                 type="submit"
-                className="min-h-12 w-full rounded-md border border-red-700/30 px-4 text-meta font-semibold text-red-700 active:bg-red-50"
+                className="min-h-12 w-full rounded-md bg-white px-4 text-meta font-semibold text-red-700 shadow-card active:bg-red-50"
               >
                 Slett bruker
               </button>
@@ -249,7 +254,7 @@ function CreateUserForm({ customers }: { customers: CustomerOption[] }) {
     <form
       ref={formRef}
       action={formAction}
-      className="flex max-w-lg flex-col gap-3 rounded-md border border-line bg-white p-4"
+      className="flex max-w-lg flex-col gap-3 rounded-md bg-white p-5 shadow-card"
     >
       <p className="text-heading">Ny bruker</p>
 

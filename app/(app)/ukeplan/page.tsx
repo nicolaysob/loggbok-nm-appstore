@@ -11,7 +11,7 @@ import {
   weekParam,
   ymdKey,
 } from "@/lib/period";
-import { backLinkClass } from "@/lib/ui";
+import { outlineActionClass } from "@/lib/ui";
 import { WeekPlanForm } from "./week-plan-form";
 
 const dayFormat = new Intl.DateTimeFormat("nb-NO", {
@@ -49,8 +49,8 @@ export default async function WeekPlanPage({
   }));
 
   return (
-    <div className="flex animate-rise flex-col gap-6">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+    <div className="mx-auto flex w-full max-w-lg animate-rise flex-col gap-6">
+      <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-1">
           <h1 className="text-display tracking-tight">Ukeplan</h1>
           <p className="text-body text-navy-700">
@@ -58,23 +58,26 @@ export default async function WeekPlanPage({
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex gap-2">
           <Link
             href={`/ukeplan?uke=${weekParam(previous.monday)}`}
-            className={backLinkClass}
+            className={`flex min-h-12 flex-1 items-center justify-center px-3 text-body font-semibold ${outlineActionClass}`}
           >
-            ← Forrige
+            Forrige
           </Link>
           {!isCurrent && (
-            <Link href="/ukeplan" className={backLinkClass}>
-              Denne uken
+            <Link
+              href="/ukeplan"
+              className={`flex min-h-12 flex-1 items-center justify-center px-3 text-body font-semibold ${outlineActionClass}`}
+            >
+              Denne
             </Link>
           )}
           <Link
             href={`/ukeplan?uke=${weekParam(next.monday)}`}
-            className={backLinkClass}
+            className={`flex min-h-12 flex-1 items-center justify-center px-3 text-body font-semibold ${outlineActionClass}`}
           >
-            Neste →
+            Neste
           </Link>
         </div>
       </div>

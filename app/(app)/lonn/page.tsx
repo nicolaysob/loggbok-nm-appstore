@@ -10,7 +10,7 @@ import {
   yearMonthParam,
 } from "@/lib/period";
 import { formatDate } from "@/lib/time";
-import { backLinkClass, cardStaticClass } from "@/lib/ui";
+import { outlineActionClass, cardStaticClass } from "@/lib/ui";
 import { PayrollFolders, type PayrollFolder } from "./payroll-folders";
 
 export default async function PayrollPage({
@@ -76,8 +76,8 @@ export default async function PayrollPage({
   const totalHours = folders.reduce((sum, folder) => sum + folder.hours, 0);
 
   return (
-    <div className="flex animate-rise flex-col gap-8">
-      <div className="flex flex-col gap-3">
+    <div className="mx-auto flex w-full max-w-lg animate-rise flex-col gap-6">
+      <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-1">
           <h1 className="text-display tracking-tight">Lønn</h1>
           <p className="text-body text-navy-700">
@@ -85,28 +85,31 @@ export default async function PayrollPage({
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-4">
+        <div className="flex gap-2">
           <Link
             href={`/lonn?maaned=${yearMonthParam(previous.year, previous.month)}`}
-            className={backLinkClass}
+            className={`flex min-h-12 flex-1 items-center justify-center px-3 text-center text-body font-semibold ${outlineActionClass}`}
           >
-            ← {previous.label}
+            {previous.label}
           </Link>
           {!isCurrent && (
-            <Link href="/lonn" className={backLinkClass}>
-              Denne måneden
+            <Link
+              href="/lonn"
+              className={`flex min-h-12 flex-1 items-center justify-center px-3 text-center text-body font-semibold ${outlineActionClass}`}
+            >
+              Denne
             </Link>
           )}
           <Link
             href={`/lonn?maaned=${yearMonthParam(next.year, next.month)}`}
-            className={backLinkClass}
+            className={`flex min-h-12 flex-1 items-center justify-center px-3 text-center text-body font-semibold ${outlineActionClass}`}
           >
-            {next.label} →
+            {next.label}
           </Link>
         </div>
       </div>
 
-      <div className={`flex flex-col gap-1 px-4 py-4 ${cardStaticClass}`}>
+      <div className={`flex flex-col gap-1.5 px-5 py-5 ${cardStaticClass}`}>
         <p className="text-meta text-navy-700">Totalt {period.label.toLowerCase()}</p>
         <p className="font-mono text-display tabular-nums text-navy-900">
           {formatHours(totalHours)} t

@@ -20,7 +20,7 @@ export function MonthFolderList({
   countLabel: (count: number) => string;
 }) {
   if (folders.length === 0) {
-    return <p className="text-body text-navy-700">{emptyText}</p>;
+    return <p className="rounded-md bg-white px-5 py-5 text-body text-navy-700 shadow-card">{emptyText}</p>;
   }
 
   return (
@@ -29,7 +29,7 @@ export function MonthFolderList({
         <li key={folder.param}>
           <Link
             href={hrefFor(folder.param)}
-            className={`flex min-h-16 items-center justify-between gap-3 rounded-md px-4 py-3.5 ${outlineActionClass}`}
+            className={`flex min-h-[4.5rem] items-center justify-between gap-3 rounded-md px-4 py-3.5 ${outlineActionClass}`}
           >
             <span className="flex min-w-0 flex-col gap-0.5 text-left">
               <span className="text-heading font-semibold text-navy-900">
@@ -45,7 +45,7 @@ export function MonthFolderList({
             </span>
             <span
               aria-hidden
-              className="text-display leading-none text-navy-100"
+              className="flex size-11 shrink-0 items-center justify-center rounded-full bg-navy-50"
             >
               ›
             </span>

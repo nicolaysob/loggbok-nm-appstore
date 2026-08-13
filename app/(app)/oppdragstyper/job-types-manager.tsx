@@ -13,23 +13,23 @@ export type JobTypeRow = {
 
 export function JobTypesManager({ types }: { types: JobTypeRow[] }) {
   return (
-    <div className="flex max-w-xl flex-col gap-6">
-      <ul className="flex flex-col">
-        {types.length === 0 ? (
-          <p className="text-meta text-navy-700">
-            Ingen oppdragstyper ennå. Legg til f.eks. Plenklipp eller Maling.
-          </p>
-        ) : (
-          types.map((type) => (
+    <div className="flex flex-col gap-6">
+      {types.length === 0 ? (
+        <p className="rounded-md bg-white px-5 py-5 text-body text-navy-700 shadow-card">
+          Ingen oppdragstyper ennå. Legg til f.eks. Plenklipp eller Maling.
+        </p>
+      ) : (
+        <ul className="flex flex-col gap-3">
+          {types.map((type) => (
             <li
               key={type.id}
-              className="flex items-center justify-between gap-3 border-b border-line py-3"
+              className="flex min-h-[4.5rem] items-center justify-between gap-3 rounded-md bg-white px-4 py-3.5 shadow-card"
             >
-              <div>
-                <p className="text-body font-semibold text-navy-900">
+              <div className="min-w-0">
+                <p className="text-heading font-semibold text-navy-900">
                   {type.name}
                 </p>
-                <p className="text-meta text-navy-700">
+                <p className="text-meta font-medium text-navy-700">
                   {type.jobCount === 0
                     ? "Ikke i bruk"
                     : `${type.jobCount} oppdrag`}
@@ -39,16 +39,16 @@ export function JobTypesManager({ types }: { types: JobTypeRow[] }) {
                 <form action={deleteJobType.bind(null, type.id)}>
                   <button
                     type="submit"
-                    className="text-meta font-semibold text-red-700 hover:underline"
+                    className="min-h-12 px-3 text-meta font-semibold text-red-700"
                   >
                     Slett
                   </button>
                 </form>
               )}
             </li>
-          ))
-        )}
-      </ul>
+          ))}
+        </ul>
+      )}
 
       <NewJobTypeForm />
     </div>
@@ -67,7 +67,11 @@ function NewJobTypeForm() {
   }, [state]);
 
   return (
-    <form ref={formRef} action={formAction} className="flex items-end gap-2">
+    <form
+      ref={formRef}
+      action={formAction}
+      className="flex flex-col gap-3 rounded-md bg-white p-5 shadow-card"
+    >
       <div className="flex-1">
         <Field label="Ny type" htmlFor="name" errors={state?.errors?.name}>
           <input

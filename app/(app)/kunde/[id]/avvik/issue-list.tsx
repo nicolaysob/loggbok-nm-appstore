@@ -4,7 +4,7 @@ import type { IssueStatus } from "@/generated/prisma/enums";
 import { issueStatusLabels } from "@/lib/labels";
 import { setIssueStatus, updateIssueDescription } from "@/app/actions/issues";
 import { convertIssueToTodo } from "@/app/actions/todos";
-import { cardStaticClass, outlineActionClass } from "@/lib/ui";
+import { outlineActionClass, solidActionClass } from "@/lib/ui";
 import { AdminDeleteButton } from "@/components/admin-delete-button";
 import { EditableText } from "@/components/editable-text";
 import { PhotoThumbs } from "@/components/photo-thumbs";
@@ -55,12 +55,12 @@ export function IssueList({
         return (
           <li
             key={issue.id}
-            className={`flex flex-col gap-3 px-4 py-3 ${cardStaticClass} ${
+            className={`flex flex-col gap-3 rounded-md px-4 py-4 shadow-card ${
               issue.status === "OPEN"
-                ? "border-red-700/25 bg-red-50/50"
+                ? "bg-red-50"
                 : issue.status === "IN_PROGRESS"
-                  ? "border-amber-700/20 bg-amber-50/40"
-                  : ""
+                  ? "bg-amber-50"
+                  : "bg-white"
             }`}
           >
             <div className="flex flex-wrap items-center gap-2">
@@ -97,7 +97,7 @@ export function IssueList({
                       type="submit"
                       className={`min-h-14 rounded-md px-4 text-meta font-semibold ${
                         status === "CLOSED"
-                          ? "border border-green-700/30 bg-green-50 text-green-700 active:bg-green-50"
+                          ? solidActionClass
                           : outlineActionClass
                       }`}
                     >
@@ -120,7 +120,7 @@ export function IssueList({
                     target="issue"
                     id={issue.id}
                     confirmText="Slette avviket permanent? Dette kan ikke angres."
-                    className="min-h-14 rounded-md border border-red-700/25 bg-white px-4 text-meta font-semibold text-red-700 transition-colors active:bg-red-50 disabled:opacity-50"
+                    className="min-h-14 rounded-md bg-white px-4 text-meta font-semibold text-red-700 shadow-card transition-colors active:bg-red-50 disabled:opacity-50"
                   />
                 </>
               )}

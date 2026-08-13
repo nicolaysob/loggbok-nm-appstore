@@ -2,7 +2,7 @@
 
 import { useActionState } from "react";
 import { login, type LoginState } from "@/app/actions/auth";
-import { inputClass, solidActionClass } from "@/lib/ui";
+import { inputClass, labelClass, solidActionClass } from "@/lib/ui";
 
 const fieldClass = `${inputClass} min-h-14`;
 
@@ -13,12 +13,9 @@ export function LoginForm() {
   );
 
   return (
-    <form action={formAction} className="flex flex-col gap-5">
+    <form action={formAction} className="flex flex-col gap-6">
       <div className="flex flex-col gap-1.5">
-        <label
-          htmlFor="username"
-          className="text-meta font-semibold text-navy-900"
-        >
+        <label htmlFor="username" className={labelClass}>
           Brukernavn
         </label>
         <input
@@ -34,10 +31,7 @@ export function LoginForm() {
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <label
-          htmlFor="password"
-          className="text-meta font-semibold text-navy-900"
-        >
+        <label htmlFor="password" className={labelClass}>
           Passord
         </label>
         <input
@@ -59,7 +53,7 @@ export function LoginForm() {
       <button
         type="submit"
         disabled={pending}
-        className={`mt-1 min-h-14 w-full rounded-md text-body font-semibold ${solidActionClass}`}
+        className={`mt-1 min-h-16 w-full rounded-md text-body font-semibold ${solidActionClass}`}
       >
         {pending ? "Logger inn …" : "Logg inn"}
       </button>

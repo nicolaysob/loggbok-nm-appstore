@@ -139,7 +139,7 @@ export function WeekPlanForm({
             {drafts.map((item) => (
               <li
                 key={item.key}
-                className="flex flex-col gap-3 rounded-md border border-line bg-white p-4"
+                className="flex flex-col gap-3 rounded-md bg-white p-4 shadow-card"
               >
                 <label className="flex min-h-12 items-center gap-3 text-body font-semibold text-navy-900">
                   <input
@@ -154,7 +154,7 @@ export function WeekPlanForm({
                         ),
                       )
                     }
-                    className="size-6"
+                    className="size-7 accent-green-700"
                   />
                   Ta med
                 </label>

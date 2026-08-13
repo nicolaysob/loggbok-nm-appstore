@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { db } from "@/lib/db";
 import { requireUser } from "@/lib/dal";
+import { roleLabels } from "@/lib/labels";
 import { daysSince, formatLastVisit } from "@/lib/time";
+import { ProfileMenu } from "@/components/profile-menu";
 
 function visitTone(lastVisit: Date | null): {
   label: string;
@@ -148,111 +150,160 @@ export default async function HomePage() {
   const totalOpen = sorted.reduce((sum, row) => sum + row.openIssues, 0);
   const totalUnread = sorted.reduce((sum, row) => sum + row.unreadMessages, 0);
   const totalTodos = sorted.reduce((sum, row) => sum + row.openTodos, 0);
-
-  if (sorted.length === 0) {
-    return (
-      <div className="mx-auto flex w-full max-w-lg animate-rise flex-col gap-4">
-        <h1 className="text-display tracking-tight">Hei, {firstName}</h1>
-        <p className="text-body text-navy-700">
-          Ingen aktive kunder er lagt inn ennå.
-        </p>
-        {user.role === "ADMIN" && (
-          <Link
-            href="/kunder"
-            className="text-body font-medium text-navy-700 hover:text-navy-900"
-          >
-            Gå til kundeadministrasjon
-          </Link>
-        )}
-      </div>
-    );
-  }
+  const todayLabel = new Intl.DateTimeFormat("nb-NO", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    timeZone: "Europe/Oslo",
+  }).format(new Date());
+  const today =
+    todayLabel.charAt(0).toUpperCase() + todayLabel.slice(1);
 
   return (
-    <div className="mx-auto flex w-full max-w-lg animate-rise flex-col gap-5">
-      <div className="flex flex-col gap-1">
-        <h1 className="text-display tracking-tight text-navy-900">
-          Hei, {firstName}
-        </h1>
-        <p className="text-body text-navy-700">
-          {totalOpen > 0
-            ? `${totalOpen} åpne avvik øverst.`
-            : totalUnread > 0
-              ? `${totalUnread === 1 ? "1 usignert melding" : `${totalUnread} usignerte meldinger`} øverst.`
-              : totalTodos > 0
-                ? `${totalTodos === 1 ? "1 gjøremål" : `${totalTodos} gjøremål`} øverst.`
-                : "Velg kunde for å loggføre."}
-        </p>
+    <div className="mx-auto flex w-full max-w-lg animate-rise flex-col gap-6">
+      <div className="flex items-end justify-between gap-3 px-0.5">
+        <div className="flex min-w-0 flex-col gap-1">
+          <p className="text-meta font-medium text-navy-700">{today}</p>
+          <h1 className="text-display tracking-tight text-navy-900">
+            Hei, {firstName}
+          </h1>
+        </div>
+        <ProfileMenu
+          initial={firstName.charAt(0).toUpperCase()}
+          name={user.name}
+          subtitle={roleLabels[user.role]}
+          links={[
+            { href: "/profil", label: "Profil" },
+            { href: "/support", label: "Support" },
+            { href: "/personvern", label: "Personvern" },
+          ]}
+        />
       </div>
 
-      <ul className="divide-y divide-line overflow-hidden rounded-md border border-line bg-white">
-        {sorted.map((customer) => {
-          const tone = visitTone(customer.lastVisit);
-          return (
-            <li
-              key={customer.id}
-              className={`flex items-stretch ${
-                customer.openIssues > 0
-                  ? "bg-red-50/50"
-                  : customer.unreadMessages > 0
-                    ? "bg-navy-50/80"
-                    : customer.openTodos > 0
-                      ? "bg-amber-50/60"
-                      : ""
-              }`}
+      {sorted.length === 0 ? (
+        <div className="rounded-md bg-white p-5 shadow-card">
+          <p className="text-body text-navy-700">
+            Ingen aktive kunder er lagt inn ennå.
+          </p>
+          {user.role === "ADMIN" && (
+            <Link
+              href="/kunder"
+              className="mt-3 inline-flex min-h-12 items-center text-body font-semibold text-brand"
             >
-              <Link
-                href={`/kunde/${customer.id}`}
-                prefetch
-                className="flex min-h-14 min-w-0 flex-1 items-center gap-2 py-3 pl-4 pr-2 text-navy-900 transition-colors active:bg-navy-50"
+              Gå til kundeadministrasjon
+            </Link>
+          )}
+        </div>
+      ) : (
+        <>
+          <div className="grid grid-cols-3 gap-2.5">
+            <div className="rounded-md bg-white px-3 py-3.5 shadow-card">
+              <p
+                className={`font-mono text-[1.65rem] font-bold leading-none ${
+                  totalOpen > 0 ? "text-red-700" : "text-navy-900"
+                }`}
               >
-                <span className="min-w-0 flex-1 truncate text-heading font-semibold">
-                  {customer.name}
-                </span>
-                {customer.openIssues > 0 && (
-                  <span className="shrink-0 rounded px-2 py-0.5 text-meta font-medium text-red-700">
-                    {customer.openIssues} avvik
-                  </span>
-                )}
-                {customer.unreadMessages > 0 && (
-                  <span className="shrink-0 rounded px-2 py-0.5 text-meta font-medium text-navy-800">
-                    {customer.unreadMessages} melding
-                    {customer.unreadMessages === 1 ? "" : "er"}
-                  </span>
-                )}
-                {customer.openTodos > 0 && (
-                  <span className="shrink-0 rounded px-2 py-0.5 text-meta font-medium text-amber-700">
-                    {customer.openTodos} gjøremål
-                  </span>
-                )}
-                <span
-                  className={`shrink-0 font-mono text-meta font-medium ${tone.className}`}
-                >
-                  {tone.label}
-                </span>
-              </Link>
-              <Link
-                href={`/kunde/${customer.id}/loggfor`}
-                prefetch
-                aria-label={`Loggfør besøk hos ${customer.name}`}
-                className="flex w-12 shrink-0 items-center justify-center border-l border-line text-navy-800 transition-colors active:bg-navy-50"
+                {totalOpen}
+              </p>
+              <p className="mt-1.5 text-meta text-navy-700">Avvik</p>
+            </div>
+            <div className="rounded-md bg-white px-3 py-3.5 shadow-card">
+              <p
+                className={`font-mono text-[1.65rem] font-bold leading-none ${
+                  totalTodos > 0 ? "text-amber-700" : "text-navy-900"
+                }`}
               >
-                <svg
-                  aria-hidden
-                  viewBox="0 0 24 24"
-                  className="size-5"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                >
-                  <path d="M12 5v14M5 12h14" />
-                </svg>
-              </Link>
-            </li>
-          );
-        })}
-      </ul>
+                {totalTodos}
+              </p>
+              <p className="mt-1.5 text-meta text-navy-700">Gjøremål</p>
+            </div>
+            <div className="rounded-md bg-brand px-3 py-3.5 shadow-brand">
+              <p className="font-mono text-[1.65rem] font-bold leading-none text-white">
+                {sorted.length}
+              </p>
+              <p className="mt-1.5 text-meta text-white/85">Kunder</p>
+            </div>
+          </div>
+
+          {totalUnread > 0 && (
+            <p className="px-0.5 text-meta font-medium text-navy-700">
+              {totalUnread === 1
+                ? "1 usignert melding"
+                : `${totalUnread} usignerte meldinger`}
+            </p>
+          )}
+
+          <ul className="flex flex-col gap-3">
+            {sorted.map((customer) => {
+              const tone = visitTone(customer.lastVisit);
+              const initial = customer.name.charAt(0).toUpperCase();
+              return (
+                <li key={customer.id}>
+                  <div className="flex items-stretch overflow-hidden rounded-md bg-white shadow-card">
+                    <Link
+                      href={`/kunde/${customer.id}`}
+                      prefetch
+                      className="flex min-h-[4.5rem] min-w-0 flex-1 items-center gap-3 py-3 pl-3.5 pr-2 text-navy-900 active:bg-navy-50"
+                    >
+                      <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-brand-50 text-heading font-semibold text-brand">
+                        {initial}
+                      </span>
+                      <span className="flex min-w-0 flex-1 flex-col gap-1">
+                        <span className="truncate text-heading font-semibold">
+                          {customer.name}
+                        </span>
+                        <span className="flex flex-wrap items-center gap-1.5">
+                          {customer.openIssues > 0 && (
+                            <span className="rounded-full bg-red-50 px-2.5 py-0.5 text-meta font-medium text-red-700">
+                              {customer.openIssues} avvik
+                            </span>
+                          )}
+                          {customer.unreadMessages > 0 && (
+                            <span className="rounded-full bg-navy-50 px-2.5 py-0.5 text-meta font-medium text-navy-800">
+                              {customer.unreadMessages} melding
+                              {customer.unreadMessages === 1 ? "" : "er"}
+                            </span>
+                          )}
+                          {customer.openTodos > 0 && (
+                            <span className="rounded-full bg-amber-50 px-2.5 py-0.5 text-meta font-medium text-amber-700">
+                              {customer.openTodos} gjøremål
+                            </span>
+                          )}
+                          <span
+                            className={`font-mono text-meta font-medium ${tone.className}`}
+                          >
+                            {tone.label}
+                          </span>
+                        </span>
+                      </span>
+                    </Link>
+                    <Link
+                      href={`/kunde/${customer.id}/loggfor`}
+                      prefetch
+                      aria-label={`Loggfør besøk hos ${customer.name}`}
+                      className="flex w-16 shrink-0 items-center justify-center active:opacity-80"
+                    >
+                      <span className="flex size-11 items-center justify-center rounded-full bg-brand text-white shadow-brand">
+                        <svg
+                          aria-hidden
+                          viewBox="0 0 24 24"
+                          className="size-5"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2.4"
+                          strokeLinecap="round"
+                        >
+                          <path d="M12 5v14M5 12h14" />
+                        </svg>
+                      </span>
+                    </Link>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        </>
+      )}
     </div>
   );
 }

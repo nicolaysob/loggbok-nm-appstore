@@ -13,7 +13,7 @@ import {
   osloYmd,
 } from "@/lib/period";
 import { formatDate } from "@/lib/time";
-import { backLinkClass, cardStaticClass } from "@/lib/ui";
+import { outlineActionClass, cardStaticClass } from "@/lib/ui";
 import { ManualEntryDisclosure } from "@/components/manual-entry-disclosure";
 import { TimeClockPanel } from "@/components/time-clock-panel";
 import { TimeEntryForm } from "./time-entry-form";
@@ -69,36 +69,39 @@ export default async function TimeSheetPage({
     : null;
 
   return (
-    <div className="flex animate-rise flex-col gap-8">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+    <div className="mx-auto flex w-full max-w-lg animate-rise flex-col gap-6">
+      <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-1">
           <h1 className="text-display tracking-tight">Timeliste</h1>
           <p className="text-body text-navy-700">Dine timer · {week.label}</p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex gap-2">
           <Link
             href={`/timeliste?uke=${weekParam(previous.monday)}`}
-            className={backLinkClass}
+            className={`flex min-h-12 flex-1 items-center justify-center px-3 text-body font-semibold ${outlineActionClass}`}
           >
-            ← Forrige
+            Forrige
           </Link>
           {!isCurrent && (
-            <Link href="/timeliste" className={backLinkClass}>
-              Denne uken
+            <Link
+              href="/timeliste"
+              className={`flex min-h-12 flex-1 items-center justify-center px-3 text-body font-semibold ${outlineActionClass}`}
+            >
+              Denne
             </Link>
           )}
           <Link
             href={`/timeliste?uke=${weekParam(next.monday)}`}
-            className={backLinkClass}
+            className={`flex min-h-12 flex-1 items-center justify-center px-3 text-body font-semibold ${outlineActionClass}`}
           >
-            Neste →
+            Neste
           </Link>
         </div>
       </div>
 
-      <div className={`flex flex-col gap-1 px-4 py-4 ${cardStaticClass}`}>
-        <p className="text-meta text-navy-700">Totalt denne uken</p>
+      <div className={`flex flex-col gap-1.5 px-5 py-5 ${cardStaticClass}`}>
+        <p className="text-meta font-medium text-navy-700">Totalt denne uken</p>
         <p className="font-mono text-display tabular-nums text-navy-900">
           {formatHours(totalHours)} t
         </p>

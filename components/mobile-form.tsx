@@ -14,8 +14,8 @@ export {
 } from "@/lib/ui";
 
 const stepButtonClass =
-  "flex size-14 shrink-0 items-center justify-center rounded-md border " +
-  "border-line bg-white text-display text-navy-900 " +
+  "flex size-14 shrink-0 items-center justify-center rounded-md " +
+  "bg-white text-display text-navy-900 shadow-card " +
   "active:bg-navy-50 disabled:opacity-40";
 
 export function FieldError({ messages }: { messages?: string[] }) {
@@ -42,7 +42,7 @@ export function StickySubmit({
   children: React.ReactNode;
 }) {
   return (
-    <div className="sticky bottom-20 -mx-4 border-t border-line bg-page/85 px-4 py-3 backdrop-blur-md sm:bottom-0">
+    <div className="sticky bottom-20 -mx-5 bg-page/90 px-5 py-3 backdrop-blur-md sm:bottom-0 sm:-mx-4 sm:px-4">
       <button
         type="submit"
         disabled={pending}

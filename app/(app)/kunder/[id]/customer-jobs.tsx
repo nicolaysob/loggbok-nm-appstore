@@ -38,28 +38,28 @@ export function CustomerJobs({
   jobs: CustomerJobRow[];
 }) {
   return (
-    <div className="flex max-w-2xl flex-col gap-6">
+    <div className="flex flex-col gap-6">
       {jobs.length === 0 ? (
-        <p className="text-meta text-navy-700">
+        <p className="rounded-md bg-white px-5 py-5 text-body text-navy-700 shadow-card">
           Ingen kalenderoppdrag på denne kunden ennå.
         </p>
       ) : (
-        <ul className="flex flex-col">
+        <ul className="flex flex-col gap-3">
           {jobs.map((job) => (
             <li
               key={job.id}
-              className="flex items-start justify-between gap-3 border-b border-line py-3"
+              className="flex min-h-[4.5rem] items-start justify-between gap-3 rounded-md bg-white px-4 py-3.5 shadow-card"
             >
               <div className="min-w-0">
-                <p className="text-body font-semibold text-navy-900">
+                <p className="text-heading font-semibold text-navy-900">
                   {job.typeName}
                   {!job.active && (
-                    <span className="ml-2 font-medium text-navy-700">
+                    <span className="ml-2 text-meta font-medium text-navy-700">
                       (ferdig)
                     </span>
                   )}
                 </p>
-                <p className="text-meta text-navy-700">
+                <p className="text-meta font-medium text-navy-700">
                   {jobScheduleLabels[job.kind]}
                   {job.kind === "ONCE" && job.dueOn && <> · {job.dueOn}</>}
                   {(job.kind === "WEEKLY" || job.kind === "BIWEEKLY") &&
@@ -73,7 +73,7 @@ export function CustomerJobs({
               <form action={deleteCustomerJob.bind(null, job.id)}>
                 <button
                   type="submit"
-                  className="text-meta font-semibold text-red-700 hover:underline"
+                  className="min-h-12 px-3 text-meta font-semibold text-red-700"
                 >
                   Slett
                 </button>
@@ -116,7 +116,7 @@ function NewCustomerJobForm({
     <form
       ref={formRef}
       action={formAction}
-      className="flex flex-col gap-3 rounded-md border border-line bg-white p-4"
+      className="flex flex-col gap-3 rounded-md bg-white p-5 shadow-card"
     >
       <p className="text-heading">Nytt oppdrag</p>
 
