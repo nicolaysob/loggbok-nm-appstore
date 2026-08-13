@@ -175,18 +175,17 @@ export default async function HomePage() {
           Hei, {firstName}
         </h1>
         <p className="text-body text-navy-700">
-          Trykk på en kunde for å loggføre.
           {totalOpen > 0
-            ? ` ${totalOpen} åpne avvik står øverst.`
+            ? `${totalOpen} åpne avvik øverst.`
             : totalUnread > 0
-              ? ` ${totalUnread === 1 ? "1 usignert melding" : `${totalUnread} usignerte meldinger`} står øverst.`
+              ? `${totalUnread === 1 ? "1 usignert melding" : `${totalUnread} usignerte meldinger`} øverst.`
               : totalTodos > 0
-                ? ` ${totalTodos === 1 ? "1 åpent gjøremål" : `${totalTodos} åpne gjøremål`} står øverst.`
-                : " De som har ventet lengst står øverst."}
+                ? `${totalTodos === 1 ? "1 gjøremål" : `${totalTodos} gjøremål`} øverst.`
+                : "Velg kunde for å loggføre."}
         </p>
       </div>
 
-      <ul className="divide-y divide-line overflow-hidden rounded-md border border-line bg-white shadow-card">
+      <ul className="divide-y divide-line overflow-hidden rounded-md border border-line bg-white">
         {sorted.map((customer) => {
           const tone = visitTone(customer.lastVisit);
           return (
@@ -194,41 +193,36 @@ export default async function HomePage() {
               key={customer.id}
               className={`flex items-stretch ${
                 customer.openIssues > 0
-                  ? "bg-red-50/40"
+                  ? "bg-red-50/50"
                   : customer.unreadMessages > 0
-                    ? "bg-navy-50/70"
+                    ? "bg-navy-50/80"
                     : customer.openTodos > 0
-                      ? "bg-amber-50/50"
+                      ? "bg-amber-50/60"
                       : ""
               }`}
             >
               <Link
                 href={`/kunde/${customer.id}`}
                 prefetch
-                className="flex min-h-16 min-w-0 flex-1 items-center gap-2.5 py-3.5 pl-4 pr-3 text-navy-900 transition-colors active:bg-navy-50"
+                className="flex min-h-14 min-w-0 flex-1 items-center gap-2 py-3 pl-4 pr-2 text-navy-900 transition-colors active:bg-navy-50"
               >
-                <span className="min-w-0 flex-1 truncate text-heading">
+                <span className="min-w-0 flex-1 truncate text-heading font-semibold">
                   {customer.name}
                 </span>
                 {customer.openIssues > 0 && (
-                  <span className="shrink-0 rounded-full bg-red-50 px-2.5 py-1 text-meta font-semibold text-red-700">
-                    {customer.openIssues === 1
-                      ? "1 avvik"
-                      : `${customer.openIssues} avvik`}
+                  <span className="shrink-0 rounded px-2 py-0.5 text-meta font-medium text-red-700">
+                    {customer.openIssues} avvik
                   </span>
                 )}
                 {customer.unreadMessages > 0 && (
-                  <span className="shrink-0 rounded-full bg-navy-50 px-2.5 py-1 text-meta font-semibold text-navy-900">
-                    {customer.unreadMessages === 1
-                      ? "1 melding"
-                      : `${customer.unreadMessages} meldinger`}
+                  <span className="shrink-0 rounded px-2 py-0.5 text-meta font-medium text-navy-800">
+                    {customer.unreadMessages} melding
+                    {customer.unreadMessages === 1 ? "" : "er"}
                   </span>
                 )}
                 {customer.openTodos > 0 && (
-                  <span className="shrink-0 rounded-full bg-amber-50 px-2.5 py-1 text-meta font-semibold text-amber-700">
-                    {customer.openTodos === 1
-                      ? "1 gjøremål"
-                      : `${customer.openTodos} gjøremål`}
+                  <span className="shrink-0 rounded px-2 py-0.5 text-meta font-medium text-amber-700">
+                    {customer.openTodos} gjøremål
                   </span>
                 )}
                 <span
@@ -237,20 +231,19 @@ export default async function HomePage() {
                   {tone.label}
                 </span>
               </Link>
-              {/* Snarvei rett til loggføring — sparer turen innom kundekortet */}
               <Link
                 href={`/kunde/${customer.id}/loggfor`}
                 prefetch
                 aria-label={`Loggfør besøk hos ${customer.name}`}
-                className="flex w-14 shrink-0 items-center justify-center border-l border-line text-brand transition-colors active:bg-brand-50"
+                className="flex w-12 shrink-0 items-center justify-center border-l border-line text-navy-800 transition-colors active:bg-navy-50"
               >
                 <svg
                   aria-hidden
                   viewBox="0 0 24 24"
-                  className="size-6"
+                  className="size-5"
                   fill="none"
                   stroke="currentColor"
-                  strokeWidth="2.25"
+                  strokeWidth="2"
                   strokeLinecap="round"
                 >
                   <path d="M12 5v14M5 12h14" />

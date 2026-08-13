@@ -61,9 +61,9 @@ function isActiveHere(
 }
 
 const roundButtonClass =
-  "flex size-[4.5rem] shrink-0 items-center justify-center rounded-full " +
-  "bg-navy-900 text-white shadow-card transition-all duration-150 " +
-  "hover:bg-navy-800 active:scale-[0.98] disabled:opacity-50";
+  "flex size-16 shrink-0 items-center justify-center rounded-md " +
+  "bg-navy-900 text-white transition-colors duration-150 " +
+  "hover:bg-navy-800 active:bg-navy-800 disabled:opacity-50";
 
 export function TimeClockPanel({
   mode,

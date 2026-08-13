@@ -78,12 +78,26 @@ export default async function MorePage() {
         </button>
       </form>
 
-      <Link
-        href="/personvern"
-        className="text-center text-meta font-medium text-navy-700"
-      >
-        Personvern
-      </Link>
+      <div className="flex flex-col items-center gap-3 pb-2">
+        <Link
+          href="/mer/slett-konto"
+          className="text-meta font-medium text-red-700"
+        >
+          Slett konto
+        </Link>
+        <Link
+          href="/support"
+          className="text-meta font-medium text-navy-700"
+        >
+          Support
+        </Link>
+        <Link
+          href="/personvern"
+          className="text-meta font-medium text-navy-700"
+        >
+          Personvern
+        </Link>
+      </div>
     </div>
   );
 }

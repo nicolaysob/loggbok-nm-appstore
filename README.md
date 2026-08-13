@@ -1,24 +1,30 @@
 # Loggbok – App Store
 
-Kopi av Loggbok-appen brukt til å lage **iOS-app** (Capacitor) for App Store.
+Kopi av Loggbok brukt til **iOS-app** (Capacitor) for App Store.
 
-Hovedappen for web/Vercel ligger i et eget repo (`loggbok-nm`). Dette repoet skal ikke brukes til vanlig produksjonsdeploy.
+Hovedappen for web/Vercel: separat repo `loggbok-nm` — endres ikke herfra.
 
-## Kom i gang
+## Kom i gang (web i denne kopien)
 
 ```bash
 npm install
 npm run dev
 ```
 
-Åpne [http://localhost:3000](http://localhost:3000).
+## App Store
+
+Se **[APP_STORE.md](./APP_STORE.md)** for Apple Developer, privacy labels, review-notater og TestFlight.
+
+## Capacitor
+
+```bash
+npm install
+npx cap sync ios
+npx cap open ios
+```
+
+WebView peker på produksjon: `https://loggbok-nm-lyart.vercel.app`
 
 ## Miljøvariabler
 
-Kopier `.env` fra hovedprosjektet (eller lag en ny).  
-**Commit aldri `.env`** — den inneholder hemmeligheter.
-
-## Merknad
-
-- Samme database/backend som hovedappen hvis du bruker samme `.env`
-- Capacitor / Xcode settes opp her senere uten å røre web-repoet
+Kopier `.env` fra hovedprosjektet. **Commit aldri `.env`.**

@@ -42,3 +42,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Capacitor / Xcode
+ios/App/Pods/
+ios/DerivedData/
+*.xcuserdata/
+ios/App/App/public/

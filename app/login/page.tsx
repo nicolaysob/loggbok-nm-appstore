@@ -9,11 +9,17 @@ export const metadata: Metadata = {
   title: "Logg inn – N&M",
 };
 
-export default async function LoginPage() {
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ slettet?: string }>;
+}) {
   const user = await getCurrentUser();
   if (user) {
     redirect(user.role === "CUSTOMER" ? "/portal" : "/");
   }
+
+  const { slettet } = await searchParams;
 
   return (
     <main className="flex min-h-full flex-1 flex-col bg-white">
@@ -28,12 +34,28 @@ export default async function LoginPage() {
           </p>
         </header>
 
+        {slettet === "1" && (
+          <p
+            role="status"
+            className="mb-5 rounded-md border border-line bg-navy-50 px-3.5 py-3 text-body text-navy-800"
+          >
+            Kontoen er slettet. Kontakt support hvis dette var en feil.
+          </p>
+        )}
+
         <LoginForm />
       </div>
 
       <footer className="border-t border-line px-6 py-4 text-center">
         <p className="text-meta text-navy-700">
           N&amp;M Vaktmesterservice AS
+          {" · "}
+          <Link
+            href="/support"
+            className="font-medium text-navy-700 underline underline-offset-2 hover:text-navy-900"
+          >
+            Support
+          </Link>
           {" · "}
           <Link
             href="/personvern"

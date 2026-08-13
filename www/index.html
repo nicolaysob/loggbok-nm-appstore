@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="no">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="viewport-fit=cover, width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+    />
+    <title>Loggbok</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        font-family: system-ui, -apple-system, sans-serif;
+        background: #f5f6f8;
+        color: #111827;
+      }
+      main {
+        min-height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+        text-align: center;
+        gap: 0.75rem;
+      }
+      h1 {
+        font-size: 1.5rem;
+        font-weight: 650;
+        margin: 0;
+      }
+      p {
+        margin: 0;
+        color: #4b5563;
+        line-height: 1.45;
+        max-width: 18rem;
+      }
+      button {
+        margin-top: 1rem;
+        min-height: 3rem;
+        padding: 0 1.25rem;
+        border: 0;
+        border-radius: 0.5rem;
+        background: #166534;
+        color: #fff;
+        font-size: 1rem;
+        font-weight: 600;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Loggbok</h1>
+      <p id="msg">Kobler til …</p>
+      <button type="button" id="retry" hidden>Prøv igjen</button>
+    </main>
+    <script>
+      const msg = document.getElementById("msg");
+      const retry = document.getElementById("retry");
+      const target = "https://loggbok-nm-lyart.vercel.app";
+
+      function go() {
+        msg.textContent = "Kobler til …";
+        retry.hidden = true;
+        if (!navigator.onLine) {
+          msg.textContent =
+            "Ingen nett. Sjekk tilkoblingen og prøv igjen.";
+          retry.hidden = false;
+          return;
+        }
+        window.location.replace(target);
+      }
+
+      retry.addEventListener("click", go);
+      window.addEventListener("online", go);
+      go();
+    </script>
+  </body>
+</html>

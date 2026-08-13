@@ -11,7 +11,12 @@ export async function proxy(request: NextRequest) {
     request.cookies.get(SESSION_COOKIE)?.value,
   );
 
-  if (!session && !isLoginPage && pathname !== "/personvern") {
+  if (
+    !session &&
+    !isLoginPage &&
+    pathname !== "/personvern" &&
+    pathname !== "/support"
+  ) {
     return NextResponse.redirect(new URL("/login", request.nextUrl));
   }
 
