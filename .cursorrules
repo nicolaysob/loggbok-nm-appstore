@@ -1,0 +1,11 @@
+Dette er et internt loggbok- og rapportsystem for et norsk vaktmesterfirma med to eiere og noen få ansatte.
+
+Stack: Next.js App Router, TypeScript, Prisma, PostgreSQL, Tailwind. Deployes på Vercel.
+
+Regler:
+- Hele grensesnittet skal være på norsk. Norske datoformater. kr som valuta.
+- Kode og variabelnavn på engelsk, kommentarer på norsk der de forklarer noe.
+- Mobil først. Hovedbrukeren står ute på et anlegg med hansker og regn. Store trykkflater, minimalt med skriving.
+- Hold komponenter små nok til å leses i én skjerm.
+- Ikke bygg funksjonalitet jeg ikke har bedt om. Foreslå gjerne, men ikke implementer på eget initiativ.
+- Ett steg om gangen. Vis meg planen før du skriver mange filer.

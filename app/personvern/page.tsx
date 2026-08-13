@@ -1,0 +1,150 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import { BrandLogo } from "@/components/brand";
+import { backLinkClass } from "@/lib/ui";
+
+export const metadata: Metadata = {
+  title: "Personvern – N&M",
+};
+
+export default function PrivacyPage() {
+  return (
+    <main className="flex min-h-full flex-1 flex-col bg-white">
+      <div className="mx-auto w-full max-w-2xl flex-1 px-6 py-10 animate-rise">
+        <BrandLogo className="w-40" />
+        <Link href="/login" className={`${backLinkClass} mt-6`}>
+          ← Tilbake til innlogging
+        </Link>
+
+        <h1 className="mt-6 text-display tracking-tight text-navy-900">
+          Personvernerklæring
+        </h1>
+        <p className="mt-2 text-meta text-navy-700">
+          Sist oppdatert 13. august 2026
+        </p>
+
+        <div className="mt-8 flex flex-col gap-6 text-body text-navy-900">
+          <section className="flex flex-col gap-2">
+            <h2 className="text-heading">1. Behandlingsansvarlig</h2>
+            <p>
+              N&amp;M Vaktmesterservice AS («vi») er behandlingsansvarlig for
+              personopplysninger som behandles i Loggbok-appen.
+            </p>
+          </section>
+
+          <section className="flex flex-col gap-2">
+            <h2 className="text-heading">2. Hva appen brukes til</h2>
+            <p>
+              Loggbok er et internt system for drift og oppfølging hos kunder:
+              besøk, oppgaver, ekstraarbeid, avvik, meldinger og enkel
+              timeføring. Kunder kan få innlogging til en begrenset portal for
+              sitt anlegg.
+            </p>
+          </section>
+
+          <section className="flex flex-col gap-2">
+            <h2 className="text-heading">3. Hvilke opplysninger vi behandler</h2>
+            <ul className="list-disc space-y-1 pl-5">
+              <li>
+                Ansatte: navn, brukernavn, rolle, loggføringer, eventuelle
+                timer og push-abonnement (hvis tillatt).
+              </li>
+              <li>
+                Kunder / kundekontakter: firmanavn, innlogging til portal,
+                meldinger og aktivitet knyttet til anlegget.
+              </li>
+              <li>
+                Innhold i loggen: tekst om arbeid, avvik og gjøremål. Bilder
+                lagres bare hvis funksjonen er i bruk.
+              </li>
+            </ul>
+          </section>
+
+          <section className="flex flex-col gap-2">
+            <h2 className="text-heading">4. Hvorfor vi behandler opplysningene</h2>
+            <p>Behandlingen skjer for å:</p>
+            <ul className="list-disc space-y-1 pl-5">
+              <li>utføre og dokumentere vaktmestertjenester</li>
+              <li>kommunisere med kunde om anlegget</li>
+              <li>føre timer for lønn der det er aktuelt</li>
+              <li>varsle ansatte om nye meldinger eller gjøremål</li>
+            </ul>
+            <p>
+              Grunnlaget er i hovedsak avtaleforhold (oppdrag med kunde) og
+              arbeidsforhold (ansatte).
+            </p>
+          </section>
+
+          <section className="flex flex-col gap-2">
+            <h2 className="text-heading">5. Hvem som får tilgang</h2>
+            <p>
+              Ansatte med innlogging ser data etter rolle. Kundekontoer ser bare
+              eget anlegg. Opplysningene selges ikke videre.
+            </p>
+          </section>
+
+          <section className="flex flex-col gap-2">
+            <h2 className="text-heading">6. Leverandører</h2>
+            <p>
+              For å drifte appen bruker vi tjenesteleverandører som behandler
+              data på våre vegne, blant annet:
+            </p>
+            <ul className="list-disc space-y-1 pl-5">
+              <li>database / lagring (f.eks. Supabase)</li>
+              <li>drift av nettside (f.eks. Vercel)</li>
+              <li>push-varsler (f.eks. OneSignal), hvis aktivert</li>
+              <li>
+                teksthjelp / AI (f.eks. Google Gemini) når «Forbedre tekst»
+                brukes
+              </li>
+            </ul>
+            <p>
+              Der det er tilgjengelig, inngås databehandleravtale med
+              leverandøren.
+            </p>
+          </section>
+
+          <section className="flex flex-col gap-2">
+            <h2 className="text-heading">7. Lagringstid</h2>
+            <p>
+              Opplysninger lagres så lenge det er nødvendig for drift, oppfølging
+              og eventuelle krav knyttet til oppdraget. Når en bruker ikke lenger
+              skal ha tilgang, deaktiveres kontoen.
+            </p>
+          </section>
+
+          <section className="flex flex-col gap-2">
+            <h2 className="text-heading">8. Sikkerhet</h2>
+            <p>
+              Tilgang krever innlogging. Tilkobling skjer over HTTPS. Vi begrenser
+              tilgangen til dem som trenger den i arbeidet.
+            </p>
+          </section>
+
+          <section className="flex flex-col gap-2">
+            <h2 className="text-heading">9. Dine rettigheter</h2>
+            <p>
+              Du kan be om innsyn, retting eller sletting der det følger av
+              personvernregelverket, og klage til Datatilsynet. Ta kontakt med
+              oss hvis du har spørsmål.
+            </p>
+          </section>
+
+          <section className="flex flex-col gap-2">
+            <h2 className="text-heading">10. Kontakt</h2>
+            <p>N&amp;M Vaktmesterservice AS</p>
+            <p className="text-meta text-navy-700">
+              Dette er en kortfattet erklæring for intern bruk og
+              kundeportal. Den er ment som åpen informasjon, ikke som
+              juridisk rådgivning.
+            </p>
+          </section>
+        </div>
+      </div>
+
+      <footer className="border-t border-line px-6 py-4 text-center">
+        <p className="text-meta text-navy-700">N&amp;M Vaktmesterservice AS</p>
+      </footer>
+    </main>
+  );
+}

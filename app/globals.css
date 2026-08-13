@@ -1,0 +1,109 @@
+@import "tailwindcss";
+
+:root {
+  /* Lys modus ute — god kontrast i sollys */
+  color-scheme: light;
+}
+
+@theme {
+  /* Nøytraler — kjøligere og renere enn før */
+  --color-navy-900: #0e1620;
+  --color-navy-800: #1e2936;
+  --color-navy-700: #55616e;
+  --color-navy-100: #ccd4dc;
+  --color-navy-50: #f2f4f7;
+
+  /* Hårfine delelinjer */
+  --color-line: #e5e8ed;
+  --color-line-strong: #c9d1d9;
+
+  /* Sidebakgrunn som eget token — brukes av body og sticky felter.
+     Litt mørkere enn før så de hvite kortene løfter seg tydelig. */
+  --color-page: #eef1f4;
+
+  --color-brand: #15803d;
+  --color-brand-dark: #116634;
+  --color-brand-50: #ecf7f0;
+
+  --color-green-700: #15703b;
+  --color-green-50: #ecf7f0;
+
+  --color-red-700: #b42318;
+  --color-red-50: #fef3f2;
+
+  --color-amber-700: #a15c07;
+  --color-amber-50: #fffaeb;
+
+  /* Tydelig mykere hjørner i hele appen — rounded-md/lg plukker opp disse */
+  --radius-md: 0.875rem;
+  --radius-lg: 1.125rem;
+
+  --text-display: 1.875rem;
+  --text-display--line-height: 1.15;
+  --text-display--font-weight: 700;
+  --text-display--letter-spacing: -0.025em;
+  --text-heading: 1.125rem;
+  --text-heading--line-height: 1.35;
+  --text-heading--font-weight: 600;
+  --text-heading--letter-spacing: -0.012em;
+  --text-body: 1.0625rem;
+  --text-body--line-height: 1.55;
+  --text-meta: 0.875rem;
+  --text-meta--line-height: 1.45;
+
+  /* Lagdelte skygger — tydelig dybde uten å bli mørkt */
+  --shadow-card:
+    0 1px 2px rgb(14 22 32 / 0.05), 0 4px 10px -2px rgb(14 22 32 / 0.07);
+  --shadow-soft:
+    0 2px 4px rgb(14 22 32 / 0.05), 0 10px 24px -6px rgb(14 22 32 / 0.12);
+  --shadow-lift:
+    0 4px 8px rgb(14 22 32 / 0.07), 0 18px 40px -8px rgb(14 22 32 / 0.16);
+
+  /* Grønn glød til primærknapper */
+  --shadow-brand:
+    0 1px 2px rgb(17 102 52 / 0.25), 0 8px 20px -6px rgb(21 128 61 / 0.45);
+}
+
+@theme inline {
+  --font-sans: var(--font-source-sans);
+  --font-mono: var(--font-plex-mono);
+}
+
+body {
+  background: var(--color-page);
+  color: var(--color-navy-900);
+  font-family: var(--font-source-sans), system-ui, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Synlig fokus for tastatur uten å forstyrre touch */
+:focus-visible {
+  outline: 2px solid var(--color-brand);
+  outline-offset: 2px;
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .animate-rise {
+    animation: rise-in 0.25s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+}
+
+.nav-scroll {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.nav-scroll::-webkit-scrollbar {
+  display: none;
+}

@@ -1,0 +1,368 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// Kontraktstype: helår, sommer, vinter, renhold
+enum ContractType {
+  YEAR_ROUND
+  SUMMER
+  WINTER
+  CLEANING
+}
+
+// Frekvens på oppgavemal: daglig, ukentlig, månedlig, ved behov
+enum Frequency {
+  DAILY
+  WEEKLY
+  MONTHLY
+  AS_NEEDED
+}
+
+// De tre registreringstypene på et kundekort.
+// EXTRA_WORK er det eneste som er fakturerbart, og det eneste som har timer.
+enum LogType {
+  VISIT_NOTE
+  TASK_COMPLETION
+  EXTRA_WORK
+}
+
+// Avviksstatus: åpen, under arbeid, lukket
+enum IssueStatus {
+  OPEN
+  IN_PROGRESS
+  CLOSED
+}
+
+enum Role {
+  ADMIN
+  EMPLOYEE
+  CUSTOMER
+}
+
+// Lønnstype — timesbetalte får timeliste
+enum PayType {
+  FIXED
+  HOURLY
+}
+
+// Aktiv stempling: lønnstimer eller fakturerbart ekstraarbeid
+enum TimeClockKind {
+  PAYROLL
+  EXTRA_WORK
+}
+
+// Hvordan et kundeoppdrag gjentas i kalenderen
+enum JobScheduleKind {
+  ONCE
+  WEEKLY
+  BIWEEKLY
+  MONTHLY
+}
+
+// Kunde
+model Customer {
+  id            String       @id @default(cuid())
+  name          String
+  contactPerson String?
+  email         String?
+  phone         String?
+  address       String?
+  contractType  ContractType
+  // Årlig kontraktssum i kroner
+  annualValue   Decimal      @db.Decimal(10, 2)
+  active        Boolean      @default(true)
+
+  areas      Area[]
+  portalUsers User[]
+  messages   CustomerMessage[]
+  todos      Todo[]
+  timeClocks TimeClock[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Internt gjøremål på en kunde — vises aldri i kundeportalen.
+// Skillet mot Issue: avvik = noe er galt, gjøremål = noe skal gjøres.
+model Todo {
+  id           String    @id @default(cuid())
+  customerId   String
+  createdById  String?
+  text         String
+  // null = ikke utført ennå
+  doneAt       DateTime?
+  doneByUserId String?
+
+  customer  Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  createdBy User?    @relation("TodoCreator", fields: [createdById], references: [id], onDelete: SetNull)
+  doneBy    User?    @relation("TodoCompleter", fields: [doneByUserId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+
+  @@index([customerId, doneAt])
+  @@index([createdById])
+  @@index([doneByUserId])
+}
+
+// Melding fra kundeportalen til N&M
+model CustomerMessage {
+  id             String    @id @default(cuid())
+  customerId     String
+  userId         String
+  body           String
+  // null = ikke signert / tatt hånd om ennå
+  readAt         DateTime?
+  signedByUserId String?
+
+  customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  user     User     @relation("CustomerMessageSender", fields: [userId], references: [id], onDelete: Cascade)
+  signedBy User?    @relation("CustomerMessageSigner", fields: [signedByUserId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+
+  @@index([customerId, createdAt])
+  @@index([customerId, readAt])
+  @@index([userId])
+  @@index([signedByUserId])
+}
+
+// Område — en kunde kan ha flere
+model Area {
+  id         String @id @default(cuid())
+  customerId String
+  name       String
+  address    String?
+  notes      String?
+
+  customer      Customer       @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  taskTemplates TaskTemplate[]
+  logEntries    LogEntry[]
+  issues        Issue[]
+  customerJobs  CustomerJob[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([customerId])
+}
+
+// Oppgavemal — faste oppgaver knyttet til et område
+model TaskTemplate {
+  id        String    @id @default(cuid())
+  areaId    String
+  title     String
+  frequency Frequency
+  // Rekkefølge i lista ute på anlegget
+  sortOrder Int       @default(0)
+
+  area           Area            @relation(fields: [areaId], references: [id], onDelete: Cascade)
+  completedTasks CompletedTask[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([areaId])
+}
+
+// Logginnføring — arbeidslogg eller kommentarbok
+model LogEntry {
+  id         String   @id @default(cuid())
+  areaId     String
+  userId     String
+  occurredAt DateTime
+  type       LogType
+  comment    String?
+  // Timer som desimal, f.eks. 2.5
+  hours      Decimal? @db.Decimal(5, 2)
+  // Når ekstraarbeid er lagt inn i faktura — null = åpent
+  handledAt  DateTime?
+
+  area           Area            @relation(fields: [areaId], references: [id], onDelete: Cascade)
+  user           User            @relation(fields: [userId], references: [id])
+  completedTasks CompletedTask[]
+  photos         Photo[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([areaId, occurredAt])
+  @@index([userId])
+  @@index([type, handledAt])
+}
+
+// Kobling mellom logginnføring og oppgavemal
+model CompletedTask {
+  id             String @id @default(cuid())
+  logEntryId     String
+  taskTemplateId String
+
+  logEntry     LogEntry     @relation(fields: [logEntryId], references: [id], onDelete: Cascade)
+  taskTemplate TaskTemplate @relation(fields: [taskTemplateId], references: [id], onDelete: Cascade)
+
+  // Samme oppgave skal ikke kunne krysses av to ganger i én innføring
+  @@unique([logEntryId, taskTemplateId])
+  @@index([taskTemplateId])
+}
+
+// Bilde — henger på enten en logginnføring eller et avvik, aldri begge
+model Photo {
+  id         String   @id @default(cuid())
+  logEntryId String?
+  issueId    String?
+  url        String
+  uploadedAt DateTime @default(now())
+
+  logEntry LogEntry? @relation(fields: [logEntryId], references: [id], onDelete: Cascade)
+  issue    Issue?    @relation(fields: [issueId], references: [id], onDelete: Cascade)
+
+  @@index([logEntryId])
+  @@index([issueId])
+}
+
+// Avvik på et område
+model Issue {
+  id          String      @id @default(cuid())
+  areaId      String
+  // Hvem som meldte avviket
+  userId      String
+  description String
+  status      IssueStatus @default(OPEN)
+
+  area   Area    @relation(fields: [areaId], references: [id], onDelete: Cascade)
+  user   User    @relation(fields: [userId], references: [id])
+  photos Photo[]
+
+  createdAt DateTime  @default(now())
+  closedAt  DateTime?
+  updatedAt DateTime  @updatedAt
+
+  @@index([areaId, status])
+  @@index([userId])
+}
+
+model User {
+  id           String  @id @default(cuid())
+  username     String  @unique
+  name         String
+  email        String? @unique
+  passwordHash String
+  role         Role    @default(EMPLOYEE)
+  active       Boolean @default(true)
+  payType      PayType @default(FIXED)
+  // Kun for CUSTOMER — hvilken kundeportalen viser
+  customerId   String?
+
+  customer       Customer?         @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  logEntries     LogEntry[]
+  issues         Issue[]
+  jobCompletions JobCompletion[]
+  timeEntries    TimeEntry[]
+  timeClocks     TimeClock[]
+  messages       CustomerMessage[] @relation("CustomerMessageSender")
+  signedMessages CustomerMessage[] @relation("CustomerMessageSigner")
+  todosCreated   Todo[]            @relation("TodoCreator")
+  todosCompleted Todo[]            @relation("TodoCompleter")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([customerId])
+}
+
+// Åpen stempling — én per bruker. Slettes når man avslutter eller avbryter.
+// kind + customerId håndheves også med CHECK i migrasjonen.
+model TimeClock {
+  id         String        @id @default(cuid())
+  userId     String        @unique
+  kind       TimeClockKind
+  // Kun EXTRA_WORK — hvilken kunde stemplingen gjelder
+  customerId String?
+  startedAt  DateTime      @default(now())
+
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  customer Customer? @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@index([customerId])
+}
+
+// Lønnstimer — ansattes egne timer til utbetaling (ikke fakturerbart ekstraarbeid)
+model TimeEntry {
+  id       String   @id @default(cuid())
+  userId   String
+  // Kalenderdagen arbeidet ble utført (midnatt Oslo)
+  workedOn DateTime
+  hours    Decimal  @db.Decimal(5, 2)
+  comment  String
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId, workedOn])
+  @@index([workedOn])
+}
+
+// Felles oppdragstyper i rullgardinen (plenklipp, maling, …)
+model JobType {
+  id        String @id @default(cuid())
+  name      String @unique
+  sortOrder Int    @default(0)
+
+  jobs CustomerJob[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Oppdrag bestilt på en kunde — det som dukker opp i kalenderen
+model CustomerJob {
+  id        String          @id @default(cuid())
+  areaId    String
+  // Fri tekst er hovedtittelen; type er valgfritt hurtigvalg
+  title     String
+  jobTypeId String?
+  kind      JobScheduleKind
+  // Engangsoppdrag: hvilken dag det skal gjøres
+  dueOn     DateTime?
+  // Ukentlig/annenhver uke: 0 = mandag … 6 = søndag
+  weekday   Int?
+  // Ankerdato for gjentakelse (og månedens dag for MONTHLY)
+  startsOn  DateTime
+  active    Boolean         @default(true)
+  notes     String?
+
+  area         Area             @relation(fields: [areaId], references: [id], onDelete: Cascade)
+  jobType      JobType?         @relation(fields: [jobTypeId], references: [id], onDelete: Restrict)
+  completions  JobCompletion[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([areaId, active])
+  @@index([jobTypeId])
+}
+
+// Ett kryss i kalenderen for én planlagt dag
+model JobCompletion {
+  id            String   @id @default(cuid())
+  customerJobId String
+  userId        String
+  // Kalenderdagen som ble krysset av (midnatt Oslo lagret som UTC-instant)
+  scheduledFor  DateTime
+  completedAt   DateTime @default(now())
+
+  customerJob CustomerJob @relation(fields: [customerJobId], references: [id], onDelete: Cascade)
+  user        User        @relation(fields: [userId], references: [id])
+
+  @@unique([customerJobId, scheduledFor])
+  @@index([scheduledFor])
+  @@index([userId])
+}
