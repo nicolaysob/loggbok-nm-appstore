@@ -2,7 +2,7 @@ import { db } from "@/lib/db";
 import { requireCustomer } from "@/lib/dal";
 import { listCustomerClosedIssueMonths } from "@/lib/customer-activity";
 import { calendarMonth, parseYearMonth } from "@/lib/period";
-import { formatDate } from "@/lib/time";
+import { formatDate, formatTime } from "@/lib/time";
 import { cardStaticClass } from "@/lib/ui";
 import { BackLink } from "@/components/back-link";
 import { MonthFolderList } from "@/components/month-folder-list";
@@ -42,6 +42,15 @@ export default async function PortalIssueArchivePage({
         closedAt: true,
         user: { select: { name: true } },
         photos: { select: { url: true }, take: 3 },
+        notes: {
+          orderBy: { createdAt: "asc" },
+          select: {
+            id: true,
+            body: true,
+            createdAt: true,
+            user: { select: { name: true } },
+          },
+        },
       },
     });
 
@@ -70,6 +79,12 @@ export default async function PortalIssueArchivePage({
               closed: issue.closedAt ? formatDate(issue.closedAt) : null,
               reportedBy: issue.user.name,
               photoUrls: issue.photos.map((photo) => photo.url),
+              notes: issue.notes.map((note) => ({
+                id: note.id,
+                body: note.body,
+                at: `${formatDate(note.createdAt)} · ${formatTime(note.createdAt)}`,
+                author: note.user.name,
+              })),
             }))}
           />
         )}

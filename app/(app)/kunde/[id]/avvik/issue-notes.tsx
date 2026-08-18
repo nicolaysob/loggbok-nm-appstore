@@ -73,6 +73,22 @@ export function IssueNotes({
 
       {open ? (
         <form ref={formRef} action={formAction} className="flex flex-col gap-2">
+          <p className="flex items-center gap-1.5 text-micro font-semibold text-warn">
+            <svg
+              aria-hidden
+              viewBox="0 0 24 24"
+              className="size-4 shrink-0"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M2.5 12S6.5 5 12 5s9.5 7 9.5 7-4 7-9.5 7-9.5-7-9.5-7Z" />
+              <circle cx="12" cy="12" r="2.75" />
+            </svg>
+            Kunden ser denne teksten i portalen
+          </p>
           <textarea
             name="body"
             rows={3}

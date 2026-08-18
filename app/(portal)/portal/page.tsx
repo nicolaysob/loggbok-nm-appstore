@@ -9,7 +9,12 @@ import {
 } from "@/lib/customer-activity";
 import { decimalToNumber, formatHours } from "@/lib/format";
 import { osloYmd } from "@/lib/period";
-import { formatDate, formatLastVisit, formatMonthYear } from "@/lib/time";
+import {
+  formatDate,
+  formatLastVisit,
+  formatMonthYear,
+  formatTime,
+} from "@/lib/time";
 import { cardStaticClass, eyebrowClass, sectionHeadClass } from "@/lib/ui";
 import { ActivityList } from "@/components/activity-list";
 import { BrandIcon } from "@/components/brand";
@@ -110,6 +115,15 @@ export default async function CustomerPortalPage() {
           createdAt: true,
           user: { select: { name: true } },
           photos: { select: { url: true }, take: 3 },
+          notes: {
+            orderBy: { createdAt: "asc" },
+            select: {
+              id: true,
+              body: true,
+              createdAt: true,
+              user: { select: { name: true } },
+            },
+          },
         },
       }),
       db.customerMessage.findMany({
@@ -260,7 +274,7 @@ export default async function CustomerPortalPage() {
             </p>
           </div>
           <div className="rounded-2xl border border-hair bg-surface px-4 py-3.5 shadow-card">
-            <p className={eyebrowClass}>Timer ekstraarbeid i år</p>
+            <p className={eyebrowClass}>Timer i år</p>
             <p className="mt-2 text-title tabular-nums text-ink">
               {formatHours(extraHoursThisYear)} t
             </p>
@@ -328,6 +342,12 @@ export default async function CustomerPortalPage() {
               created: formatDate(issue.createdAt),
               reportedBy: issue.user.name,
               photoUrls: issue.photos.map((photo) => photo.url),
+              notes: issue.notes.map((note) => ({
+                id: note.id,
+                body: note.body,
+                at: `${formatDate(note.createdAt)} · ${formatTime(note.createdAt)}`,
+                author: note.user.name,
+              })),
             }))}
           />
         </section>
