@@ -65,12 +65,12 @@ export function CustomerForm({
         </select>
       </Field>
 
-      <label className="flex min-h-12 items-center gap-3 text-body font-medium text-navy-900">
+      <label className="flex min-h-12 items-center gap-3 text-body font-medium text-ink">
         <input
           type="checkbox"
           name="active"
           defaultChecked={values.active}
-          className="size-7 shrink-0 accent-green-700"
+          className="size-7 shrink-0 accent-ok"
         />
         Aktiv
       </label>

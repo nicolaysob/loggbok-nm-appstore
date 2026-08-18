@@ -4,7 +4,9 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 function isLinkActive(href: string, pathname: string) {
-  if (href === "/") return pathname === "/";
+  if (href === "/") {
+    return pathname === "/" || pathname.startsWith("/kunde/");
+  }
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
@@ -93,12 +95,20 @@ function TabIcon({
   return <MoreIcon className={className} />;
 }
 
-export function MobileBottomNav({ showTimelist }: { showTimelist: boolean }) {
+export function MobileBottomNav({
+  showTimelist,
+  showCalendar,
+}: {
+  showTimelist: boolean;
+  showCalendar: boolean;
+}) {
   const pathname = usePathname();
 
   const tabs: Tab[] = [
     { href: "/", label: "Hjem", icon: "home" },
-    { href: "/kalender", label: "Kalender", icon: "calendar" },
+    ...(showCalendar
+      ? [{ href: "/kalender", label: "Kalender", icon: "calendar" as const }]
+      : []),
     ...(showTimelist
       ? [{ href: "/timeliste", label: "Timer", icon: "clock" as const }]
       : []),
@@ -108,21 +118,30 @@ export function MobileBottomNav({ showTimelist }: { showTimelist: boolean }) {
   return (
     <nav
       aria-label="Hovedmeny"
-      className="fixed inset-x-0 bottom-0 z-[110] px-4 pb-[max(0.85rem,env(safe-area-inset-bottom))] sm:hidden"
+      className="pointer-events-none fixed inset-x-0 bottom-0 z-[110] px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:hidden"
     >
-      <div className="mx-auto flex max-w-md items-center rounded-[1.75rem] bg-white px-2 py-2 shadow-soft">
+      {/* Bakgrunnen tones ut mot sidebakgrunnen så innhold som scroller
+          forbi ikke krasjer med menyen. */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-32 bg-linear-to-t from-canvas from-30% to-transparent"
+      />
+      <div className="pointer-events-auto mx-auto flex max-w-lg items-stretch gap-1.5 rounded-[1.375rem] bg-hero p-1.5 shadow-lift">
         {tabs.map((tab) => {
           const active = isLinkActive(tab.href, pathname);
           return (
             <Link
               key={tab.href}
               href={tab.href}
-              className={`flex min-h-12 min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-2xl px-1.5 touch-manipulation ${
-                active ? "text-brand" : "text-navy-700 active:bg-navy-50"
+              aria-current={active ? "page" : undefined}
+              className={`flex min-h-14 min-w-0 flex-1 touch-manipulation flex-col items-center justify-center gap-1 rounded-2xl transition-colors ${
+                active
+                  ? "bg-brand text-on-brand"
+                  : "text-white/55 active:bg-white/10 active:text-white"
               }`}
             >
               <TabIcon name={tab.icon} className="size-6" />
-              <span className="text-[0.6875rem] font-semibold leading-none">
+              <span className="text-micro font-bold leading-none">
                 {tab.label}
               </span>
             </Link>

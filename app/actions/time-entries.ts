@@ -3,7 +3,7 @@
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
-import { requireUser } from "@/lib/dal";
+import { requireHourlyUser } from "@/lib/dal";
 import { osloMidnight, parseYmdKey } from "@/lib/period";
 import { timeEntrySchema, type FormState } from "@/lib/validation";
 
@@ -11,10 +11,7 @@ export async function createTimeEntry(
   _prevState: FormState,
   formData: FormData,
 ): Promise<FormState> {
-  const user = await requireUser();
-  if (user.payType !== "HOURLY") {
-    return { message: "Bare timesbetalte kan føre timer." };
-  }
+  const user = await requireHourlyUser();
 
   const result = timeEntrySchema.safeParse({
     workedOn: formData.get("workedOn"),

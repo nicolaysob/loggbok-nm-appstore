@@ -1,12 +1,13 @@
 import Link from "next/link";
 import { db } from "@/lib/db";
-import { formatDate } from "@/lib/time";
+import { formatDate, formatTime } from "@/lib/time";
+import type { StaffAccess } from "@/lib/access";
 import {
   getCustomerActivity,
   recentActivitySince,
   RECENT_ACTIVITY_LIMIT,
 } from "@/lib/customer-activity";
-import { cardStaticClass, outlineActionClass } from "@/lib/ui";
+import { cardStaticClass, eyebrowClass, sectionHeadClass } from "@/lib/ui";
 import { ActivityList } from "@/components/activity-list";
 import { IssueList } from "./avvik/issue-list";
 import { SignMessageButton } from "./sign-message-button";
@@ -16,34 +17,46 @@ type CustomerBodyProps = {
   customerId: string;
   currentUserId: string;
   isAdmin: boolean;
+  access: StaffAccess;
 };
 
 export async function CustomerBody({
   customerId,
   currentUserId,
   isAdmin,
+  access,
 }: CustomerBodyProps) {
-  // Nylig utførte gjøremål vises med angre-knapp i en uke
   const doneSince = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
 
   const [openIssues, openMessages, recentActivity, openTodos, doneTodos] =
     await Promise.all([
-      db.issue.findMany({
-        where: {
-          area: { customerId },
-          status: { in: ["OPEN", "IN_PROGRESS"] },
-        },
-        orderBy: { createdAt: "desc" },
-        select: {
-          id: true,
-          description: true,
-          status: true,
-          createdAt: true,
-          userId: true,
-          user: { select: { name: true } },
-          photos: { select: { url: true }, take: 3 },
-        },
-      }),
+      access.issues
+        ? db.issue.findMany({
+            where: {
+              area: { customerId },
+              status: { in: ["OPEN", "IN_PROGRESS"] },
+            },
+            orderBy: { createdAt: "desc" },
+            select: {
+              id: true,
+              description: true,
+              status: true,
+              createdAt: true,
+              userId: true,
+              user: { select: { name: true } },
+              photos: { select: { url: true }, take: 3 },
+              notes: {
+                orderBy: { createdAt: "asc" },
+                select: {
+                  id: true,
+                  body: true,
+                  createdAt: true,
+                  user: { select: { name: true } },
+                },
+              },
+            },
+          })
+        : Promise.resolve([]),
       db.customerMessage.findMany({
         where: { customerId, readAt: null },
         orderBy: { createdAt: "desc" },
@@ -58,134 +71,128 @@ export async function CustomerBody({
         since: recentActivitySince(),
         take: RECENT_ACTIVITY_LIMIT,
       }),
-      db.todo.findMany({
-        where: { customerId, doneAt: null },
-        orderBy: { createdAt: "asc" },
-        select: {
-          id: true,
-          text: true,
-          createdAt: true,
-          createdById: true,
-          createdBy: { select: { name: true } },
-        },
-      }),
-      db.todo.findMany({
-        where: { customerId, doneAt: { gte: doneSince } },
-        orderBy: { doneAt: "desc" },
-        take: 5,
-        select: {
-          id: true,
-          text: true,
-          doneBy: { select: { name: true } },
-        },
-      }),
+      access.todos
+        ? db.todo.findMany({
+            where: { customerId, doneAt: null },
+            orderBy: { createdAt: "asc" },
+            select: {
+              id: true,
+              text: true,
+              createdAt: true,
+              createdById: true,
+              createdBy: { select: { name: true } },
+            },
+          })
+        : Promise.resolve([]),
+      access.todos
+        ? db.todo.findMany({
+            where: { customerId, doneAt: { gte: doneSince } },
+            orderBy: { doneAt: "desc" },
+            take: 5,
+            select: {
+              id: true,
+              text: true,
+              doneBy: { select: { name: true } },
+            },
+          })
+        : Promise.resolve([]),
     ]);
+
+  const needsAttention = openMessages.length > 0 || openIssues.length > 0;
 
   return (
     <>
-      {openMessages.length > 0 && (
-        <section className="flex flex-col gap-3">
-          <h2 className="text-heading text-navy-900">
-            {openMessages.length === 1
-              ? "Ny melding fra kunden"
-              : `${openMessages.length} nye meldinger fra kunden`}
+      {needsAttention && (
+        <section>
+          <h2 className={sectionHeadClass}>
+            <span>Krever handling</span>
           </h2>
-          <ul className="flex flex-col gap-3">
+
+          <div className="flex flex-col gap-2.5">
             {openMessages.map((message) => (
-              <li
+              <article
                 key={message.id}
-                className={`bg-navy-50 px-4 py-3.5 ${cardStaticClass}`}
+                className={`border-l-4 border-l-ink-3 px-4 py-3.5 ${cardStaticClass}`}
               >
-                <p className="text-meta font-medium text-navy-700">
-                  <span className="font-mono">
-                    {formatDate(message.createdAt)}
-                  </span>
-                  {" · "}
-                  {message.user.name}
-                </p>
-                <p className="mt-1.5 text-body whitespace-pre-wrap text-navy-900">
+                <p className={eyebrowClass}>Melding fra kunde</p>
+                <p className="mt-1.5 text-body whitespace-pre-wrap text-ink">
                   {message.body}
                 </p>
+                <p className="mt-1.5 text-micro text-ink-3">
+                  {formatDate(message.createdAt)} · {message.user.name}
+                </p>
                 <SignMessageButton messageId={message.id} />
-              </li>
+              </article>
             ))}
-          </ul>
+
+            {openIssues.length > 0 && (
+              <IssueList
+                isAdmin={isAdmin}
+                currentUserId={currentUserId}
+                issues={openIssues.map((issue) => ({
+                  id: issue.id,
+                  description: issue.description,
+                  status: issue.status,
+                  created: formatDate(issue.createdAt),
+                  reportedBy: issue.user.name,
+                  userId: issue.userId,
+                  photoUrls: issue.photos.map((photo) => photo.url),
+                  notes: issue.notes.map((note) => ({
+                    id: note.id,
+                    body: note.body,
+                    at: `${formatDate(note.createdAt)} · ${formatTime(note.createdAt)}`,
+                    author: note.user.name,
+                  })),
+                }))}
+              />
+            )}
+          </div>
         </section>
       )}
 
-      {openIssues.length > 0 && (
-        <section className="flex flex-col gap-3">
-          <div className="flex items-baseline justify-between gap-3">
-            <h2 className="text-heading text-red-700">Åpne avvik</h2>
-            <Link
-              href={`/kunde/${customerId}/avvik`}
-              className="text-meta font-semibold text-red-700"
-            >
-              Se alle
-            </Link>
-          </div>
-          <IssueList
-            isAdmin={isAdmin}
+      {access.todos ? (
+        <section>
+          <h2 className={sectionHeadClass}>
+            <span>Gjøremål</span>
+            {openTodos.length > 0 ? <span>{openTodos.length}</span> : null}
+          </h2>
+          <TodoList
+            customerId={customerId}
             currentUserId={currentUserId}
-            issues={openIssues.map((issue) => ({
-              id: issue.id,
-              description: issue.description,
-              status: issue.status,
-              created: formatDate(issue.createdAt),
-              reportedBy: issue.user.name,
-              userId: issue.userId,
-              photoUrls: issue.photos.map((photo) => photo.url),
+            isAdmin={isAdmin}
+            open={openTodos.map((todo) => ({
+              id: todo.id,
+              text: todo.text,
+              created: formatDate(todo.createdAt),
+              createdBy: todo.createdBy?.name ?? null,
+              createdById: todo.createdById,
+            }))}
+            recentlyDone={doneTodos.map((todo) => ({
+              id: todo.id,
+              text: todo.text,
+              doneBy: todo.doneBy?.name ?? null,
             }))}
           />
         </section>
-      )}
+      ) : null}
 
-      <section className="flex flex-col gap-3">
-        <h2 className="text-heading">Gjøremål</h2>
-        <p className="text-meta text-navy-700">
-          Interne ting som skal gjøres — vises ikke for kunden.
-        </p>
-        <TodoList
-          customerId={customerId}
-          currentUserId={currentUserId}
-          isAdmin={isAdmin}
-          open={openTodos.map((todo) => ({
-            id: todo.id,
-            text: todo.text,
-            created: formatDate(todo.createdAt),
-            createdBy: todo.createdBy?.name ?? null,
-            createdById: todo.createdById,
-          }))}
-          recentlyDone={doneTodos.map((todo) => ({
-            id: todo.id,
-            text: todo.text,
-            doneBy: todo.doneBy?.name ?? null,
-          }))}
-        />
-      </section>
-
-      <section className="flex flex-col gap-3">
-        <h2 className="text-heading">Siste aktivitet</h2>
-        <p className="text-meta text-navy-700">Siste 14 dager</p>
+      <section>
+        <h2 className={sectionHeadClass}>
+          <span>Aktivitet</span>
+          <Link
+            href={`/kunde/${customerId}/aktivitet`}
+            className="text-eyebrow uppercase text-ink-2"
+          >
+            Arkiv ›
+          </Link>
+        </h2>
         <ActivityList
           items={recentActivity}
-          emptyText="Ingen registreringer de siste 14 dagene."
+          emptyText="Ingen registreringer ennå."
           canDelete={isAdmin}
           currentUserId={currentUserId}
           isAdmin={isAdmin}
         />
-        <Link
-          href={`/kunde/${customerId}/aktivitet`}
-          className={`flex min-h-[4.5rem] items-center justify-between rounded-md px-4 text-body font-semibold ${outlineActionClass}`}
-        >
-          Aktivitetsarkiv
-          <span
-            aria-hidden
-            className="flex size-11 items-center justify-center rounded-full bg-navy-50"
-          >
-            ›
-          </span>
-        </Link>
       </section>
     </>
   );

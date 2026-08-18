@@ -5,11 +5,11 @@ export function PageLoading({ label = "Laster …" }: { label?: string }) {
       role="status"
       aria-live="polite"
     >
-      <p className="text-body font-medium text-navy-700">{label}</p>
-      <div className="h-14 animate-pulse rounded-md bg-navy-50" />
-      <div className="h-14 animate-pulse rounded-md bg-navy-50" />
-      <div className="h-14 animate-pulse rounded-md bg-navy-50" />
-      <div className="h-32 animate-pulse rounded-md bg-navy-50" />
+      <p className="text-body font-medium text-ink-2">{label}</p>
+      <div className="h-14 animate-pulse rounded-2xl bg-sunken" />
+      <div className="h-14 animate-pulse rounded-2xl bg-sunken" />
+      <div className="h-14 animate-pulse rounded-2xl bg-sunken" />
+      <div className="h-32 animate-pulse rounded-2xl bg-sunken" />
     </div>
   );
 }

@@ -13,6 +13,8 @@ export const getOpenTimeClock = cache(async () => {
       kind: true,
       customerId: true,
       startedAt: true,
+      pausedAt: true,
+      pausedMs: true,
       customer: { select: { id: true, name: true } },
     },
   });

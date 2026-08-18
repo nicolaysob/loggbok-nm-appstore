@@ -115,19 +115,19 @@ export function WeekPlanForm({
           type="button"
           disabled={pending || text.trim().length === 0}
           onClick={onParse}
-          className={`min-h-14 rounded-md px-4 text-body font-semibold ${solidActionClass}`}
+          className={`min-h-14 rounded-xl px-4 text-body font-semibold ${solidActionClass}`}
         >
           {pending && drafts.length === 0 ? "Lager forslag …" : "Lag forslag"}
         </button>
       </section>
 
       {error && (
-        <p role="alert" className="text-body font-semibold text-red-700">
+        <p role="alert" className="text-body font-semibold text-danger">
           {error}
         </p>
       )}
       {message && (
-        <p role="status" className="text-body font-semibold text-green-700">
+        <p role="status" className="text-body font-semibold text-ok">
           {message}
         </p>
       )}
@@ -139,9 +139,9 @@ export function WeekPlanForm({
             {drafts.map((item) => (
               <li
                 key={item.key}
-                className="flex flex-col gap-3 rounded-md bg-white p-4 shadow-card"
+                className="flex flex-col gap-3 rounded-2xl bg-surface p-4 shadow-card"
               >
-                <label className="flex min-h-12 items-center gap-3 text-body font-semibold text-navy-900">
+                <label className="flex min-h-12 items-center gap-3 text-body font-semibold text-ink">
                   <input
                     type="checkbox"
                     checked={item.include}
@@ -154,13 +154,13 @@ export function WeekPlanForm({
                         ),
                       )
                     }
-                    className="size-7 accent-green-700"
+                    className="size-7 accent-ok"
                   />
                   Ta med
                 </label>
 
                 <label className="flex flex-col gap-1">
-                  <span className="text-meta font-semibold text-navy-700">
+                  <span className="text-meta font-semibold text-ink-2">
                     Dag
                   </span>
                   <select
@@ -186,7 +186,7 @@ export function WeekPlanForm({
                 </label>
 
                 <label className="flex flex-col gap-1">
-                  <span className="text-meta font-semibold text-navy-700">
+                  <span className="text-meta font-semibold text-ink-2">
                     Kunde
                   </span>
                   <select
@@ -220,7 +220,7 @@ export function WeekPlanForm({
                 </label>
 
                 <label className="flex flex-col gap-1">
-                  <span className="text-meta font-semibold text-navy-700">
+                  <span className="text-meta font-semibold text-ink-2">
                     Oppdrag
                   </span>
                   <input
@@ -246,7 +246,7 @@ export function WeekPlanForm({
             type="button"
             disabled={pending || includedCount === 0}
             onClick={onConfirm}
-            className={`min-h-16 rounded-md px-4 text-heading font-semibold ${solidActionClass}`}
+            className={`min-h-16 rounded-xl px-4 text-heading font-semibold ${solidActionClass}`}
           >
             {pending ? "Lagrer …" : `Legg ${includedCount} i kalender`}
           </button>
@@ -254,7 +254,7 @@ export function WeekPlanForm({
             type="button"
             disabled={pending}
             onClick={() => setDrafts([])}
-            className={`min-h-12 rounded-md px-4 text-meta font-semibold ${outlineActionClass}`}
+            className={`min-h-12 rounded-xl px-4 text-meta font-semibold ${outlineActionClass}`}
           >
             Forkast forslag
           </button>

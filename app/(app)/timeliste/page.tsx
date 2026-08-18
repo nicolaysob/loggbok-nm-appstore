@@ -13,7 +13,7 @@ import {
   osloYmd,
 } from "@/lib/period";
 import { formatDate } from "@/lib/time";
-import { outlineActionClass, cardStaticClass } from "@/lib/ui";
+import { outlineActionClass } from "@/lib/ui";
 import { ManualEntryDisclosure } from "@/components/manual-entry-disclosure";
 import { TimeClockPanel } from "@/components/time-clock-panel";
 import { TimeEntryForm } from "./time-entry-form";
@@ -65,77 +65,70 @@ export default async function TimeSheetPage({
         customerId: openClockRow.customerId,
         customerName: openClockRow.customer?.name ?? null,
         startedAt: openClockRow.startedAt.toISOString(),
+        pausedAt: openClockRow.pausedAt?.toISOString() ?? null,
+        pausedMs: openClockRow.pausedMs,
       }
     : null;
 
   return (
     <div className="mx-auto flex w-full max-w-lg animate-rise flex-col gap-6">
-      <div className="flex flex-col gap-4">
-        <div className="flex flex-col gap-1">
-          <h1 className="text-display tracking-tight">Timeliste</h1>
-          <p className="text-body text-navy-700">Dine timer · {week.label}</p>
-        </div>
+      <TimeClockPanel mode="PAYROLL" openClock={openClock} />
 
-        <div className="flex gap-2">
-          <Link
-            href={`/timeliste?uke=${weekParam(previous.monday)}`}
-            className={`flex min-h-12 flex-1 items-center justify-center px-3 text-body font-semibold ${outlineActionClass}`}
-          >
-            Forrige
-          </Link>
-          {!isCurrent && (
-            <Link
-              href="/timeliste"
-              className={`flex min-h-12 flex-1 items-center justify-center px-3 text-body font-semibold ${outlineActionClass}`}
-            >
-              Denne
-            </Link>
-          )}
-          <Link
-            href={`/timeliste?uke=${weekParam(next.monday)}`}
-            className={`flex min-h-12 flex-1 items-center justify-center px-3 text-body font-semibold ${outlineActionClass}`}
-          >
-            Neste
-          </Link>
-        </div>
-      </div>
-
-      <div className={`flex flex-col gap-1.5 px-5 py-5 ${cardStaticClass}`}>
-        <p className="text-meta font-medium text-navy-700">Totalt denne uken</p>
-        <p className="font-mono text-display tabular-nums text-navy-900">
+      <div className="flex items-baseline justify-between gap-3">
+        <h1 className="text-heading">{week.label}</h1>
+        <p className="font-mono text-body tabular-nums text-ink">
           {formatHours(totalHours)} t
         </p>
       </div>
 
-      <TimeClockPanel mode="PAYROLL" openClock={openClock} />
+      <div className="flex gap-2">
+        <Link
+          href={`/timeliste?uke=${weekParam(previous.monday)}`}
+          className={`flex min-h-12 flex-1 items-center justify-center px-3 text-body font-semibold ${outlineActionClass}`}
+        >
+          Forrige
+        </Link>
+        {!isCurrent && (
+          <Link
+            href="/timeliste"
+            className={`flex min-h-12 flex-1 items-center justify-center px-3 text-body font-semibold ${outlineActionClass}`}
+          >
+            Denne
+          </Link>
+        )}
+        <Link
+          href={`/timeliste?uke=${weekParam(next.monday)}`}
+          className={`flex min-h-12 flex-1 items-center justify-center px-3 text-body font-semibold ${outlineActionClass}`}
+        >
+          Neste
+        </Link>
+      </div>
 
       <ManualEntryDisclosure>
         <TimeEntryForm defaultDate={todayKey} />
       </ManualEntryDisclosure>
 
-      <section className="flex flex-col gap-4">
-        <h2 className="text-heading">Registrert</h2>
-
+      <section className="flex flex-col gap-2">
         {rows.length === 0 ? (
-          <p className={`px-4 py-5 text-body text-navy-700 ${cardStaticClass}`}>
-            Ingen timer ført denne uken.
+          <p className="rounded-2xl border border-hair bg-surface px-4 py-5 text-body text-ink-2">
+            Ingen timer denne uken.
           </p>
         ) : (
-          <ul className="flex flex-col gap-3">
+          <ul className="overflow-hidden rounded-2xl border border-hair bg-surface">
             {rows.map((row) => (
               <li
                 key={row.id}
-                className={`flex flex-col gap-1 px-4 py-4 ${cardStaticClass}`}
+                className="flex flex-col gap-1 border-b border-hair px-4 py-4 last:border-b-0"
               >
                 <div className="flex items-baseline justify-between gap-3">
-                  <p className="text-body font-semibold text-navy-900">
+                  <p className="text-body font-medium text-ink">
                     {row.dateLabel}
                   </p>
-                  <p className="font-mono text-body tabular-nums text-navy-900">
+                  <p className="font-mono text-body tabular-nums text-ink">
                     {formatHours(row.hours)} t
                   </p>
                 </div>
-                <p className="text-body text-navy-700">{row.comment}</p>
+                <p className="text-body text-ink-2">{row.comment}</p>
               </li>
             ))}
           </ul>

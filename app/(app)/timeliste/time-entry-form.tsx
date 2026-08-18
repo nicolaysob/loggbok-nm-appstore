@@ -59,7 +59,7 @@ export function TimeEntryForm({ defaultDate }: { defaultDate: string }) {
       {state?.message && (
         <p
           role="status"
-          className="text-body font-semibold text-green-700"
+          className="text-body font-semibold text-ok"
         >
           {state.message}
         </p>

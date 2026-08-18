@@ -79,8 +79,8 @@ export default async function PayrollPage({
     <div className="mx-auto flex w-full max-w-lg animate-rise flex-col gap-6">
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-1">
-          <h1 className="text-display tracking-tight">Lønn</h1>
-          <p className="text-body text-navy-700">
+          <h1 className="text-display">Lønn</h1>
+          <p className="text-body text-ink-2">
             Timelister fra timesbetalte · {period.label}
           </p>
         </div>
@@ -110,8 +110,8 @@ export default async function PayrollPage({
       </div>
 
       <div className={`flex flex-col gap-1.5 px-5 py-5 ${cardStaticClass}`}>
-        <p className="text-meta text-navy-700">Totalt {period.label.toLowerCase()}</p>
-        <p className="font-mono text-display tabular-nums text-navy-900">
+        <p className="text-meta text-ink-2">Totalt {period.label.toLowerCase()}</p>
+        <p className="font-mono text-display tabular-nums text-ink">
           {formatHours(totalHours)} t
         </p>
       </div>

@@ -28,8 +28,10 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  // Statiske filer (logo, ikon, OneSignal service worker, …) skal ikke kreve innlogging
+  // Statiske filer (logo, ikon, OneSignal service worker, …) skal ikke kreve innlogging.
+  // manifest.webmanifest må også være åpen — uten den får ikke telefonen lest
+  // navn, ikon og farger når appen legges til på hjemskjermen.
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|OneSignalSDKWorker\\.js|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)",
+    "/((?!_next/static|_next/image|favicon.ico|manifest\\.webmanifest|OneSignalSDKWorker\\.js|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)",
   ],
 };

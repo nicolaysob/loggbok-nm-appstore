@@ -1,11 +1,16 @@
 "use client";
 
-import { cardStaticClass, solidActionClass } from "@/lib/ui";
+import { actionSize, cardStaticClass, solidActionClass } from "@/lib/ui";
 
 export {
+  actionSize,
+  badgeClass,
   cardClass,
   cardStaticClass,
+  eyebrowClass,
+  sectionHeadClass,
   solidActionClass,
+  inkActionClass,
   outlineActionClass,
   textareaClass,
   labelClass,
@@ -14,9 +19,9 @@ export {
 } from "@/lib/ui";
 
 const stepButtonClass =
-  "flex size-14 shrink-0 items-center justify-center rounded-md " +
-  "bg-white text-display text-navy-900 shadow-card " +
-  "active:bg-navy-50 disabled:opacity-40";
+  "flex size-16 shrink-0 items-center justify-center rounded-2xl " +
+  "border-[1.5px] border-edge bg-surface text-display text-ink " +
+  "transition-colors active:bg-sunken disabled:opacity-35";
 
 export function FieldError({ messages }: { messages?: string[] }) {
   return (
@@ -25,7 +30,7 @@ export function FieldError({ messages }: { messages?: string[] }) {
         <p
           key={message}
           role="alert"
-          className="text-body font-medium text-red-700"
+          className="rounded-xl bg-danger-soft px-3.5 py-2.5 text-meta font-bold text-danger"
         >
           {message}
         </p>
@@ -42,15 +47,20 @@ export function StickySubmit({
   children: React.ReactNode;
 }) {
   return (
-    <div className="sticky bottom-20 -mx-5 bg-page/90 px-5 py-3 backdrop-blur-md sm:bottom-0 sm:-mx-4 sm:px-4">
-      <button
-        type="submit"
-        disabled={pending}
-        className={`min-h-14 w-full rounded-md text-body font-semibold ${solidActionClass}`}
-      >
-        {pending ? "Lagrer …" : children}
-      </button>
-    </div>
+    <>
+      <div className="sticky bottom-24 -mx-5 bg-canvas/85 px-5 py-3 backdrop-blur-lg sm:bottom-0 sm:-mx-4 sm:px-4">
+        <button
+          type="submit"
+          disabled={pending}
+          className={`${actionSize} min-h-[3.625rem] ${solidActionClass}`}
+        >
+          {pending ? "Lagrer …" : children}
+        </button>
+      </div>
+      {/* Knappen henger 6rem over bunnen for å klarere fanelinja. Uten denne
+          avstandsholderen kan ikke feltet over scrolles fri av knappen. */}
+      <div aria-hidden className="h-24 shrink-0 sm:hidden" />
+    </>
   );
 }
 
@@ -68,7 +78,9 @@ export function HoursStepper({
   format: (value: number) => string;
 }) {
   return (
-    <div className={`flex items-center justify-between gap-4 px-3 py-3 ${cardStaticClass}`}>
+    <div
+      className={`flex items-center justify-between gap-4 px-3 py-3 ${cardStaticClass}`}
+    >
       <button
         type="button"
         aria-label="Færre timer"
@@ -79,8 +91,9 @@ export function HoursStepper({
         −
       </button>
 
-      <output className="font-mono text-display tabular-nums text-navy-900">
+      <output className="font-mono text-display tabular-nums text-ink">
         {format(hours)}
+        <span className="ml-1 text-title text-ink-3">t</span>
       </output>
 
       <button

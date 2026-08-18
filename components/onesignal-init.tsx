@@ -142,22 +142,22 @@ export function OneSignalInit({
       role="dialog"
       aria-modal="true"
       aria-labelledby="onesignal-dialog-title"
-      className="fixed inset-0 z-[100] flex items-end justify-center bg-navy-900/40 p-4 sm:items-center"
+      className="fixed inset-0 z-[100] flex items-end justify-center bg-hero/40 p-4 sm:items-center"
     >
-      <div className="w-full max-w-md rounded-lg border border-line bg-white p-5 shadow-lift">
+      <div className="w-full max-w-md rounded-lg border border-hair bg-surface p-5 shadow-lift">
         <h2
           id="onesignal-dialog-title"
-          className="text-heading text-navy-900"
+          className="text-heading text-ink"
         >
           Få varsel på telefonen?
         </h2>
-        <p className="mt-2 text-body text-navy-700">
+        <p className="mt-2 text-body text-ink-2">
           Vi kan si ifra når kunden sender melding eller det legges inn et
           gjøremål.
         </p>
         <button
           type="button"
-          className={`mt-5 min-h-14 w-full rounded-md px-4 text-body font-semibold ${solidActionClass}`}
+          className={`mt-5 min-h-14 w-full rounded-xl px-4 text-body font-semibold ${solidActionClass}`}
           onClick={() => {
             dismissPrompt();
             void OneSignal.Notifications.requestPermission().then(() => {
@@ -171,7 +171,7 @@ export function OneSignalInit({
         </button>
         <button
           type="button"
-          className={`mt-2 min-h-12 w-full rounded-md px-4 text-meta font-semibold ${outlineActionClass}`}
+          className={`mt-2 min-h-12 w-full rounded-xl px-4 text-meta font-semibold ${outlineActionClass}`}
           onClick={dismissPrompt}
         >
           Ikke nå

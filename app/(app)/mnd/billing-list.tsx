@@ -35,7 +35,7 @@ export function BillingList({
       <h2 className="text-heading">{title}</h2>
 
       {groups.length === 0 ? (
-        <p className="rounded-md bg-white px-5 py-5 text-body text-navy-700 shadow-card">
+        <p className="rounded-2xl bg-surface px-5 py-5 text-body text-ink-2 shadow-card">
           {emptyText}
         </p>
       ) : (
@@ -45,11 +45,11 @@ export function BillingList({
               <div className="flex flex-wrap items-baseline justify-between gap-2">
                 <Link
                   href={`/kunde/${group.customerId}`}
-                  className="text-heading text-navy-900 hover:text-navy-700"
+                  className="text-heading text-ink hover:text-ink-2"
                 >
                   {group.name}
                 </Link>
-                <span className="font-mono text-heading tabular-nums text-navy-900">
+                <span className="font-mono text-heading tabular-nums text-ink">
                   {formatHours(group.hours)} t
                 </span>
               </div>
@@ -76,20 +76,20 @@ export function BillingList({
                         className={`flex size-11 shrink-0 items-center justify-center rounded-full text-heading font-bold ${
                           handled
                             ? "bg-brand text-white shadow-brand"
-                            : "bg-white text-navy-100 shadow-card"
+                            : "bg-surface text-edge shadow-card"
                         }`}
                       >
                         {handled ? "✓" : ""}
                       </button>
                     </form>
                     <div className="min-w-0 flex-1">
-                      <p className="font-mono text-meta font-medium text-navy-700">
+                      <p className="text-meta tabular-nums text-ink-2">
                         {formatDate(line.at)} · {formatHours(line.hours)} t ·{" "}
                         {line.userName}
                       </p>
                       {line.comment && (
                         <p
-                          className={`text-body text-navy-900 ${
+                          className={`text-body text-ink ${
                             handled ? "opacity-80" : ""
                           }`}
                         >

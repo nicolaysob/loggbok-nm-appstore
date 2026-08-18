@@ -233,15 +233,33 @@ model Issue {
   description String
   status      IssueStatus @default(OPEN)
 
-  area   Area    @relation(fields: [areaId], references: [id], onDelete: Cascade)
-  user   User    @relation(fields: [userId], references: [id])
+  area   Area        @relation(fields: [areaId], references: [id], onDelete: Cascade)
+  user   User        @relation(fields: [userId], references: [id])
   photos Photo[]
+  notes  IssueNote[]
 
   createdAt DateTime  @default(now())
   closedAt  DateTime?
   updatedAt DateTime  @updatedAt
 
   @@index([areaId, status])
+  @@index([userId])
+}
+
+// Oppdatering på et avvik — hva som er gjort siden sist, med tidspunkt.
+// Intern: vises ikke i kundeportalen.
+model IssueNote {
+  id      String @id @default(cuid())
+  issueId String
+  userId  String
+  body    String
+
+  issue Issue @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@index([issueId, createdAt])
   @@index([userId])
 }
 
@@ -254,12 +272,19 @@ model User {
   role         Role    @default(EMPLOYEE)
   active       Boolean @default(true)
   payType      PayType @default(FIXED)
+  // Ansatt-tilganger. Admin har alltid alt. Ignoreres for CUSTOMER.
+  canLog       Boolean @default(true)
+  canIssues    Boolean @default(true)
+  canHours     Boolean @default(true)
+  canTodos     Boolean @default(true)
+  canCalendar  Boolean @default(true)
   // Kun for CUSTOMER — hvilken kundeportalen viser
   customerId   String?
 
   customer       Customer?         @relation(fields: [customerId], references: [id], onDelete: Restrict)
   logEntries     LogEntry[]
   issues         Issue[]
+  issueNotes     IssueNote[]
   jobCompletions JobCompletion[]
   timeEntries    TimeEntry[]
   timeClocks     TimeClock[]
@@ -283,6 +308,11 @@ model TimeClock {
   // Kun EXTRA_WORK — hvilken kunde stemplingen gjelder
   customerId String?
   startedAt  DateTime      @default(now())
+  // Pause — kunden skal ikke betale for pausetid.
+  // pausedAt er satt mens pausen løper, pausedMs er summen av avsluttede
+  // pauser. Fakturerbar tid = nå − startedAt − pausedMs − løpende pause.
+  pausedAt   DateTime?
+  pausedMs   Int           @default(0)
 
   user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   customer Customer? @relation(fields: [customerId], references: [id], onDelete: Cascade)

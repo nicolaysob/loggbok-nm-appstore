@@ -2,28 +2,30 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { logout } from "@/app/actions/auth";
 import { getCurrentUser } from "@/lib/dal";
+import { staffAccess } from "@/lib/access";
 import { BrandIcon } from "@/components/brand";
 import { DesktopNav } from "@/components/desktop-nav";
 import { MobileBottomNav } from "@/components/mobile-bottom-nav";
 import { OneSignalInit } from "@/components/onesignal-init";
-import { ProfileCorner } from "@/components/profile-menu";
 import type { AppNavGroup } from "@/components/mobile-nav";
 import { PullToRefresh } from "@/components/pull-to-refresh";
-import { roleLabels } from "@/lib/labels";
-import { outlineActionClass } from "@/lib/ui";
 
 export default async function AppLayout({ children }: LayoutProps<"/">) {
   const user = await getCurrentUser();
   if (user?.role === "CUSTOMER") redirect("/portal");
 
   const isAdmin = user?.role === "ADMIN";
-  const showTimelist = !isAdmin && user?.payType === "HOURLY";
+  const access = user ? staffAccess(user) : staffAccess({ role: "EMPLOYEE" });
+  const showTimelist = Boolean(
+    !isAdmin && user?.payType === "HOURLY" && access.hours,
+  );
+  const showCalendar = Boolean(isAdmin || access.calendar);
 
   const groups: AppNavGroup[] = [
     {
       links: [
         { href: "/", label: "Hjem" },
-        { href: "/kalender", label: "Kalender" },
+        ...(showCalendar ? [{ href: "/kalender", label: "Kalender" }] : []),
         ...(isAdmin ? [{ href: "/ukeplan", label: "Ukeplan" }] : []),
         ...(showTimelist ? [{ href: "/timeliste", label: "Timeliste" }] : []),
       ],
@@ -52,8 +54,7 @@ export default async function AppLayout({ children }: LayoutProps<"/">) {
 
   return (
     <div className="flex min-h-full flex-1 flex-col">
-      {/* Logo-bar kun på desktop — mobil bruker sidetittel som i en app */}
-      <header className="sticky top-0 z-30 hidden border-b border-line bg-white/85 backdrop-blur-xl sm:block">
+      <header className="sticky top-0 z-30 hidden bg-hero sm:block">
         <div className="relative mx-auto w-full max-w-5xl sm:max-w-6xl">
           <div className="flex items-center justify-between gap-4 px-4 py-2.5">
             <Link
@@ -61,20 +62,22 @@ export default async function AppLayout({ children }: LayoutProps<"/">) {
               className="flex min-h-10 min-w-0 items-center gap-2.5"
               aria-label="Loggbok hjem"
             >
-              <BrandIcon size={28} className="size-7" />
-              <span className="truncate text-meta font-semibold tracking-tight text-navy-900">
+              <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-white">
+                <BrandIcon size={22} className="size-5.5" />
+              </span>
+              <span className="truncate text-meta font-bold text-white">
                 Loggbok
               </span>
             </Link>
 
             <div className="flex shrink-0 items-center gap-3">
-              <span className="max-w-48 truncate text-meta text-navy-700">
+              <span className="max-w-48 truncate text-meta text-white/70">
                 {user?.name}
               </span>
               <form action={logout}>
                 <button
                   type="submit"
-                  className={`min-h-9 rounded-md px-3 text-meta font-medium ${outlineActionClass}`}
+                  className="min-h-9 rounded-full border border-white/20 px-3.5 text-meta font-semibold text-white transition-colors hover:bg-white/10"
                 >
                   Logg ut
                 </button>
@@ -86,34 +89,20 @@ export default async function AppLayout({ children }: LayoutProps<"/">) {
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-5xl flex-1 px-5 pt-[max(1.25rem,env(safe-area-inset-top))] pb-32 sm:max-w-6xl sm:px-4 sm:py-8 sm:pb-8">
-        {user ? (
-          <ProfileCorner
-            className="sm:hidden"
-            hideOn={["/"]}
-            initial={user.name.charAt(0).toUpperCase()}
-            name={user.name}
-            subtitle={roleLabels[user.role]}
-            links={[
-              { href: "/profil", label: "Profil" },
-              { href: "/support", label: "Support" },
-              { href: "/personvern", label: "Personvern" },
-            ]}
-          />
-        ) : null}
+      <main className="mx-auto w-full max-w-5xl flex-1 px-5 pt-[max(0.75rem,env(safe-area-inset-top))] pb-36 sm:max-w-6xl sm:px-4 sm:py-8 sm:pb-8">
         <PullToRefresh>{children}</PullToRefresh>
       </main>
 
-      <footer className="hidden border-t border-line px-4 py-3 text-center sm:block">
+      <footer className="hidden border-t border-hair px-4 py-3 text-center sm:block">
         <Link
           href="/personvern"
-          className="text-meta font-medium text-navy-700 hover:text-navy-900"
+          className="text-meta font-medium text-ink-2 hover:text-ink"
         >
           Personvern
         </Link>
       </footer>
 
-      <MobileBottomNav showTimelist={showTimelist} />
+      <MobileBottomNav showTimelist={showTimelist} showCalendar={showCalendar} />
       <OneSignalInit
         externalUserId={
           user && (user.role === "ADMIN" || user.role === "EMPLOYEE")

@@ -14,16 +14,16 @@ export default function PrivacyPage() {
           <BackLink fallback="/login" />
           <BrandLogo className="w-40" />
           <div className="flex flex-col gap-1">
-            <h1 className="text-display tracking-tight text-navy-900">
+            <h1 className="text-display text-ink">
               Personvernerklæring
             </h1>
-            <p className="text-meta text-navy-700">
+            <p className="text-meta text-ink-2">
               Sist oppdatert 13. august 2026
             </p>
           </div>
         </div>
 
-        <div className="mt-8 flex flex-col gap-6 text-body text-navy-900">
+        <div className="mt-8 flex flex-col gap-6 text-body text-ink">
           <section className="flex flex-col gap-2">
             <h2 className="text-heading">1. Behandlingsansvarlig</h2>
             <p>
@@ -133,7 +133,7 @@ export default function PrivacyPage() {
           <section className="flex flex-col gap-2">
             <h2 className="text-heading">10. Kontakt</h2>
             <p>N&amp;M Vaktmesterservice AS</p>
-            <p className="text-meta text-navy-700">
+            <p className="text-meta text-ink-2">
               Dette er en kortfattet erklæring for intern bruk og
               kundeportal. Den er ment som åpen informasjon, ikke som
               juridisk rådgivning.
@@ -143,7 +143,7 @@ export default function PrivacyPage() {
       </div>
 
       <footer className="px-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-2 text-center">
-        <p className="text-meta text-navy-700">N&amp;M Vaktmesterservice AS</p>
+        <p className="text-meta text-ink-2">N&amp;M Vaktmesterservice AS</p>
       </footer>
     </main>
   );

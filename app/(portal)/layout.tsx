@@ -17,13 +17,15 @@ export default async function PortalLayout({
   return (
     <div className="flex min-h-full flex-1 flex-col">
       <main className="mx-auto w-full max-w-lg flex-1 px-5 pt-[max(1.25rem,env(safe-area-inset-top))] pb-[max(1.5rem,env(safe-area-inset-bottom))]">
-        <ProfileCorner
-          hideOn={["/portal"]}
-          initial={initial}
-          name={user.name}
-          subtitle="Kundeportal"
-          links={links}
-        />
+        <div className="print:hidden">
+          <ProfileCorner
+            hideOn={["/portal"]}
+            initial={initial}
+            name={user.name}
+            subtitle="Kundeportal"
+            links={links}
+          />
+        </div>
         <PullToRefresh>{children}</PullToRefresh>
       </main>
     </div>

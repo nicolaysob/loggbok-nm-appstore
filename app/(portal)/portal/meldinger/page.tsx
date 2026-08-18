@@ -39,17 +39,17 @@ export default async function PortalMessageArchivePage({
         <div className="flex flex-col gap-4">
           <BackLink fallback="/portal/meldinger" />
           <div className="flex flex-col gap-1">
-            <h1 className="text-display tracking-tight text-navy-900">
+            <h1 className="text-display text-ink">
               {period.label}
             </h1>
-            <p className="text-body text-navy-700">
+            <p className="text-body text-ink-2">
               Signerte meldinger denne måneden.
             </p>
           </div>
         </div>
 
         {messages.length === 0 ? (
-          <p className={`px-4 py-5 text-body text-navy-700 ${cardStaticClass}`}>
+          <p className={`px-4 py-5 text-body text-ink-2 ${cardStaticClass}`}>
             Ingen signerte meldinger denne måneden.
           </p>
         ) : (
@@ -59,14 +59,14 @@ export default async function PortalMessageArchivePage({
                 key={message.id}
                 className={`flex flex-col gap-1 px-4 py-3.5 ${cardStaticClass}`}
               >
-                <span className="font-mono text-meta font-medium text-navy-700">
+                <span className="text-meta tabular-nums text-ink-2">
                   {formatDate(message.createdAt)}
                 </span>
-                <p className="text-body whitespace-pre-wrap text-navy-900">
+                <p className="text-body whitespace-pre-wrap text-ink">
                   {message.body}
                 </p>
                 {message.readAt && message.signedBy && (
-                  <p className="text-meta font-medium text-green-700">
+                  <p className="text-meta font-medium text-ok">
                     Signert av {message.signedBy.name} ·{" "}
                     {formatDate(message.readAt)}
                   </p>
@@ -86,10 +86,10 @@ export default async function PortalMessageArchivePage({
       <div className="flex flex-col gap-4">
         <BackLink fallback="/portal" />
         <div className="flex flex-col gap-1">
-          <h1 className="text-display tracking-tight text-navy-900">
+          <h1 className="text-display text-ink">
             Meldingsarkiv
           </h1>
-          <p className="text-body text-navy-700">
+          <p className="text-body text-ink-2">
             Velg en måned. Når måneden er over, ligger den igjen som mappe.
           </p>
         </div>

@@ -3,7 +3,7 @@
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
-import { requireAdmin, requireStaff } from "@/lib/dal";
+import { requireAdmin, requireStaffAccess } from "@/lib/dal";
 import { notifyStaffNewTodo } from "@/lib/onesignal-server";
 import { todoSchema, type FormState } from "@/lib/validation";
 
@@ -18,7 +18,7 @@ export async function createTodo(
   _prevState: FormState,
   formData: FormData,
 ): Promise<FormState> {
-  const user = await requireStaff();
+  const user = await requireStaffAccess("todos");
 
   const result = todoSchema.safeParse({ text: formData.get("text") });
   if (!result.success) {
@@ -52,7 +52,7 @@ export async function createTodo(
 
 // Utført/angre i én — et feiltrykk med hansker skal kunne rettes
 export async function toggleTodo(todoId: string) {
-  const user = await requireStaff();
+  const user = await requireStaffAccess("todos");
 
   const todo = await db.todo.findUnique({
     where: { id: todoId },
@@ -118,7 +118,7 @@ export async function updateTodoText(
   todoId: string,
   text: string,
 ): Promise<{ error?: string }> {
-  const user = await requireStaff();
+  const user = await requireStaffAccess("todos");
 
   const result = todoSchema.safeParse({ text });
   if (!result.success) {

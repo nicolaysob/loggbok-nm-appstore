@@ -24,7 +24,7 @@ export function DeleteCustomerButton({
     >
       <button
         type="submit"
-        className="min-h-14 rounded-md bg-white px-4 text-meta font-semibold text-red-700 shadow-card active:bg-red-50"
+        className="min-h-14 rounded-2xl bg-surface px-4 text-meta font-semibold text-danger shadow-card active:bg-danger-soft"
       >
         Slett kunde
       </button>

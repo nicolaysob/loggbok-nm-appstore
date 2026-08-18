@@ -3,7 +3,7 @@
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
-import { requireStaff } from "@/lib/dal";
+import { requireStaff, requireStaffAccess } from "@/lib/dal";
 import { primaryAreaId } from "@/lib/customer";
 import { osloMidnight, osloYmd } from "@/lib/period";
 import { hoursFromClock } from "@/lib/time-clock";
@@ -25,7 +25,7 @@ function revalidateClock(customerId?: string | null) {
 }
 
 export async function startPayrollClock(): Promise<FormState> {
-  const user = await requireStaff();
+  const user = await requireStaffAccess("hours");
   if (user.payType !== "HOURLY") {
     return { message: "Bare timesbetalte kan stemple lønnstimer." };
   }
@@ -57,7 +57,7 @@ export async function startPayrollClock(): Promise<FormState> {
 export async function startExtraWorkClock(
   customerId: string,
 ): Promise<FormState> {
-  const user = await requireStaff();
+  const user = await requireStaffAccess("hours");
 
   const customer = await db.customer.findUnique({
     where: { id: customerId },
@@ -98,6 +98,55 @@ export async function startExtraWorkClock(
   return { message: "Stempling startet." };
 }
 
+/** Pause — stopper klokka uten å avslutte stemplingen. */
+export async function pauseTimeClock(): Promise<FormState> {
+  const user = await requireStaff();
+
+  const open = await db.timeClock.findUnique({
+    where: { userId: user.id },
+    select: { customerId: true, pausedAt: true },
+  });
+  if (!open) {
+    return { message: "Ingen stempling å pause." };
+  }
+  if (open.pausedAt) {
+    return { message: "Pausen er allerede i gang." };
+  }
+
+  await db.timeClock.update({
+    where: { userId: user.id },
+    data: { pausedAt: new Date() },
+  });
+
+  revalidateClock(open.customerId);
+  return { message: "Pause startet." };
+}
+
+/** Fortsett — legger pausen til i summen og starter klokka igjen. */
+export async function resumeTimeClock(): Promise<FormState> {
+  const user = await requireStaff();
+
+  const open = await db.timeClock.findUnique({
+    where: { userId: user.id },
+    select: { customerId: true, pausedAt: true, pausedMs: true },
+  });
+  if (!open) {
+    return { message: "Ingen stempling å fortsette." };
+  }
+  if (!open.pausedAt) {
+    return { message: "Stemplingen er ikke pauset." };
+  }
+
+  const elapsed = Math.max(0, Date.now() - open.pausedAt.getTime());
+  await db.timeClock.update({
+    where: { userId: user.id },
+    data: { pausedAt: null, pausedMs: open.pausedMs + elapsed },
+  });
+
+  revalidateClock(open.customerId);
+  return { message: "Stempling fortsetter." };
+}
+
 export async function cancelTimeClock(): Promise<FormState> {
   const user = await requireStaff();
 
@@ -127,6 +176,8 @@ export async function stopTimeClock(
       kind: true,
       customerId: true,
       startedAt: true,
+      pausedAt: true,
+      pausedMs: true,
     },
   });
   if (!open) {
@@ -142,7 +193,11 @@ export async function stopTimeClock(
   }
 
   const endedAt = new Date();
-  const computed = hoursFromClock(open.startedAt, endedAt);
+  // Stopper man midt i en pause, teller ikke pausen med i timene
+  const computed = hoursFromClock(open.startedAt, endedAt, {
+    pausedAt: open.pausedAt,
+    pausedMs: open.pausedMs,
+  });
   const hours = result.data.hours ?? computed;
 
   if (hours < 0.5) {

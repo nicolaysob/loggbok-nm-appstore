@@ -65,6 +65,60 @@ export function daysSince(date: Date, now: Date = new Date()): number {
   return osloDayNumber(now) - osloDayNumber(date);
 }
 
+const norwegianWeekday = new Intl.DateTimeFormat("nb-NO", {
+  weekday: "long",
+  day: "numeric",
+  month: "long",
+  timeZone: "Europe/Oslo",
+});
+
+const norwegianTime = new Intl.DateTimeFormat("nb-NO", {
+  hour: "2-digit",
+  minute: "2-digit",
+  timeZone: "Europe/Oslo",
+});
+
+export function formatTime(date: Date): string {
+  return norwegianTime.format(date);
+}
+
+export function dayKey(date: Date): string {
+  return osloDate.format(date);
+}
+
+/** Skille over en gruppe i tidslinja: «I dag», «I går», «torsdag 14. august». */
+export function formatDayHeading(date: Date, now: Date = new Date()): string {
+  const days = daysSince(date, now);
+  if (days <= 0) return "I dag";
+  if (days === 1) return "I går";
+
+  const label = norwegianWeekday.format(date);
+  const sameYear =
+    osloDate.format(date).slice(0, 4) === osloDate.format(now).slice(0, 4);
+  return sameYear ? label : `${label} ${osloDate.format(date).slice(0, 4)}`;
+}
+
+/** Grupperer allerede sorterte elementer (nyeste først) i dagsseksjoner. */
+export function groupByDay<T>(
+  items: T[],
+  getDate: (item: T) => Date,
+): { key: string; label: string; items: T[] }[] {
+  const groups: { key: string; label: string; items: T[] }[] = [];
+
+  for (const item of items) {
+    const at = getDate(item);
+    const key = dayKey(at);
+    const last = groups[groups.length - 1];
+    if (last && last.key === key) {
+      last.items.push(item);
+    } else {
+      groups.push({ key, label: formatDayHeading(at), items: [item] });
+    }
+  }
+
+  return groups;
+}
+
 export function formatLastVisit(
   date: Date | null,
   now: Date = new Date(),

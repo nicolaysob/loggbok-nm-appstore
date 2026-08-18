@@ -7,6 +7,10 @@ import type { PayType, Role } from "@/generated/prisma/enums";
 import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/dal";
 import {
+  capabilityField,
+  type StaffCapability,
+} from "@/lib/access";
+import {
   createUserSchema,
   resetPasswordSchema,
   type FormState,
@@ -14,6 +18,7 @@ import {
 
 function revalidateUsers() {
   revalidatePath("/brukere");
+  revalidatePath("/");
 }
 
 async function adminCountExcluding(userId: string) {
@@ -208,4 +213,24 @@ export async function resetUserPassword(
 
   revalidateUsers();
   return { message: "Passord oppdatert." };
+}
+
+export async function setUserAccess(
+  userId: string,
+  capability: StaffCapability,
+  enabled: boolean,
+) {
+  await requireAdmin();
+
+  const target = await db.user.findUnique({
+    where: { id: userId },
+    select: { role: true },
+  });
+  if (!target || target.role !== "EMPLOYEE") return;
+
+  await db.user.update({
+    where: { id: userId },
+    data: { [capabilityField[capability]]: enabled },
+  });
+  revalidateUsers();
 }

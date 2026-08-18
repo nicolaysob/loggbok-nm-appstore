@@ -13,21 +13,21 @@ export default async function CustomersPage() {
     <div className="mx-auto flex w-full max-w-lg animate-rise flex-col gap-6">
       <div className="flex items-end justify-between gap-4">
         <div className="flex min-w-0 flex-col gap-1">
-          <h1 className="text-display tracking-tight">Kunder</h1>
-          <p className="text-body text-navy-700">
+          <h1 className="text-display">Kunder</h1>
+          <p className="text-body text-ink-2">
             Rediger kunder, kalenderoppdrag og oppgavemaler.
           </p>
         </div>
         <Link
           href="/kunder/ny"
-          className={`flex min-h-12 shrink-0 items-center rounded-md px-4 text-meta font-semibold ${solidActionClass}`}
+          className={`flex min-h-12 shrink-0 items-center rounded-xl px-4 text-meta font-semibold ${solidActionClass}`}
         >
           Ny kunde
         </Link>
       </div>
 
       {customers.length === 0 ? (
-        <p className="rounded-md bg-white px-5 py-5 text-body text-navy-700 shadow-card">
+        <p className="rounded-2xl bg-surface px-5 py-5 text-body text-ink-2 shadow-card">
           Ingen kunder er lagt inn ennå.
         </p>
       ) : (

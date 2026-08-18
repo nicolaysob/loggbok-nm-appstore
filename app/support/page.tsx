@@ -16,10 +16,10 @@ export default function SupportPage() {
           <BackLink fallback="/login" />
           <BrandLogo className="w-40" />
           <div className="flex flex-col gap-1">
-            <h1 className="text-display tracking-tight text-navy-900">
+            <h1 className="text-display text-ink">
               Support
             </h1>
-            <p className="text-body text-navy-700">
+            <p className="text-body text-ink-2">
               Loggbok er et internt system for N&amp;M Vaktmesterservice AS.
             </p>
           </div>
@@ -33,7 +33,7 @@ export default function SupportPage() {
           >
             nicolaysob2002@gmail.com
           </a>
-          <p className="text-meta text-navy-700">
+          <p className="text-meta text-ink-2">
             Midlertidig supportadresse. Bytt til bedriftens faste e-post når den
             er klar (før App Store-innsending).
           </p>
@@ -45,14 +45,14 @@ export default function SupportPage() {
               href="/personvern"
               className={`flex min-h-[4.5rem] items-center justify-between gap-3 px-4 ${cardClass}`}
             >
-              <span className="text-heading font-semibold text-navy-900">
+              <span className="text-heading font-semibold text-ink">
                 Personvernerklæring
               </span>
               <span
                 aria-hidden
-                className="flex size-11 items-center justify-center rounded-full bg-navy-50"
+                className="flex size-11 items-center justify-center rounded-full bg-sunken text-ink-2"
               >
-                ›
+                <svg viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="m9 5 7 7-7 7" /></svg>
               </span>
             </Link>
           </li>
@@ -61,14 +61,14 @@ export default function SupportPage() {
               href="/login"
               className={`flex min-h-[4.5rem] items-center justify-between gap-3 px-4 ${cardClass}`}
             >
-              <span className="text-heading font-semibold text-navy-900">
+              <span className="text-heading font-semibold text-ink">
                 Til innlogging
               </span>
               <span
                 aria-hidden
-                className="flex size-11 items-center justify-center rounded-full bg-navy-50"
+                className="flex size-11 items-center justify-center rounded-full bg-sunken text-ink-2"
               >
-                ›
+                <svg viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="m9 5 7 7-7 7" /></svg>
               </span>
             </Link>
           </li>

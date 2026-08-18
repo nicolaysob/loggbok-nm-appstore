@@ -19,12 +19,15 @@ const config: CapacitorConfig = {
     SplashScreen: {
       launchShowDuration: 800,
       launchAutoHide: true,
-      backgroundColor: "#f5f6f8",
+      // Må matche --canvas (lys modus) i app/globals.css
+      backgroundColor: "#f5f3ef",
       showSpinner: false,
     },
     StatusBar: {
-      style: "DARK",
-      backgroundColor: "#f5f6f8",
+      overlaysWebView: false,
+      // Startverdi — CapacitorShell bytter til mørk når telefonen er i mørk modus
+      style: "LIGHT",
+      backgroundColor: "#f5f3ef",
     },
   },
 };

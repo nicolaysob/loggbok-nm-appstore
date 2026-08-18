@@ -5,17 +5,28 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import type { IssueStatus } from "@/generated/prisma/enums";
 import { db } from "@/lib/db";
-import { requireAdmin, requireUser } from "@/lib/dal";
+import { requireAdmin, requireStaff, requireStaffAccess } from "@/lib/dal";
 import { primaryAreaId } from "@/lib/customer";
 import { photosFromFormData } from "@/lib/photos";
 import { issueSchema, type FormState } from "@/lib/validation";
+import { issueStatusLabels } from "@/lib/labels";
+
+function revalidateIssue(customerId: string) {
+  revalidatePath(`/kunde/${customerId}`);
+  revalidatePath(`/kunde/${customerId}/avvik`);
+  revalidatePath(`/kunde/${customerId}/aktivitet`);
+  revalidatePath("/portal");
+  revalidatePath("/portal/avvik");
+  revalidatePath("/");
+  revalidatePath("/uke");
+}
 
 export async function createIssue(
   customerId: string,
   _prevState: FormState,
   formData: FormData,
 ): Promise<FormState> {
-  const user = await requireUser();
+  const user = await requireStaffAccess("issues");
 
   const result = issueSchema.safeParse({
     description: formData.get("description"),
@@ -53,8 +64,47 @@ export async function createIssue(
   redirect(`/kunde/${customerId}?lagret=1`);
 }
 
+/** Skriv en oppdatering på avviket — hva som er gjort siden sist. */
+export async function addIssueNote(
+  issueId: string,
+  _prevState: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  const user = await requireStaffAccess("issues");
+
+  const body = String(formData.get("body") ?? "").trim();
+  if (!body) {
+    return { errors: { body: ["Skriv hva som er gjort"] } };
+  }
+
+  const issue = await db.issue.findUnique({
+    where: { id: issueId },
+    select: { area: { select: { customerId: true } } },
+  });
+  if (!issue) return { message: "Avviket finnes ikke." };
+
+  await db.issueNote.create({
+    data: { issueId, userId: user.id, body },
+  });
+
+  revalidateIssue(issue.area.customerId);
+  return { message: "Oppdatering lagret." };
+}
+
+// Kun admin — rydder feilskrevne oppdateringer
+export async function deleteIssueNote(noteId: string) {
+  await requireAdmin();
+
+  const note = await db.issueNote.delete({
+    where: { id: noteId },
+    select: { issue: { select: { area: { select: { customerId: true } } } } },
+  });
+
+  revalidateIssue(note.issue.area.customerId);
+}
+
 export async function setIssueStatus(issueId: string, status: IssueStatus) {
-  await requireUser();
+  const user = await requireStaffAccess("issues");
 
   const issue = await db.issue.update({
     where: { id: issueId },
@@ -64,6 +114,15 @@ export async function setIssueStatus(issueId: string, status: IssueStatus) {
       closedAt: status === "CLOSED" ? new Date() : null,
     },
     select: { area: { select: { customerId: true } } },
+  });
+
+  // Statusbytter skal stå i historikken, ellers blir den full av hull
+  await db.issueNote.create({
+    data: {
+      issueId,
+      userId: user.id,
+      body: `Satte status til «${issueStatusLabels[status]}»`,
+    },
   });
 
   revalidatePath(`/kunde/${issue.area.customerId}`);
@@ -96,7 +155,7 @@ export async function updateIssueDescription(
   issueId: string,
   description: string,
 ): Promise<{ error?: string }> {
-  const user = await requireUser();
+  const user = await requireStaff();
 
   const result = issueSchema.safeParse({ description });
   if (!result.success) {

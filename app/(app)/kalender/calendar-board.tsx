@@ -29,6 +29,7 @@ export function CalendarBoard({
   days,
   customers,
   jobTypes,
+  canAdd = false,
 }: {
   weekLabel: string;
   days: {
@@ -42,22 +43,22 @@ export function CalendarBoard({
   }[];
   customers: CalendarOption[];
   jobTypes: CalendarOption[];
+  canAdd?: boolean;
 }) {
   return (
     <div className="flex flex-col gap-3">
-      <p className="px-0.5 text-meta font-medium text-navy-700">{weekLabel}</p>
+      <p className="px-0.5 text-meta font-medium text-ink-2">{weekLabel}</p>
 
-      <div className="overflow-x-auto">
-        <div className="grid min-w-[56rem] grid-cols-7 gap-2">
-          {days.map((day) => (
-            <DayCell
-              key={day.key}
-              day={day}
-              customers={customers}
-              jobTypes={jobTypes}
-            />
-          ))}
-        </div>
+      <div className="flex flex-col gap-3 sm:grid sm:grid-cols-7 sm:gap-2">
+        {days.map((day) => (
+          <DayCell
+            key={day.key}
+            day={day}
+            customers={customers}
+            jobTypes={jobTypes}
+            canAdd={canAdd}
+          />
+        ))}
       </div>
     </div>
   );
@@ -67,6 +68,7 @@ function DayCell({
   day,
   customers,
   jobTypes,
+  canAdd,
 }: {
   day: {
     key: string;
@@ -79,49 +81,83 @@ function DayCell({
   };
   customers: CalendarOption[];
   jobTypes: CalendarOption[];
+  canAdd: boolean;
 }) {
   const [adding, setAdding] = useState(false);
 
   return (
-    <section className="flex min-h-[28rem] flex-col rounded-md bg-white shadow-card">
-      <header className="px-2 py-3 text-center">
-        <p className="text-meta font-semibold tracking-wide text-navy-700 uppercase">
+    <section
+      className={`flex flex-col rounded-2xl border bg-surface sm:min-h-[28rem] ${
+        day.isToday ? "border-ink" : "border-hair"
+      }`}
+    >
+      {/* Mobil: dag som rad. Desktop: kolonneoverskrift. */}
+      <header className="flex items-baseline gap-2 px-4 pt-3 pb-1 sm:hidden">
+        <p className="text-body font-semibold text-ink first-letter:uppercase">
+          {day.weekday}
+        </p>
+        <p className="text-meta tabular-nums text-ink-2">
+          {day.dayNumber}. {day.monthShort}
+        </p>
+        {day.isToday ? (
+          <span className="ml-auto inline-flex min-h-7 items-center rounded-full bg-brand px-2.5 text-micro font-bold text-on-brand">
+            I dag
+          </span>
+        ) : null}
+      </header>
+
+      <header className="hidden px-2 py-3 text-center sm:block">
+        <p className="text-meta font-medium uppercase tracking-wide text-ink-2">
           {day.weekday.slice(0, 3)}
         </p>
         <p
           className={`mx-auto mt-1 flex size-9 items-center justify-center rounded-full font-mono text-heading ${
-            day.isToday
-              ? "bg-brand font-semibold text-white"
-              : "text-navy-900"
+            day.isToday ? "bg-brand font-bold text-on-brand" : "text-ink"
           }`}
         >
           {day.dayNumber}
         </p>
-        <p className="mt-0.5 text-meta text-navy-700">{day.monthShort}</p>
+        <p className="mt-0.5 text-meta text-ink-2">{day.monthShort}</p>
       </header>
 
-      <div className="flex flex-1 flex-col gap-2 p-2">
+      <div className="flex flex-1 flex-col gap-2 p-3 pt-2 sm:p-2 sm:pt-0">
         {day.pending.map((item) => (
           <article
             key={`${item.jobId}-${item.dayKey}`}
-            className="rounded-md bg-brand-50 px-2 py-2"
+            className="flex items-center gap-2 rounded-xl bg-sunken py-2 pl-3 pr-1 sm:flex-col sm:items-stretch sm:px-2"
           >
             <Link
               href={`/kunde/${item.customerId}`}
-              className="block truncate text-meta font-semibold text-navy-900"
+              className="min-w-0 flex-1"
             >
-              {item.customerName}
+              <span className="block truncate text-meta font-semibold text-ink">
+                {item.customerName}
+              </span>
+              <span className="block truncate text-meta text-ink-2">
+                {item.typeName}
+              </span>
             </Link>
-            <p className="truncate text-meta text-navy-700">{item.typeName}</p>
             <form
               action={completeCalendarJob.bind(null, item.jobId, item.dayKey)}
-              className="mt-2"
+              className="shrink-0 sm:mt-1"
             >
               <button
                 type="submit"
-                className={`min-h-10 w-full rounded-md text-meta font-semibold ${solidActionClass}`}
+                aria-label={`Sett ferdig hos ${item.customerName}`}
+                className="flex size-11 items-center justify-center rounded-xl bg-brand-soft text-brand transition-colors active:bg-brand active:text-on-brand sm:min-h-10 sm:w-full"
               >
-                Ferdig
+                <svg
+                  aria-hidden
+                  viewBox="0 0 24 24"
+                  className="size-5"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M5 12.5 9.5 17 19 7" />
+                </svg>
               </button>
             </form>
           </article>
@@ -130,19 +166,19 @@ function DayCell({
         {day.done.map((item) => (
           <article
             key={`done-${item.jobId}-${item.dayKey}`}
-            className="rounded-md bg-navy-50 px-2 py-2"
+            className="flex items-center gap-2 rounded-xl px-3 py-2 sm:flex-col sm:items-stretch sm:px-2"
           >
-            <p className="truncate text-meta font-semibold text-green-700 line-through">
+            <p className="min-w-0 flex-1 truncate text-meta font-medium text-ink-2 line-through">
               {item.customerName}
+              <span className="font-normal"> · {item.typeName}</span>
             </p>
-            <p className="truncate text-meta text-navy-700">{item.typeName}</p>
             <form
               action={uncompleteCalendarJob.bind(null, item.jobId, item.dayKey)}
-              className="mt-1"
+              className="shrink-0"
             >
               <button
                 type="submit"
-                className="text-meta font-semibold text-navy-700"
+                className="min-h-11 px-2 text-meta font-medium text-ink-2 underline-offset-2 active:underline sm:min-h-0 sm:px-0"
               >
                 Angre
               </button>
@@ -158,15 +194,16 @@ function DayCell({
             onDone={() => setAdding(false)}
             onCancel={() => setAdding(false)}
           />
-        ) : (
+        ) : canAdd ? (
           <button
             type="button"
+            aria-label={`Legg til oppdrag ${day.weekday}`}
             onClick={() => setAdding(true)}
-            className={`mt-auto min-h-11 rounded-md text-meta font-semibold ${outlineActionClass}`}
+            className={`min-h-11 rounded-xl text-meta font-semibold sm:mt-auto ${outlineActionClass}`}
           >
-            + Legg til
+            +
           </button>
-        )}
+        ) : null}
       </div>
     </section>
   );
@@ -196,11 +233,11 @@ function AddJobForm({
   }, [state, onDone]);
 
   const field =
-    "w-full rounded-md bg-white px-2 py-2 text-meta text-navy-900 shadow-card outline-none focus:ring-2 focus:ring-brand/20";
+    "w-full rounded-2xl bg-surface px-2 py-2 text-meta text-ink shadow-card outline-none focus:ring-2 focus:ring-brand/20";
 
   if (customers.length === 0) {
     return (
-      <div className="rounded-md bg-navy-50 px-2 py-2 text-meta text-navy-700">
+      <div className="rounded-xl bg-sunken px-2 py-2 text-meta text-ink-2">
         Mangler aktive kunder.
         <button
           type="button"
@@ -214,11 +251,11 @@ function AddJobForm({
   }
 
   return (
-    <form action={formAction} className="flex flex-col gap-2 rounded-md bg-navy-50 p-2">
+    <form action={formAction} className="flex flex-col gap-2 rounded-xl bg-sunken p-2">
       <input type="hidden" name="dayKey" value={dayKey} />
 
       <label className="flex flex-col gap-1">
-        <span className="text-meta font-semibold text-navy-700">Kunde</span>
+        <span className="text-meta font-semibold text-ink-2">Kunde</span>
         <select name="customerId" required className={field} defaultValue="">
           <option value="">Velg …</option>
           {customers.map((customer) => (
@@ -230,7 +267,7 @@ function AddJobForm({
       </label>
 
       <label className="flex flex-col gap-1">
-        <span className="text-meta font-semibold text-navy-700">Gjøremål</span>
+        <span className="text-meta font-semibold text-ink-2">Gjøremål</span>
         <input
           name="title"
           required
@@ -248,7 +285,7 @@ function AddJobForm({
       </label>
 
       <label className="flex flex-col gap-1">
-        <span className="text-meta font-semibold text-navy-700">Når</span>
+        <span className="text-meta font-semibold text-ink-2">Når</span>
         <select
           name="kind"
           required
@@ -271,10 +308,10 @@ function AddJobForm({
       />
 
       {state?.message && !state.errors && (
-        <p className="text-meta font-semibold text-green-700">{state.message}</p>
+        <p className="text-meta font-semibold text-ok">{state.message}</p>
       )}
       {state?.errors && (
-        <p className="text-meta font-semibold text-red-700">
+        <p className="text-meta font-semibold text-danger">
           {Object.values(state.errors).flat()[0]}
         </p>
       )}
@@ -283,14 +320,14 @@ function AddJobForm({
         <button
           type="submit"
           disabled={pending}
-          className={`min-h-10 flex-1 rounded-md text-meta font-semibold ${solidActionClass}`}
+          className={`min-h-10 flex-1 rounded-xl text-meta font-semibold ${solidActionClass}`}
         >
           {pending ? "…" : "Lagre"}
         </button>
         <button
           type="button"
           onClick={onCancel}
-          className="min-h-10 rounded-md px-3 text-meta font-semibold text-navy-700"
+          className="min-h-10 rounded-xl px-3 text-meta font-semibold text-ink-2"
         >
           Avbryt
         </button>

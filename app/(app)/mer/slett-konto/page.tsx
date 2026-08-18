@@ -11,8 +11,8 @@ export default async function DeleteAccountPage() {
       <div className="flex flex-col gap-4">
         <BackLink fallback="/mer" />
         <div className="flex flex-col gap-1">
-          <h1 className="text-display tracking-tight">Slett konto</h1>
-          <p className="text-body text-navy-700">
+          <h1 className="text-display">Slett konto</h1>
+          <p className="text-body text-ink-2">
             Kontoen deaktiveres med en gang. Historikk på kunder beholdes for
             firmaet. Kontakt support hvis du trenger hjelp.
           </p>

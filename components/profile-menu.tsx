@@ -5,6 +5,11 @@ import { createPortal } from "react-dom";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { logout } from "@/app/actions/auth";
+import {
+  SettingsButton,
+  SettingsGroup,
+  SettingsLink,
+} from "@/components/settings-list";
 
 export type ProfileLink = { href: string; label: string };
 
@@ -13,11 +18,13 @@ export function ProfileMenu({
   name,
   subtitle,
   links,
+  inverted = false,
 }: {
   initial: string;
   name: string;
   subtitle?: string;
   links: ProfileLink[];
+  inverted?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -48,7 +55,7 @@ export function ProfileMenu({
             <button
               type="button"
               aria-label="Lukk meny"
-              className="profile-drawer-dim absolute inset-0 bg-navy-900/40"
+              className="profile-drawer-dim absolute inset-0 bg-hero/40"
               onClick={() => setOpen(false)}
             />
             <aside
@@ -56,14 +63,14 @@ export function ProfileMenu({
               role="dialog"
               aria-modal="true"
               aria-label={subtitle ? `${name}, ${subtitle}` : name}
-              className="profile-drawer absolute inset-y-0 left-0 flex w-[min(19rem,85vw)] flex-col rounded-r-[2rem] bg-page pt-[max(1.25rem,env(safe-area-inset-top))] pb-[max(1.25rem,env(safe-area-inset-bottom))] shadow-lift"
+              className="profile-drawer absolute inset-y-0 left-0 flex w-[min(20rem,88vw)] flex-col border-r border-hair bg-canvas pt-[max(1.25rem,env(safe-area-inset-top))] pb-[max(1.25rem,env(safe-area-inset-bottom))]"
             >
-              <div className="flex items-center justify-between px-5 pb-2 pt-1">
+              <div className="flex items-center px-5 pb-2 pt-1">
                 <button
                   type="button"
                   aria-label="Lukk meny"
                   onClick={() => setOpen(false)}
-                  className="flex size-12 items-center justify-center rounded-full bg-white text-navy-900 shadow-card"
+                  className="flex size-12 items-center justify-center text-ink"
                 >
                   <svg
                     viewBox="0 0 24 24"
@@ -80,43 +87,49 @@ export function ProfileMenu({
                 </button>
               </div>
 
-              <div className="flex items-center gap-3 px-5 pb-8 pt-4">
+              <Link
+                href="/profil"
+                onClick={() => setOpen(false)}
+                className="mx-4 mb-5 flex items-center gap-3 rounded-2xl border border-hair bg-surface px-3 py-3 shadow-card active:bg-sunken"
+              >
                 <span
                   aria-hidden
-                  className="flex size-14 shrink-0 items-center justify-center rounded-full bg-navy-900 text-heading font-bold text-white"
+                  className="flex size-12 shrink-0 items-center justify-center rounded-full bg-hero text-heading font-semibold text-white"
                 >
                   {initial}
                 </span>
-                <div className="min-w-0">
-                  <p className="truncate text-display text-[1.35rem] font-bold text-navy-900">
-                    {name.split(/\s+/)[0]}
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-heading font-semibold text-ink">
+                    {name}
                   </p>
                   {subtitle ? (
-                    <p className="text-meta text-navy-700">{subtitle}</p>
+                    <p className="truncate text-meta text-ink-2">
+                      {subtitle}
+                    </p>
                   ) : null}
                 </div>
-              </div>
+                <span aria-hidden className="text-heading text-ink-2">
+                  ›
+                </span>
+              </Link>
 
-              <nav className="flex flex-1 flex-col gap-1 px-4">
-                {links.map((link) => (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    onClick={() => setOpen(false)}
-                    className="flex min-h-14 items-center rounded-md px-3 text-body font-medium text-navy-900 active:bg-white"
-                  >
-                    {link.label}
-                  </Link>
-                ))}
+              <nav className="flex flex-1 flex-col gap-4 px-4">
+                <SettingsGroup>
+                  {links.map((link) => (
+                    <SettingsLink
+                      key={link.href}
+                      href={link.href}
+                      label={link.label}
+                      onClick={() => setOpen(false)}
+                    />
+                  ))}
+                </SettingsGroup>
               </nav>
 
-              <form action={logout} className="px-7 pt-4">
-                <button
-                  type="submit"
-                  className="flex min-h-14 w-full items-center text-body font-semibold text-navy-800"
-                >
-                  Logg ut
-                </button>
+              <form action={logout} className="px-4 pt-2">
+                <SettingsGroup>
+                  <SettingsButton label="Logg ut" />
+                </SettingsGroup>
               </form>
             </aside>
           </div>,
@@ -133,7 +146,11 @@ export function ProfileMenu({
         aria-controls={menuId}
         aria-label="Profil og innstillinger"
         onClick={() => setOpen(true)}
-        className="flex size-12 shrink-0 items-center justify-center rounded-full bg-brand text-heading font-bold text-white shadow-brand"
+        className={`flex size-12 shrink-0 items-center justify-center rounded-full text-heading ${
+          inverted
+            ? "border border-white/20 bg-white/15 text-white"
+            : "bg-hero text-white"
+        }`}
       >
         {initial}
       </button>

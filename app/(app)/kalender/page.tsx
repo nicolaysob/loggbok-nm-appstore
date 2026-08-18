@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { db } from "@/lib/db";
-import { requireUser } from "@/lib/dal";
+import { requireStaffAccess } from "@/lib/dal";
 import { occursOn } from "@/lib/calendar";
 import { weekdayLabels } from "@/lib/labels";
 import {
@@ -27,7 +27,7 @@ const monthShort = new Intl.DateTimeFormat("nb-NO", {
 export default async function CalendarPage({
   searchParams,
 }: PageProps<"/kalender">) {
-  await requireUser();
+  const user = await requireStaffAccess("calendar");
   const { uke } = await searchParams;
 
   const monday =
@@ -132,10 +132,7 @@ export default async function CalendarPage({
     <div className="flex animate-rise flex-col gap-6">
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-1">
-          <h1 className="text-display tracking-tight">Kalender</h1>
-          <p className="text-body text-navy-700">
-            Trykk + for å legge inn gjøremål. Kryss av når det er gjort.
-          </p>
+          <h1 className="text-display">Kalender</h1>
         </div>
 
         <div className="flex gap-2">
@@ -164,6 +161,7 @@ export default async function CalendarPage({
 
       <CalendarBoard
         weekLabel={week.label}
+        canAdd={user.role === "ADMIN"}
         customers={customers}
         jobTypes={jobTypes}
         days={days.map((day, index) => {

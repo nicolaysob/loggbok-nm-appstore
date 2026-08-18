@@ -50,17 +50,14 @@ export default async function PortalIssueArchivePage({
         <div className="flex flex-col gap-4">
           <BackLink fallback="/portal/avvik" />
           <div className="flex flex-col gap-1">
-            <h1 className="text-display tracking-tight text-navy-900">
-              {period.label}
-            </h1>
-            <p className="text-body text-navy-700">
-              Utbedrede avvik lukket denne måneden.
-            </p>
+          <h1 className="text-display text-ink">
+            {period.label}
+          </h1>
           </div>
         </div>
 
         {issues.length === 0 ? (
-          <p className={`px-4 py-5 text-body text-navy-700 ${cardStaticClass}`}>
+          <p className={`px-4 py-5 text-body text-ink-2 ${cardStaticClass}`}>
             Ingen lukkede avvik denne måneden.
           </p>
         ) : (
@@ -87,12 +84,9 @@ export default async function PortalIssueArchivePage({
       <div className="flex flex-col gap-4">
         <BackLink fallback="/portal" />
         <div className="flex flex-col gap-1">
-          <h1 className="text-display tracking-tight text-navy-900">
-            Avvikarkiv
+          <h1 className="text-display text-ink">
+            Avvik
           </h1>
-          <p className="text-body text-navy-700">
-            Når N&amp;M lukker et avvik, ligger det her. Velg en måned.
-          </p>
         </div>
       </div>
 

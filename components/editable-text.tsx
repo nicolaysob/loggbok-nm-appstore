@@ -28,7 +28,7 @@ export function EditableText({
     return (
       <div className="flex flex-col gap-2">
         {initialText ? (
-          <p className="text-body whitespace-pre-wrap text-navy-900">
+          <p className="text-body whitespace-pre-wrap text-ink">
             {initialText}
           </p>
         ) : null}
@@ -40,7 +40,7 @@ export function EditableText({
               setError(null);
               setEditing(true);
             }}
-            className="self-start text-meta font-semibold text-navy-700 underline-offset-2 transition-colors active:text-navy-900"
+            className="self-start text-micro font-bold uppercase tracking-wide text-ink-3 transition-colors active:text-ink"
           >
             Rediger
           </button>
@@ -59,7 +59,7 @@ export function EditableText({
         className={textareaClass}
       />
       {error && (
-        <p role="alert" className="text-meta font-medium text-red-700">
+        <p role="alert" className="text-meta font-medium text-danger">
           {error}
         </p>
       )}
@@ -78,7 +78,7 @@ export function EditableText({
               setError(null);
             })
           }
-          className={`min-h-12 rounded-md px-4 text-meta font-semibold ${solidActionClass}`}
+          className={`min-h-12 rounded-xl px-4 text-meta font-semibold ${solidActionClass}`}
         >
           {pending ? "Lagrer …" : "Lagre"}
         </button>
@@ -90,7 +90,7 @@ export function EditableText({
             setError(null);
             setEditing(false);
           }}
-          className={`min-h-12 rounded-md px-4 text-meta font-semibold ${outlineActionClass}`}
+          className={`min-h-12 rounded-xl px-4 text-meta font-semibold ${outlineActionClass}`}
         >
           Avbryt
         </button>

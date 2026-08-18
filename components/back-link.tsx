@@ -15,7 +15,7 @@ export function BackLink({
     <button
       type="button"
       aria-label="Tilbake"
-      className={`flex size-12 items-center justify-center rounded-full bg-white text-navy-900 shadow-card ${className}`}
+      className={`flex size-12 items-center justify-center rounded-full text-ink-2 transition-colors active:bg-sunken active:text-ink ${className}`}
       onClick={() => {
         if (window.history.length > 1) {
           router.back();

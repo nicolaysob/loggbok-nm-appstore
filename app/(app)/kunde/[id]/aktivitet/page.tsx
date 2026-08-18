@@ -41,8 +41,8 @@ export default async function CustomerActivityArchivePage({
         <div className="flex flex-col gap-4">
           <BackLink fallback={`/kunde/${customer.id}/aktivitet`} />
           <div className="flex flex-col gap-1">
-            <h1 className="text-display tracking-tight">{period.label}</h1>
-            <p className="text-body text-navy-700">
+            <h1 className="text-display">{period.label}</h1>
+            <p className="text-body text-ink-2">
               Besøk, oppgaver, ekstraarbeid og avvik denne måneden.
             </p>
           </div>
@@ -66,8 +66,8 @@ export default async function CustomerActivityArchivePage({
       <div className="flex flex-col gap-4">
         <BackLink fallback={`/kunde/${customer.id}`} />
         <div className="flex flex-col gap-1">
-          <h1 className="text-display tracking-tight">Aktivitetsarkiv</h1>
-          <p className="text-body text-navy-700">
+          <h1 className="text-display">Aktivitetsarkiv</h1>
+          <p className="text-body text-ink-2">
             Velg en måned. Når måneden er over, ligger den igjen som mappe.
           </p>
         </div>

@@ -8,11 +8,11 @@ export function ManualEntryDisclosure({
 }) {
   return (
     <details className={`group ${cardStaticClass}`}>
-      <summary className="flex min-h-14 cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 text-heading text-navy-900 marker:content-none [&::-webkit-details-marker]:hidden">
+      <summary className="flex min-h-14 cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 text-heading text-ink marker:content-none [&::-webkit-details-marker]:hidden">
         Før manuelt
         <span
           aria-hidden
-          className="text-navy-700 transition-transform duration-150 group-open:rotate-180"
+          className="text-ink-2 transition-transform duration-150 group-open:rotate-180"
         >
           ▾
         </span>

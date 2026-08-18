@@ -10,7 +10,7 @@ export default async function NewCustomerPage() {
     <div className="mx-auto flex w-full max-w-lg animate-rise flex-col gap-6">
       <div className="flex flex-col gap-4">
         <BackLink fallback="/kunder" />
-        <h1 className="text-display tracking-tight">Ny kunde</h1>
+        <h1 className="text-display">Ny kunde</h1>
       </div>
 
       <CustomerForm

@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import Link from "next/link";
 import { updateOwnName, updateOwnPassword } from "@/app/actions/profile";
 import type { FormState } from "@/lib/validation";
 import { FieldError } from "@/components/mobile-form";
@@ -30,12 +31,24 @@ export function ProfileForms({
   >(updateOwnPassword, undefined);
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-5">
       <section className={`flex flex-col gap-5 p-5 ${cardStaticClass}`}>
-        <div className="flex flex-col gap-1">
-          <h2 className="text-heading text-navy-900">Konto</h2>
-          <p className="text-meta text-navy-700">Brukernavn: {username}</p>
+        <div className="flex flex-col gap-0.5">
+          <h2 className="text-heading text-ink">Konto</h2>
+          <p className="text-meta text-ink-2">
+            Dette navnet vises til kolleger i loggen.
+          </p>
         </div>
+
+        <div className="flex min-h-12 items-center justify-between gap-3 border-b border-hair pb-3">
+          <span className="text-meta font-medium text-ink-2">
+            Brukernavn
+          </span>
+          <span className="truncate text-body font-medium text-ink">
+            {username || "—"}
+          </span>
+        </div>
+
         <form action={nameAction} className="flex flex-col gap-3">
           <label htmlFor="name" className={labelClass}>
             Navn
@@ -51,14 +64,14 @@ export function ProfileForms({
           />
           <FieldError messages={nameState?.errors?.name} />
           {nameState?.message ? (
-            <p role="status" className="text-body font-semibold text-green-700">
+            <p role="status" className="text-body font-semibold text-ok">
               {nameState.message}
             </p>
           ) : null}
           <button
             type="submit"
             disabled={namePending}
-            className={`min-h-16 w-full rounded-md text-body font-semibold ${solidActionClass}`}
+            className={`min-h-14 w-full rounded-xl text-body font-semibold ${solidActionClass}`}
           >
             {namePending ? "Lagrer …" : "Lagre navn"}
           </button>
@@ -66,7 +79,12 @@ export function ProfileForms({
       </section>
 
       <section className={`flex flex-col gap-5 p-5 ${cardStaticClass}`}>
-        <h2 className="text-heading text-navy-900">Bytt passord</h2>
+        <div className="flex flex-col gap-0.5">
+          <h2 className="text-heading text-ink">Sikkerhet</h2>
+          <p className="text-meta text-ink-2">
+            Bytt passord hvis noen andre kan ha sett det.
+          </p>
+        </div>
         <form action={passwordAction} className="flex flex-col gap-3">
           <label htmlFor="currentPassword" className={labelClass}>
             Nåværende passord
@@ -108,19 +126,28 @@ export function ProfileForms({
           <FieldError messages={passwordState?.errors?.confirmPassword} />
 
           {passwordState?.message ? (
-            <p role="status" className="text-body font-semibold text-green-700">
+            <p role="status" className="text-body font-semibold text-ok">
               {passwordState.message}
             </p>
           ) : null}
           <button
             type="submit"
             disabled={passwordPending}
-            className={`min-h-16 w-full rounded-md text-body font-semibold ${solidActionClass}`}
+            className={`min-h-14 w-full rounded-xl text-body font-semibold ${solidActionClass}`}
           >
             {passwordPending ? "Lagrer …" : "Bytt passord"}
           </button>
         </form>
       </section>
+
+      <div className="flex flex-col items-center gap-3 pb-2 pt-1">
+        <Link href="/support" className="text-meta font-medium text-ink-2">
+          Support
+        </Link>
+        <Link href="/personvern" className="text-meta font-medium text-ink-2">
+          Personvern
+        </Link>
+      </div>
     </div>
   );
 }

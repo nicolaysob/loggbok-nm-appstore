@@ -20,7 +20,15 @@ export function CapacitorShell() {
 
     void (async () => {
       try {
-        await StatusBar.setStyle({ style: Style.Dark });
+        await StatusBar.setOverlaysWebView({ overlay: false });
+        // Appen er alltid i lys modus, så statuslinja skal alltid ha
+        // mørk tekst på lys bakgrunn — også om telefonen står mørkt.
+        await StatusBar.setStyle({ style: Style.Light });
+        try {
+          await StatusBar.setBackgroundColor({ color: "#f5f3ef" });
+        } catch {
+          // setBackgroundColor finnes ikke på iOS — stilen er nok der
+        }
         await SplashScreen.hide();
       } catch {
         // Plugins kan mangle i web-preview

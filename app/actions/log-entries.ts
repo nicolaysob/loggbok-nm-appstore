@@ -4,7 +4,7 @@ import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
-import { requireAdmin, requireUser } from "@/lib/dal";
+import { requireAdmin, requireStaff, requireStaffAccess } from "@/lib/dal";
 import { primaryAreaId } from "@/lib/customer";
 import { occurredAtFromDateTimeLocal } from "@/lib/period";
 import { photosFromFormData } from "@/lib/photos";
@@ -47,7 +47,7 @@ export async function updateLogEntryComment(
   logEntryId: string,
   comment: string,
 ): Promise<{ error?: string }> {
-  const user = await requireUser();
+  const user = await requireStaff();
 
   const entry = await db.logEntry.findUnique({
     where: { id: logEntryId },
@@ -98,22 +98,42 @@ export async function updateLogEntryComment(
   return {};
 }
 
+// Én registrering for hele besøket: avkryssede oppgaver, fritekst,
+// eller begge. Med oppgaver blir typen TASK_COMPLETION (nå med valgfri
+// kommentar), uten blir den VISIT_NOTE — da må teksten bære registreringen.
 export async function createVisitNote(
   customerId: string,
   _prevState: FormState,
   formData: FormData,
 ): Promise<FormState> {
-  const user = await requireUser();
+  const user = await requireStaffAccess("log");
 
-  const result = visitNoteSchema.safeParse({
-    comment: formData.get("comment"),
-    occurredAt: formData.get("occurredAt"),
-  });
-  if (!result.success) {
-    return { errors: z.flattenError(result.error).fieldErrors };
+  const areaId = await primaryAreaId(customerId);
+  if (!areaId) return { message: MISSING_AREA };
+
+  // Godta bare oppgaver som faktisk hører til denne kunden — id-ene kommer
+  // fra skjemaet og kan ikke stoles på
+  const checkedIds = formData.getAll("tasks").map(String).filter(Boolean);
+  const ownTasks =
+    checkedIds.length > 0
+      ? await db.taskTemplate.findMany({
+          where: { id: { in: checkedIds }, areaId },
+          select: { id: true },
+        })
+      : [];
+
+  const comment = String(formData.get("comment") ?? "").trim();
+  if (ownTasks.length === 0 && comment === "") {
+    return {
+      errors: {
+        comment: ["Huk av minst én oppgave, eller skriv hva som ble gjort."],
+      },
+    };
   }
 
-  const when = occurredAtFromDateTimeLocal(result.data.occurredAt);
+  const when = occurredAtFromDateTimeLocal(
+    String(formData.get("occurredAt") ?? "").trim(),
+  );
   if ("error" in when) {
     return { errors: { occurredAt: [when.error] } };
   }
@@ -123,16 +143,17 @@ export async function createVisitNote(
     return { errors: { photos: [photoResult.error] } };
   }
 
-  const areaId = await primaryAreaId(customerId);
-  if (!areaId) return { message: MISSING_AREA };
-
   await db.logEntry.create({
     data: {
       areaId,
       userId: user.id,
       occurredAt: when.at,
-      type: "VISIT_NOTE",
-      comment: result.data.comment,
+      type: ownTasks.length > 0 ? "TASK_COMPLETION" : "VISIT_NOTE",
+      comment: comment === "" ? null : comment,
+      completedTasks:
+        ownTasks.length > 0
+          ? { create: ownTasks.map((task) => ({ taskTemplateId: task.id })) }
+          : undefined,
       photos: {
         create: photoResult.photos,
       },
@@ -142,55 +163,13 @@ export async function createVisitNote(
   done(customerId);
 }
 
-export async function completeTasks(
-  customerId: string,
-  _prevState: FormState,
-  formData: FormData,
-): Promise<FormState> {
-  const user = await requireUser();
-
-  const areaId = await primaryAreaId(customerId);
-  if (!areaId) return { message: MISSING_AREA };
-
-  // Godta bare oppgaver som faktisk hører til denne kunden — id-ene kommer
-  // fra skjemaet og kan ikke stoles på
-  const checkedIds = formData.getAll("tasks").map(String);
-  const ownTasks = await db.taskTemplate.findMany({
-    where: { id: { in: checkedIds }, areaId },
-    select: { id: true },
-  });
-
-  if (ownTasks.length === 0) {
-    return { message: "Huk av minst én oppgave." };
-  }
-
-  const occurredAt = String(formData.get("occurredAt") ?? "").trim();
-  const when = occurredAtFromDateTimeLocal(occurredAt);
-  if ("error" in when) {
-    return { errors: { occurredAt: [when.error] } };
-  }
-
-  await db.logEntry.create({
-    data: {
-      areaId,
-      userId: user.id,
-      occurredAt: when.at,
-      type: "TASK_COMPLETION",
-      completedTasks: {
-        create: ownTasks.map((task) => ({ taskTemplateId: task.id })),
-      },
-    },
-  });
-
-  done(customerId);
-}
 
 export async function createExtraWork(
   customerId: string,
   _prevState: FormState,
   formData: FormData,
 ): Promise<FormState> {
-  const user = await requireUser();
+  const user = await requireStaffAccess("hours");
 
   const result = extraWorkSchema.safeParse({
     hours: formData.get("hours"),

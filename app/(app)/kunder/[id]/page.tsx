@@ -60,7 +60,7 @@ export default async function CustomerAdminPage({
       <section className="flex flex-col gap-6">
         <div className="flex flex-col gap-4">
           <BackLink fallback="/kunder" />
-          <h1 className="text-display tracking-tight">{customer.name}</h1>
+          <h1 className="text-display">{customer.name}</h1>
         </div>
 
         <CustomerForm
@@ -74,7 +74,7 @@ export default async function CustomerAdminPage({
         />
 
         <div className="max-w-lg pt-2">
-          <p className="mb-3 text-meta text-navy-700">
+          <p className="mb-3 text-meta text-ink-2">
             Sletting fjerner kunden og all historikk permanent. Bruk heller
             «Aktiv»-avhukingen hvis kunden bare skal skjules fra lista.
           </p>
@@ -87,7 +87,7 @@ export default async function CustomerAdminPage({
 
       <section className="flex flex-col gap-4">
         <h2 className="text-heading">Kalenderoppdrag</h2>
-        <p className="text-meta text-navy-700">
+        <p className="text-meta text-ink-2">
           Bestilte jobber i ukeplanen. Skriv hva som skal gjøres — hurtigvalg er
           valgfritt.
         </p>

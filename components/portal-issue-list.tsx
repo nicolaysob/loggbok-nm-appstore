@@ -13,9 +13,9 @@ export type PortalIssueItem = {
 };
 
 const badgeClasses: Record<IssueStatus, string> = {
-  OPEN: "bg-red-50 text-red-700",
-  IN_PROGRESS: "bg-amber-50 text-amber-700",
-  CLOSED: "bg-green-50 text-green-700",
+  OPEN: "bg-danger-soft text-danger",
+  IN_PROGRESS: "bg-warn-soft text-warn",
+  CLOSED: "bg-ok-soft text-ok",
 };
 
 /** Kun visning for kundeportalen — ingen statusknapper. */
@@ -28,41 +28,39 @@ export function PortalIssueList({
 }) {
   if (issues.length === 0) {
     return emptyText ? (
-      <p className="rounded-md bg-white px-5 py-5 text-body text-navy-700 shadow-card">
+      <p className="rounded-2xl border border-hair bg-surface px-4 py-6 text-center text-body text-ink-3 shadow-card">
         {emptyText}
       </p>
     ) : null;
   }
 
   return (
-    <ul className="flex flex-col gap-3">
+    <ul className="flex flex-col gap-2.5">
       {issues.map((issue) => (
         <li
           key={issue.id}
-          className={`flex flex-col gap-2 rounded-md px-4 py-4 shadow-card ${
+          className={`flex flex-col gap-2 rounded-2xl border border-hair bg-surface px-4 py-4 shadow-card ${
             issue.status === "OPEN"
-              ? "bg-red-50"
+              ? "border-l-4 border-l-danger"
               : issue.status === "IN_PROGRESS"
-                ? "bg-amber-50"
-                : "bg-white"
+                ? "border-l-4 border-l-warn"
+                : "border-l-4 border-l-brand"
           }`}
         >
           <div className="flex flex-wrap items-center gap-2">
             <span
-              className={`rounded-full px-3 py-1 text-meta font-semibold ${badgeClasses[issue.status]}`}
+              className={`inline-flex min-h-7 items-center rounded-full px-2.5 text-micro font-bold ${badgeClasses[issue.status]}`}
             >
               {issue.status === "CLOSED"
                 ? "Utbedret"
                 : issueStatusLabels[issue.status]}
             </span>
-            <span className="font-mono text-meta font-medium text-navy-700">
-              {issue.created}
-            </span>
+            <span className="text-micro text-ink-3">{issue.created}</span>
           </div>
-          <p className="text-body whitespace-pre-wrap text-navy-900">
+          <p className="text-body whitespace-pre-wrap text-ink">
             {issue.description}
           </p>
-          <p className="text-meta text-navy-700">
+          <p className="text-micro text-ink-3">
             Meldt av {issue.reportedBy}
             {issue.closed ? ` · lukket ${issue.closed}` : null}
           </p>

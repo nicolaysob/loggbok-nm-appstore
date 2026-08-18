@@ -71,8 +71,8 @@ export default async function WeekSummaryPage() {
     <div className="mx-auto flex w-full max-w-lg animate-rise flex-col gap-6">
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-1">
-          <h1 className="text-display tracking-tight">Denne uken</h1>
-          <p className="text-body text-navy-700">{week.label}</p>
+          <h1 className="text-display">Denne uken</h1>
+          <p className="text-body text-ink-2">{week.label}</p>
         </div>
         <Link
           href="/mnd"
@@ -81,29 +81,29 @@ export default async function WeekSummaryPage() {
           <span className="text-heading font-semibold">Se fakturering</span>
           <span
             aria-hidden
-            className="flex size-11 items-center justify-center rounded-full bg-navy-50"
+            className="flex size-11 items-center justify-center rounded-full bg-sunken text-ink-2"
           >
-            ›
+            <svg viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="m9 5 7 7-7 7" /></svg>
           </span>
         </Link>
       </div>
 
       <div className="grid grid-cols-2 gap-2.5">
-        <div className="rounded-md bg-white px-3.5 py-4 shadow-card">
-          <p className="text-meta text-navy-700">Ekstraarbeid</p>
-          <p className="mt-1.5 font-mono text-[1.35rem] font-bold leading-tight text-navy-900">
+        <div className="rounded-2xl bg-surface px-3.5 py-4 shadow-card">
+          <p className="text-meta text-ink-2">Ekstraarbeid</p>
+          <p className="mt-1.5 font-mono text-title tabular-nums text-ink">
             {formatHours(totalHours)} t
           </p>
         </div>
         <div
-          className={`rounded-md px-3.5 py-4 shadow-card ${
-            totalOpen > 0 ? "bg-red-50" : "bg-white"
+          className={`rounded-xl px-3.5 py-4 shadow-card ${
+            totalOpen > 0 ? "bg-danger-soft" : "bg-surface"
           }`}
         >
-          <p className="text-meta text-navy-700">Åpne avvik</p>
+          <p className="text-meta text-ink-2">Åpne avvik</p>
           <p
-            className={`mt-1.5 font-mono text-[1.35rem] font-bold leading-tight ${
-              totalOpen > 0 ? "text-red-700" : "text-navy-900"
+            className={`mt-1.5 font-mono text-title tabular-nums ${
+              totalOpen > 0 ? "text-danger" : "text-ink"
             }`}
           >
             {totalOpen}
@@ -112,7 +112,7 @@ export default async function WeekSummaryPage() {
       </div>
 
       {rows.length === 0 ? (
-        <p className="rounded-md bg-white px-5 py-5 text-body text-navy-700 shadow-card">
+        <p className="rounded-2xl bg-surface px-5 py-5 text-body text-ink-2 shadow-card">
           Ingen ekstraarbeid denne uken, og ingen åpne avvik.
         </p>
       ) : (
@@ -124,15 +124,15 @@ export default async function WeekSummaryPage() {
                 className={`flex min-h-[4.5rem] items-center justify-between gap-3 px-4 py-3 ${cardClass}`}
               >
                 <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-                  <span className="truncate text-heading font-semibold text-navy-900">
+                  <span className="truncate text-heading font-semibold text-ink">
                     {item.name}
                   </span>
-                  <span className="font-mono text-meta font-medium text-navy-700">
+                  <span className="text-meta tabular-nums text-ink-2">
                     {formatHours(item.hours)} t ekstraarbeid
                     {item.openIssues > 0 && (
                       <>
                         {" · "}
-                        <span className="font-semibold text-red-700">
+                        <span className="font-semibold text-danger">
                           {item.openIssues}{" "}
                           {item.openIssues === 1 ? "åpent avvik" : "åpne avvik"}
                         </span>
@@ -142,9 +142,9 @@ export default async function WeekSummaryPage() {
                 </span>
                 <span
                   aria-hidden
-                  className="flex size-11 shrink-0 items-center justify-center rounded-full bg-navy-50"
+                  className="flex size-11 shrink-0 items-center justify-center rounded-full bg-sunken text-ink-2"
                 >
-                  ›
+                  <svg viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="m9 5 7 7-7 7" /></svg>
                 </span>
               </Link>
             </li>

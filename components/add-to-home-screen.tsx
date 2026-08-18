@@ -60,18 +60,18 @@ export function AddToHomeScreenPrompt() {
       role="dialog"
       aria-modal="true"
       aria-labelledby="a2hs-dialog-title"
-      className="fixed inset-0 z-[110] flex items-end justify-center bg-navy-900/40 p-4 sm:items-center"
+      className="fixed inset-0 z-[110] flex items-end justify-center bg-hero/40 p-4 sm:items-center"
     >
-      <div className="w-full max-w-md rounded-lg border border-line bg-white p-5 shadow-lift">
-        <h2 id="a2hs-dialog-title" className="text-heading text-navy-900">
+      <div className="w-full max-w-md rounded-lg border border-hair bg-surface p-5 shadow-lift">
+        <h2 id="a2hs-dialog-title" className="text-heading text-ink">
           Legg til på hjemskjermen
         </h2>
-        <p className="mt-2 text-body text-navy-700">
+        <p className="mt-2 text-body text-ink-2">
           Da åpner dere appen som et ikon — raskere, og varsler fungerer bedre.
         </p>
 
         {ios ? (
-          <ol className="mt-4 list-decimal space-y-2.5 pl-5 text-body text-navy-900">
+          <ol className="mt-4 list-decimal space-y-2.5 pl-5 text-body text-ink">
             <li>
               Trykk på <span className="font-semibold">prikkene</span>{" "}
               <span className="font-semibold">⋯</span>
@@ -88,7 +88,7 @@ export function AddToHomeScreenPrompt() {
             </li>
           </ol>
         ) : (
-          <ol className="mt-4 list-decimal space-y-2.5 pl-5 text-body text-navy-900">
+          <ol className="mt-4 list-decimal space-y-2.5 pl-5 text-body text-ink">
             <li>
               Trykk på menyen <span className="font-semibold">⋮</span> i
               nettleseren
@@ -106,14 +106,14 @@ export function AddToHomeScreenPrompt() {
 
         <button
           type="button"
-          className={`mt-5 min-h-14 w-full rounded-md px-4 text-body font-semibold ${solidActionClass}`}
+          className={`mt-5 min-h-14 w-full rounded-xl px-4 text-body font-semibold ${solidActionClass}`}
           onClick={dismiss}
         >
           Skjønner
         </button>
         <button
           type="button"
-          className={`mt-2 min-h-12 w-full rounded-md px-4 text-meta font-semibold ${outlineActionClass}`}
+          className={`mt-2 min-h-12 w-full rounded-xl px-4 text-meta font-semibold ${outlineActionClass}`}
           onClick={dismiss}
         >
           Ikke nå

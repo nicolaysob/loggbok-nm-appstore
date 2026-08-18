@@ -12,12 +12,12 @@ export function DeleteAccountForm() {
 
   return (
     <div className="flex flex-col gap-5">
-      <label className="flex items-start gap-4 text-body text-navy-800">
+      <label className="flex items-start gap-4 text-body text-ink">
         <input
           type="checkbox"
           checked={confirmed}
           onChange={(event) => setConfirmed(event.target.checked)}
-          className="mt-0.5 size-7 shrink-0 accent-red-700"
+          className="mt-0.5 size-7 shrink-0 accent-danger"
         />
         <span>
           Jeg forstår at kontoen deaktiveres og at jeg mister tilgang til
@@ -26,7 +26,7 @@ export function DeleteAccountForm() {
       </label>
 
       {error && (
-        <p role="alert" className="text-body font-medium text-red-700">
+        <p role="alert" className="text-body font-medium text-danger">
           {error}
         </p>
       )}
@@ -41,14 +41,14 @@ export function DeleteAccountForm() {
             if (result?.error) setError(result.error);
           });
         }}
-        className="min-h-16 w-full rounded-md bg-red-700 text-body font-semibold text-white shadow-card active:bg-red-700 disabled:opacity-50"
+        className="min-h-16 w-full rounded-xl bg-danger text-body font-semibold text-white shadow-card active:bg-danger disabled:opacity-50"
       >
         {pending ? "Sletter …" : "Slett kontoen min"}
       </button>
 
       <Link
         href="/mer"
-        className={`flex min-h-16 items-center justify-center rounded-md text-body font-semibold ${outlineActionClass}`}
+        className={`flex min-h-16 items-center justify-center rounded-xl text-body font-semibold ${outlineActionClass}`}
       >
         Avbryt
       </Link>

@@ -3,7 +3,7 @@
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
-import { requireAdmin, requireUser } from "@/lib/dal";
+import { requireAdmin, requireStaffAccess } from "@/lib/dal";
 import { primaryAreaId } from "@/lib/customer";
 import { occursOn, scheduledInstant } from "@/lib/calendar";
 import {
@@ -69,7 +69,7 @@ export async function createJobFromCalendar(
   _prevState: FormState,
   formData: FormData,
 ): Promise<FormState> {
-  await requireUser();
+  await requireAdmin();
 
   const dayKey = String(formData.get("dayKey") ?? "");
   const day = parseYmdKey(dayKey);
@@ -99,7 +99,7 @@ export async function createJobFromCalendar(
     return { message: "Kunden mangler område." };
   }
 
-  let jobTypeId: string | null = result.data.jobTypeId;
+  const jobTypeId: string | null = result.data.jobTypeId;
   if (jobTypeId) {
     const type = await db.jobType.findUnique({
       where: { id: jobTypeId },
@@ -158,7 +158,7 @@ export async function createCustomerJob(
     return { message: "Kunden mangler område." };
   }
 
-  let jobTypeId: string | null = result.data.jobTypeId;
+  const jobTypeId: string | null = result.data.jobTypeId;
   if (jobTypeId) {
     const type = await db.jobType.findUnique({
       where: { id: jobTypeId },
@@ -217,7 +217,7 @@ export async function completeCalendarJob(
   customerJobId: string,
   dayKey: string,
 ) {
-  const user = await requireUser();
+  const user = await requireStaffAccess("calendar");
   const day = parseYmdKey(dayKey);
   if (!day) return;
 
@@ -260,13 +260,14 @@ export async function completeCalendarJob(
   }
 
   revalidatePath("/kalender");
+  revalidatePath("/");
 }
 
 export async function uncompleteCalendarJob(
   customerJobId: string,
   dayKey: string,
 ) {
-  await requireUser();
+  await requireStaffAccess("calendar");
   const day = parseYmdKey(dayKey);
   if (!day) return;
 
@@ -282,4 +283,5 @@ export async function uncompleteCalendarJob(
   });
 
   revalidatePath("/kalender");
+  revalidatePath("/");
 }

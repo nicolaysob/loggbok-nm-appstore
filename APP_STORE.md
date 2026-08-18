@@ -1,8 +1,10 @@
 # App Store — sjekkliste for N&M Loggbok
 
-Dette repoet er **App Store-kopien**. Hovedappen på Vercel endres ikke herfra.
+Dette repoet er **App Store-kopien**. Den deployes ikke. Hovedappen på Vercel endres ikke herfra.
 
-**Produksjons-URL (WebView):** https://loggbok-nm-lyart.vercel.app  
+iOS-wrapperen (Capacitor) laster produksjon: https://loggbok-nm-lyart.vercel.app  
+Nytt utseende i denne mappa brukes når du sier at det skal inn i appen.
+
 **Personvern:** https://loggbok-nm-lyart.vercel.app/personvern  
 **Support:** https://loggbok-nm-lyart.vercel.app/support
 

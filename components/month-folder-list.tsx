@@ -20,7 +20,11 @@ export function MonthFolderList({
   countLabel: (count: number) => string;
 }) {
   if (folders.length === 0) {
-    return <p className="rounded-md bg-white px-5 py-5 text-body text-navy-700 shadow-card">{emptyText}</p>;
+    return (
+      <p className="rounded-2xl border border-hair bg-surface px-4 py-6 text-center text-body text-ink-3 shadow-card">
+        {emptyText}
+      </p>
+    );
   }
 
   return (
@@ -29,13 +33,13 @@ export function MonthFolderList({
         <li key={folder.param}>
           <Link
             href={hrefFor(folder.param)}
-            className={`flex min-h-[4.5rem] items-center justify-between gap-3 rounded-md px-4 py-3.5 ${outlineActionClass}`}
+            className={`flex min-h-[4.5rem] items-center justify-between gap-3 rounded-xl px-4 py-3.5 ${outlineActionClass}`}
           >
             <span className="flex min-w-0 flex-col gap-0.5 text-left">
-              <span className="text-heading font-semibold text-navy-900">
+              <span className="text-heading font-semibold text-ink">
                 {folder.label}
               </span>
-              <span className="text-meta font-medium text-navy-700">
+              <span className="text-meta font-medium text-ink-2">
                 {folder.isCurrent
                   ? folder.count === 0
                     ? "Denne måneden — tom så langt"
@@ -45,9 +49,19 @@ export function MonthFolderList({
             </span>
             <span
               aria-hidden
-              className="flex size-11 shrink-0 items-center justify-center rounded-full bg-navy-50"
+              className="flex size-11 shrink-0 items-center justify-center rounded-full bg-sunken text-ink-2"
             >
-              ›
+              <svg
+                viewBox="0 0 24 24"
+                className="size-5"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="m9 5 7 7-7 7" />
+              </svg>
             </span>
           </Link>
         </li>

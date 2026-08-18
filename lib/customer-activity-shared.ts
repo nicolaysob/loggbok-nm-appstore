@@ -23,9 +23,10 @@ export const activityKindLabels: Record<ActivityKind, string> = {
   ISSUE: "Avvik",
 };
 
+/** Farge på ikonboblen i tidslinja — bakgrunn + ikonfarge. */
 export const activityKindTone: Record<ActivityKind, string> = {
-  VISIT_NOTE: "text-navy-900",
-  TASK_COMPLETION: "text-green-700",
-  EXTRA_WORK: "text-navy-900",
-  ISSUE: "text-red-700",
+  VISIT_NOTE: "bg-brand-soft text-brand",
+  TASK_COMPLETION: "bg-brand-soft text-brand",
+  EXTRA_WORK: "bg-sunken text-ink-2",
+  ISSUE: "bg-danger-soft text-danger",
 };

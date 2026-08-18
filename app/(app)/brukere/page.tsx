@@ -15,6 +15,11 @@ export default async function UsersPage() {
         role: true,
         payType: true,
         active: true,
+        canLog: true,
+        canIssues: true,
+        canHours: true,
+        canTodos: true,
+        canCalendar: true,
         customer: { select: { name: true } },
       },
     }),
@@ -27,13 +32,7 @@ export default async function UsersPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-lg animate-rise flex-col gap-6">
-      <div className="flex flex-col gap-1">
-        <h1 className="text-display tracking-tight">Brukere</h1>
-        <p className="text-body text-navy-700">
-          Opprett ansatte og kundekontoer. Kundekontoer ser bare egen logg.
-          Deaktiverte kan ikke logge inn.
-        </p>
-      </div>
+      <h1 className="text-display">Brukere</h1>
 
       <UsersManager
         customers={customers}
@@ -46,6 +45,11 @@ export default async function UsersPage() {
           active: user.active,
           customerName: user.customer?.name ?? null,
           isSelf: user.id === admin.id,
+          canLog: user.canLog,
+          canIssues: user.canIssues,
+          canHours: user.canHours,
+          canTodos: user.canTodos,
+          canCalendar: user.canCalendar,
         }))}
       />
     </div>

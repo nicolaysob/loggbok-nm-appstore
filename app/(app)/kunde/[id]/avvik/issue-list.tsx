@@ -8,6 +8,7 @@ import { outlineActionClass, solidActionClass } from "@/lib/ui";
 import { AdminDeleteButton } from "@/components/admin-delete-button";
 import { EditableText } from "@/components/editable-text";
 import { PhotoThumbs } from "@/components/photo-thumbs";
+import { IssueNotes, type IssueNoteItem } from "./issue-notes";
 
 export type IssueItem = {
   id: string;
@@ -17,14 +18,15 @@ export type IssueItem = {
   reportedBy: string;
   userId: string;
   photoUrls: string[];
+  notes: IssueNoteItem[];
 };
 
 // Åpent avvik er rødt. Under arbeid og lukket dempes ned til marineblått,
 // så bare det som faktisk krever handling roper.
 const badgeClasses: Record<IssueStatus, string> = {
-  OPEN: "bg-red-50 text-red-700",
-  IN_PROGRESS: "bg-amber-50 text-amber-700",
-  CLOSED: "bg-navy-100 text-navy-700",
+  OPEN: "bg-danger-soft text-danger",
+  IN_PROGRESS: "bg-warn-soft text-warn",
+  CLOSED: "bg-edge text-ink-2",
 };
 
 const allStatuses: IssueStatus[] = ["OPEN", "IN_PROGRESS", "CLOSED"];
@@ -55,25 +57,22 @@ export function IssueList({
         return (
           <li
             key={issue.id}
-            className={`flex flex-col gap-3 rounded-md px-4 py-4 shadow-card ${
+            className={`flex flex-col gap-3 rounded-2xl border border-hair bg-surface px-4 py-4 shadow-card ${
               issue.status === "OPEN"
-                ? "bg-red-50"
+                ? "border-l-4 border-l-danger"
                 : issue.status === "IN_PROGRESS"
-                  ? "bg-amber-50"
-                  : "bg-white"
+                  ? "border-l-4 border-l-warn"
+                  : "border-l-4 border-l-edge"
             }`}
           >
             <div className="flex flex-wrap items-center gap-2">
               <span
-                className={`rounded-full px-3 py-1 text-meta font-semibold ${badgeClasses[issue.status]}`}
+                className={`inline-flex min-h-7 items-center rounded-full px-2.5 text-micro font-bold ${badgeClasses[issue.status]}`}
               >
                 {issueStatusLabels[issue.status]}
               </span>
-              <span className="font-mono text-meta font-medium text-navy-700">
-                {issue.created}
-              </span>
-              <span className="text-meta font-medium text-navy-700">
-                {issue.reportedBy}
+              <span className="text-micro tabular-nums text-ink-3">
+                {issue.created} · {issue.reportedBy}
               </span>
             </div>
 
@@ -85,6 +84,12 @@ export function IssueList({
 
             <PhotoThumbs urls={issue.photoUrls} />
 
+            <IssueNotes
+              issueId={issue.id}
+              notes={issue.notes}
+              isAdmin={isAdmin}
+            />
+
             <div className="flex flex-wrap gap-2">
               {allStatuses
                 .filter((status) => status !== issue.status)
@@ -95,7 +100,7 @@ export function IssueList({
                   >
                     <button
                       type="submit"
-                      className={`min-h-14 rounded-md px-4 text-meta font-semibold ${
+                      className={`min-h-13 rounded-xl px-4 text-meta font-bold ${
                         status === "CLOSED"
                           ? solidActionClass
                           : outlineActionClass
@@ -111,7 +116,7 @@ export function IssueList({
                   <form action={convertIssueToTodo.bind(null, issue.id)}>
                     <button
                       type="submit"
-                      className={`min-h-14 rounded-md px-4 text-meta font-semibold ${outlineActionClass}`}
+                      className={`min-h-13 rounded-xl px-4 text-meta font-bold ${outlineActionClass}`}
                     >
                       Gjør om til gjøremål
                     </button>
@@ -120,7 +125,7 @@ export function IssueList({
                     target="issue"
                     id={issue.id}
                     confirmText="Slette avviket permanent? Dette kan ikke angres."
-                    className="min-h-14 rounded-md bg-white px-4 text-meta font-semibold text-red-700 shadow-card transition-colors active:bg-red-50 disabled:opacity-50"
+                    className="min-h-14 rounded-2xl bg-surface px-4 text-meta font-semibold text-danger shadow-card transition-colors active:bg-danger-soft disabled:opacity-50"
                   />
                 </>
               )}

@@ -72,5 +72,7 @@
 	<string>Loggbok kan hente bilder fra bildebiblioteket for dokumentasjon.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>Loggbok kan lagre bilder knyttet til arbeidslogg.</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 </dict>
 </plist>

@@ -9,12 +9,8 @@ import {
   HoursStepper,
   StickySubmit,
 } from "@/components/mobile-form";
-import {
-  labelClass,
-  outlineActionClass,
-  textareaClass,
-  inputClass,
-} from "@/lib/ui";
+import { CommentField } from "@/components/comment-field";
+import { labelClass, outlineActionClass, inputClass } from "@/lib/ui";
 
 // De vanligste timetallene som ett trykk i stedet for mange på stepperen
 const quickHours = [0.5, 1, 1.5, 2, 3, 4];
@@ -31,10 +27,16 @@ export function HoursForm({
     undefined,
   );
   const [hours, setHours] = useState(0);
+  const [comment, setComment] = useState("");
+
+  function submit(formData: FormData) {
+    formData.set("comment", comment);
+    formAction(formData);
+  }
 
   return (
-    <form action={formAction} className="flex flex-col gap-8 pb-4">
-      <section className="flex flex-col gap-1.5">
+    <form action={submit} className="flex flex-col gap-7 pb-4">
+      <section className="flex flex-col gap-2">
         <label htmlFor="occurredAt" className={labelClass}>
           Tidspunkt
         </label>
@@ -51,7 +53,7 @@ export function HoursForm({
       </section>
 
       <section className="flex flex-col gap-3">
-        <h2 className="text-heading">Timer</h2>
+        <p className={labelClass}>Timer</p>
         <div className="flex flex-wrap gap-2">
           {quickHours.map((value) => {
             const active = hours === value;
@@ -61,10 +63,10 @@ export function HoursForm({
                 type="button"
                 aria-pressed={active}
                 onClick={() => setHours(value)}
-                className={`min-h-12 min-w-16 rounded-md px-3 font-mono text-body font-semibold transition-all duration-150 ${
+                className={`min-h-12 min-w-16 rounded-full px-4 font-mono text-body font-bold transition-colors duration-150 ${
                   active
-                    ? "border border-brand bg-brand-50 text-green-700"
-                    : outlineActionClass
+                    ? "bg-brand text-on-brand shadow-brand"
+                    : `${outlineActionClass} rounded-full`
                 }`}
               >
                 {formatHours(value)}
@@ -77,22 +79,24 @@ export function HoursForm({
         <FieldError messages={state?.errors?.hours} />
       </section>
 
-      <section className="flex flex-col gap-3">
+      <section className="flex flex-col gap-2">
         <label htmlFor="comment" className={labelClass}>
           Hva ble gjort?
         </label>
-        <textarea
+        <CommentField
           id="comment"
-          name="comment"
+          value={comment}
+          onChange={setComment}
           rows={5}
-          className={textareaClass}
         />
         <FieldError messages={state?.errors?.comment} />
       </section>
 
       <FieldError messages={state?.message ? [state.message] : undefined} />
 
-      <StickySubmit pending={pending}>Lagre ekstraarbeid</StickySubmit>
+      <StickySubmit pending={pending}>
+        {hours > 0 ? `Lagre ${formatHours(hours)} t` : "Lagre"}
+      </StickySubmit>
     </form>
   );
 }

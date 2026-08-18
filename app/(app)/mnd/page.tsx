@@ -101,8 +101,8 @@ export default async function BillingPage({
     <div className="mx-auto flex w-full max-w-lg animate-rise flex-col gap-6">
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-1">
-          <h1 className="text-display tracking-tight">Fakturering</h1>
-          <p className="text-body text-navy-700">
+          <h1 className="text-display">Fakturering</h1>
+          <p className="text-body text-ink-2">
             Ekstratimer i {period.label.toLowerCase()}. Huk av når de er lagt
             inn — de flyttes til ferdig håndtert.
           </p>
@@ -133,15 +133,15 @@ export default async function BillingPage({
       </div>
 
       <div className="grid grid-cols-2 gap-2.5">
-        <div className="rounded-md bg-white px-3.5 py-4 shadow-card">
-          <p className="text-meta text-navy-700">Til faktura</p>
-          <p className="mt-1.5 font-mono text-[1.35rem] font-bold leading-tight text-navy-900">
+        <div className="rounded-2xl bg-surface px-3.5 py-4 shadow-card">
+          <p className="text-meta text-ink-2">Til faktura</p>
+          <p className="mt-1.5 font-mono text-title tabular-nums text-ink">
             {formatHours(openHours)} t
           </p>
         </div>
-        <div className="rounded-md bg-white px-3.5 py-4 shadow-card">
-          <p className="text-meta text-navy-700">Håndtert</p>
-          <p className="mt-1.5 font-mono text-[1.35rem] font-bold leading-tight text-navy-900">
+        <div className="rounded-2xl bg-surface px-3.5 py-4 shadow-card">
+          <p className="text-meta text-ink-2">Håndtert</p>
+          <p className="mt-1.5 font-mono text-title tabular-nums text-ink">
             {formatHours(doneHours)} t
           </p>
         </div>

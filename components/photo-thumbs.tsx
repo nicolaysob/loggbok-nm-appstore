@@ -19,7 +19,7 @@ export function PhotoThumbs({
               <img
                 src={url}
                 alt=""
-                className="size-20 rounded-md object-cover"
+                className="size-20 rounded-xl object-cover"
               />
             </a>
           </li>

@@ -86,7 +86,7 @@ export function PullToRefresh({ children }: { children: React.ReactNode }) {
         }`}
         style={{ height: showHint ? Math.max(pull, pending ? 36 : 0) : 0 }}
       >
-        <p className="pt-2 text-meta font-semibold text-navy-700">
+        <p className="pt-2 text-meta font-semibold text-ink-2">
           {pending
             ? "Oppdaterer …"
             : ready

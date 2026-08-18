@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "TimeClock" ADD COLUMN "pausedAt" TIMESTAMP(3);
+ALTER TABLE "TimeClock" ADD COLUMN "pausedMs" INTEGER NOT NULL DEFAULT 0;

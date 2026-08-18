@@ -1,9 +1,11 @@
+import Link from "next/link";
 import { requireCustomer } from "@/lib/dal";
 import {
   getCustomerActivity,
   listCustomerActivityMonths,
 } from "@/lib/customer-activity";
-import { calendarMonth, parseYearMonth } from "@/lib/period";
+import { calendarMonth, parseYearMonth, yearMonthParam } from "@/lib/period";
+import { actionSize, outlineActionClass } from "@/lib/ui";
 import { BackLink } from "@/components/back-link";
 import { ActivityList } from "@/components/activity-list";
 import { MonthFolderList } from "@/components/month-folder-list";
@@ -29,10 +31,10 @@ export default async function PortalActivityArchivePage({
         <div className="flex flex-col gap-4">
           <BackLink fallback="/portal/aktivitet" />
           <div className="flex flex-col gap-1">
-            <h1 className="text-display tracking-tight text-navy-900">
+            <h1 className="text-display text-ink">
               {period.label}
             </h1>
-            <p className="text-body text-navy-700">
+            <p className="text-body text-ink-2">
               Besøk, oppgaver, ekstraarbeid og avvik denne måneden.
             </p>
           </div>
@@ -42,6 +44,13 @@ export default async function PortalActivityArchivePage({
           items={items}
           emptyText="Ingen registreringer denne måneden."
         />
+
+        <Link
+          href={`/portal/rapport?maaned=${yearMonthParam(parsed.year, parsed.month)}`}
+          className={`${actionSize} ${outlineActionClass}`}
+        >
+          Se som månedsrapport
+        </Link>
       </div>
     );
   }
@@ -53,10 +62,10 @@ export default async function PortalActivityArchivePage({
       <div className="flex flex-col gap-4">
         <BackLink fallback="/portal" />
         <div className="flex flex-col gap-1">
-          <h1 className="text-display tracking-tight text-navy-900">
+          <h1 className="text-display text-ink">
             Aktivitetsarkiv
           </h1>
-          <p className="text-body text-navy-700">
+          <p className="text-body text-ink-2">
             Velg en måned. Når måneden er over, ligger den igjen som mappe.
           </p>
         </div>

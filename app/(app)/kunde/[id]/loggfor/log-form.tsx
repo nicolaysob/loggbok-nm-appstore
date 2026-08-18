@@ -9,14 +9,20 @@ import {
   type VisitPresetGroup,
 } from "@/lib/visit-presets";
 import { PhotoPicker } from "@/components/photo-picker";
-import { ImproveTextButton } from "@/components/improve-text-button";
-import {
-  FieldError,
-  StickySubmit,
-  labelClass,
-  textareaClass,
-} from "@/components/mobile-form";
-import { outlineActionClass, inputClass, solidActionClass } from "@/lib/ui";
+import { CommentField } from "@/components/comment-field";
+import { FieldError, StickySubmit, labelClass } from "@/components/mobile-form";
+import { inputClass, sectionHeadClass } from "@/lib/ui";
+
+export type LogTaskOption = {
+  id: string;
+  title: string;
+  lastDone: string | null;
+};
+
+const chipBase =
+  "min-h-12 rounded-full px-4 text-meta font-bold transition-colors duration-150";
+const chipOff = `${chipBase} border-[1.5px] border-edge bg-surface text-ink active:bg-sunken`;
+const chipOn = `${chipBase} bg-brand text-on-brand shadow-brand active:bg-brand-strong`;
 
 function commentLines(comment: string): string[] {
   return comment
@@ -28,9 +34,12 @@ function commentLines(comment: string): string[] {
 export function LogForm({
   customerId,
   defaultDateTime,
+  tasks,
 }: {
   customerId: string;
   defaultDateTime: string;
+  /** Kundens faste oppgaver — tom liste skjuler seksjonen */
+  tasks: LogTaskOption[];
 }) {
   const [state, formAction, pending] = useActionState<FormState, FormData>(
     createVisitNote.bind(null, customerId),
@@ -39,6 +48,16 @@ export function LogForm({
   const [comment, setComment] = useState("");
   const [photos, setPhotos] = useState<File[]>([]);
   const [openGroups, setOpenGroups] = useState<Set<string>>(() => new Set());
+  const [checked, setChecked] = useState<Set<string>>(() => new Set());
+
+  function toggleTask(id: string) {
+    setChecked((current) => {
+      const next = new Set(current);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
 
   function togglePreset(text: string) {
     setComment((current) => {
@@ -100,8 +119,8 @@ export function LogForm({
   }
 
   return (
-    <form action={submit} className="flex flex-col gap-6 pb-4">
-      <div className="flex flex-col gap-1.5">
+    <form action={submit} className="flex flex-col gap-7 pb-4">
+      <div className="flex flex-col gap-2">
         <label htmlFor="occurredAt" className={labelClass}>
           Tidspunkt
         </label>
@@ -114,14 +133,56 @@ export function LogForm({
           max={defaultDateTime}
           className={`${inputClass} min-h-14`}
         />
-        <p className="text-meta text-navy-700">
-          Nå som standard — endre hvis besøket var et annet tidspunkt.
-        </p>
         <FieldError messages={state?.errors?.occurredAt} />
       </div>
 
-      <div className="flex flex-col gap-2">
-        <p className={labelClass}>Hurtigvalg</p>
+      {tasks.length > 0 ? (
+        <section>
+          <h2 className={sectionHeadClass}>
+            <span>Faste oppgaver</span>
+            {checked.size > 0 ? <span>{checked.size} valgt</span> : null}
+          </h2>
+          <ul className="overflow-hidden rounded-2xl border border-hair bg-surface shadow-card">
+            {tasks.map((task) => {
+              const active = checked.has(task.id);
+              return (
+                <li key={task.id} className="border-b border-hair last:border-b-0">
+                  {/* Hele raden er trykkbar — avkryssingsboksen ligger inni label */}
+                  <label
+                    className={`flex min-h-16 cursor-pointer items-center gap-3.5 px-4 py-3 transition-colors ${
+                      active ? "bg-brand text-on-brand" : "text-ink active:bg-sunken"
+                    }`}
+                  >
+                    <input
+                      type="checkbox"
+                      name="tasks"
+                      value={task.id}
+                      checked={active}
+                      onChange={() => toggleTask(task.id)}
+                      className="size-7 shrink-0 accent-brand"
+                    />
+                    <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+                      <span className="text-heading">{task.title}</span>
+                      <span
+                        className={`text-micro tabular-nums ${
+                          active ? "text-on-brand/70" : "text-ink-3"
+                        }`}
+                      >
+                        {task.lastDone ?? "Aldri utført"}
+                      </span>
+                    </span>
+                  </label>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      ) : null}
+
+      <section>
+        <h2 className={sectionHeadClass}>
+          <span>Hurtigtekst</span>
+        </h2>
         <div className="flex flex-wrap gap-2">
           {visitPresets.map((preset) => {
             if (preset.kind === "simple") {
@@ -132,11 +193,8 @@ export function LogForm({
                   type="button"
                   aria-pressed={active}
                   onClick={() => togglePreset(preset.text)}
-                  className={`min-h-12 rounded-md px-4 text-meta font-semibold ${
-                    active ? solidActionClass : outlineActionClass
-                  }`}
+                  className={active ? chipOn : chipOff}
                 >
-                  {active ? "✓ " : ""}
                   {preset.text}
                 </button>
               );
@@ -154,27 +212,28 @@ export function LogForm({
                   type="button"
                   aria-expanded={open}
                   onClick={() => toggleGroupOpen(preset.label)}
-                  className={`flex min-h-12 w-full items-center justify-between rounded-md px-4 text-left text-meta font-semibold ${
-                    groupActive ? solidActionClass : outlineActionClass
-                  }`}
+                  className={`${groupActive ? chipOn : chipOff} flex w-full items-center justify-between text-left`}
                 >
                   <span>
-                    {groupActive ? "✓ " : ""}
                     {preset.label}
-                    {groupActive ? ` (${selectedCount})` : ""}
+                    {groupActive ? ` · ${selectedCount}` : ""}
                   </span>
-                  <span
+                  <svg
+                    viewBox="0 0 24 24"
+                    className={`size-4 transition-transform ${open ? "rotate-180" : ""}`}
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
                     aria-hidden
-                    className={`flex size-9 items-center justify-center rounded-full ${
-                      groupActive ? "bg-white/15" : "bg-navy-50"
-                    }`}
                   >
-                    {open ? "▾" : "›"}
-                  </span>
+                    <path d="m6 9 6 6 6-6" />
+                  </svg>
                 </button>
 
                 {open && (
-                  <div className="flex flex-wrap gap-2 rounded-md bg-white p-3 shadow-card">
+                  <div className="flex flex-wrap gap-2 rounded-2xl border border-hair bg-surface p-3">
                     {preset.items.map((item) => {
                       const active = activePresets.has(groupItemLine(item));
                       return (
@@ -183,11 +242,8 @@ export function LogForm({
                           type="button"
                           aria-pressed={active}
                           onClick={() => toggleGroupItem(preset, item)}
-                          className={`min-h-12 rounded-md px-4 text-meta font-semibold ${
-                            active ? solidActionClass : outlineActionClass
-                          }`}
+                          className={active ? chipOn : chipOff}
                         >
-                          {active ? "✓ " : ""}
                           {item}
                         </button>
                       );
@@ -198,28 +254,27 @@ export function LogForm({
             );
           })}
         </div>
-      </div>
-
-      <label htmlFor="comment" className={labelClass}>
-        Hva ble gjort?
-      </label>
-      <textarea
-        id="comment"
-        name="comment"
-        rows={6}
-        value={comment}
-        onChange={(event) => setComment(event.target.value)}
-        className={textareaClass}
-      />
-
-      <ImproveTextButton text={comment} onImproved={setComment} />
-
-      <FieldError messages={state?.errors?.comment} />
+      </section>
 
       <div className="flex flex-col gap-2">
-        <p className={labelClass}>Bilder</p>
-        <PhotoPicker files={photos} onChange={setPhotos} />
+        <div className="flex items-baseline justify-between gap-3">
+          <label htmlFor="comment" className={labelClass}>
+            Noe mer?
+          </label>
+          {checked.size > 0 ? (
+            <span className="text-micro text-ink-3">valgfritt</span>
+          ) : null}
+        </div>
+        <CommentField
+          id="comment"
+          value={comment}
+          onChange={setComment}
+          rows={5}
+        />
+        <FieldError messages={state?.errors?.comment} />
       </div>
+
+      <PhotoPicker files={photos} onChange={setPhotos} />
 
       <FieldError messages={state?.errors?.photos} />
       <FieldError messages={state?.message ? [state.message] : undefined} />

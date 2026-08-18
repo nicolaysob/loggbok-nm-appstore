@@ -9,8 +9,10 @@ export default function manifest(): MetadataRoute.Manifest {
     scope: "/",
     display: "standalone",
     orientation: "portrait",
-    background_color: "#eef3f8",
-    theme_color: "#15803d",
+    // Må matche --canvas (lys modus) i globals.css, ellers blinker appen
+    // i feil farge i det halvsekundet den starter opp fra hjemskjermen.
+    background_color: "#f5f3ef",
+    theme_color: "#f5f3ef",
     lang: "nb",
     icons: [
       {
