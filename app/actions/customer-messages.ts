@@ -3,7 +3,7 @@
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
-import { requireCustomer, requireUser } from "@/lib/dal";
+import { requireCustomer, requireStaff } from "@/lib/dal";
 import { notifyStaffNewCustomerMessage } from "@/lib/onesignal-server";
 import { customerMessageSchema, type FormState } from "@/lib/validation";
 
@@ -51,7 +51,8 @@ export async function createCustomerMessage(
 }
 
 export async function signCustomerMessage(messageId: string): Promise<void> {
-  const user = await requireUser();
+  // Bare ansatte kvitterer ut — kunden skal ikke kunne lukke sin egen melding
+  const user = await requireStaff();
 
   const message = await db.customerMessage.findUnique({
     where: { id: messageId },

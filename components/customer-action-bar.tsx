@@ -7,6 +7,12 @@ import { actionSize, solidActionClass } from "@/lib/ui";
 const tiles = [
   { href: "timer", label: "Timer", icon: "clock", capability: "hours" },
   { href: "avvik", label: "Avvik", icon: "issue", capability: "issues" },
+  {
+    href: "meldingsarkiv",
+    label: "Meldinger",
+    icon: "message",
+    capability: "log",
+  },
 ] as const;
 
 function TileIcon({ name }: { name: (typeof tiles)[number]["icon"] }) {
@@ -21,6 +27,13 @@ function TileIcon({ name }: { name: (typeof tiles)[number]["icon"] }) {
     "aria-hidden": true,
   };
 
+  if (name === "message") {
+    return (
+      <svg {...common}>
+        <path d="M20.5 11.5a7.9 7.9 0 0 1-8.5 7.9 8.6 8.6 0 0 1-3.1-.6L4 20.5l1.7-4.7a7.7 7.7 0 0 1-.7-3.4 7.9 7.9 0 0 1 8.5-7.9 7.9 7.9 0 0 1 7 7Z" />
+      </svg>
+    );
+  }
   if (name === "clock") {
     return (
       <svg {...common}>
@@ -40,17 +53,20 @@ export function CustomerActionBar({
   customerId,
   access,
   openIssues = 0,
+  unreadMessages = 0,
 }: {
   customerId: string;
   access: StaffAccess;
   openIssues?: number;
+  unreadMessages?: number;
 }) {
   const visible = tiles.filter((tile) => access[tile.capability]);
   if (!access.log && visible.length === 0) return null;
 
-  // Bare avvik telles her. «Oppgaver» går til oppgavemalene, ikke til
-  // gjøremålslista lenger nede — et tall der ville pekt på feil sted.
-  const counts: Record<string, number> = { avvik: openIssues };
+  const counts: Record<string, number> = {
+    avvik: openIssues,
+    meldingsarkiv: unreadMessages,
+  };
 
   const cols =
     visible.length === 1
@@ -96,7 +112,9 @@ export function CustomerActionBar({
                 {count > 0 ? (
                   <span
                     aria-hidden
-                    className="absolute right-2.5 top-2.5 flex min-w-[1.375rem] items-center justify-center rounded-full bg-danger px-1.5 py-0.5 text-micro font-bold text-white"
+                    className={`absolute right-2.5 top-2.5 flex min-w-[1.375rem] items-center justify-center rounded-full px-1.5 py-0.5 text-micro font-bold text-white ${
+                      tile.href === "avvik" ? "bg-danger" : "bg-ink-3"
+                    }`}
                   >
                     {count}
                   </span>

@@ -18,7 +18,7 @@ export default async function CustomerPage({
 
   // Toppen skal stå ferdig før detaljene lastes — derfor bare de tallene
   // handlingsraden trenger, ikke hele innholdet.
-  const [customer, openIssues, lastEntry] = await Promise.all([
+  const [customer, openIssues, unreadMessages, lastEntry] = await Promise.all([
     db.customer.findUnique({
       where: { id },
       select: { id: true, name: true },
@@ -31,6 +31,7 @@ export default async function CustomerPage({
           },
         })
       : Promise.resolve(0),
+    db.customerMessage.count({ where: { customerId: id, readAt: null } }),
     db.logEntry.findFirst({
       where: { area: { customerId: id } },
       orderBy: { occurredAt: "desc" },
@@ -87,6 +88,7 @@ export default async function CustomerPage({
         customerId={customer.id}
         access={user.access}
         openIssues={openIssues}
+        unreadMessages={unreadMessages}
       />
 
       <Suspense fallback={<PageLoading label="Henter detaljer …" />}>

@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
-import { requireUser } from "@/lib/dal";
+import { requireStaff } from "@/lib/dal";
 import { listCustomerMessageMonths } from "@/lib/customer-activity";
 import { calendarMonth, parseYearMonth } from "@/lib/period";
 import { formatDate } from "@/lib/time";
@@ -12,7 +12,7 @@ export default async function MessageArchivePage({
   params,
   searchParams,
 }: PageProps<"/kunde/[id]/meldingsarkiv">) {
-  await requireUser();
+  await requireStaff();
   const { id } = await params;
   const { maaned } = await searchParams;
 
