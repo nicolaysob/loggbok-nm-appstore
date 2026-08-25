@@ -123,6 +123,23 @@ export async function notifyStaffNewCustomerMessage(input: {
   });
 }
 
+export async function notifyStaffNewIssueComment(input: {
+  customerId: string;
+  customerName: string;
+  preview: string;
+}): Promise<void> {
+  const preview =
+    input.preview.length > 120
+      ? `${input.preview.slice(0, 117)}…`
+      : input.preview;
+
+  await notifyStaffPush({
+    title: `Kommentar på avvik · ${input.customerName}`,
+    body: preview,
+    url: `/kunde/${input.customerId}/avvik`,
+  });
+}
+
 export async function notifyStaffNewTodo(input: {
   customerId: string;
   customerName: string;

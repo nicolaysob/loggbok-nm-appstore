@@ -51,7 +51,7 @@ export async function CustomerBody({
                   id: true,
                   body: true,
                   createdAt: true,
-                  user: { select: { name: true } },
+                  user: { select: { name: true, role: true } },
                 },
               },
             },
@@ -142,6 +142,7 @@ export async function CustomerBody({
                     body: note.body,
                     at: `${formatDate(note.createdAt)} · ${formatTime(note.createdAt)}`,
                     author: note.user.name,
+                    fromCustomer: note.user.role === "CUSTOMER",
                   })),
                 }))}
               />

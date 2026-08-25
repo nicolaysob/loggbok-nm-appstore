@@ -1,6 +1,7 @@
 import type { IssueStatus } from "@/generated/prisma/enums";
 import { issueStatusLabels } from "@/lib/labels";
 import { PhotoThumbs } from "@/components/photo-thumbs";
+import { PortalIssueComment } from "@/components/portal-issue-comment";
 
 export type PortalIssueNote = {
   id: string;
@@ -8,6 +9,8 @@ export type PortalIssueNote = {
   /** Ferdig formatert «14. aug. 2026 · 14:20» */
   at: string;
   author: string;
+  /** Skrevet av kunden selv — vises som «Dere» */
+  fromCustomer: boolean;
 };
 
 export type PortalIssueItem = {
@@ -31,9 +34,12 @@ const badgeClasses: Record<IssueStatus, string> = {
 export function PortalIssueList({
   issues,
   emptyText,
+  canComment = false,
 }: {
   issues: PortalIssueItem[];
   emptyText?: string;
+  /** Kunden kan skrive på åpne avvik — lukkede er ferdige samtaler */
+  canComment?: boolean;
 }) {
   if (issues.length === 0) {
     return emptyText ? (
@@ -81,11 +87,18 @@ export function PortalIssueList({
                 <li key={note.id} className="flex gap-2.5">
                   <span
                     aria-hidden
-                    className="mt-1.5 size-1.5 shrink-0 rounded-full bg-edge"
+                    className={`mt-1.5 size-1.5 shrink-0 rounded-full ${
+                      note.fromCustomer ? "bg-brand" : "bg-edge"
+                    }`}
                   />
                   <div className="min-w-0">
                     <p className="text-micro tabular-nums text-ink-3">
-                      {note.at} · {note.author}
+                      {note.at} ·{" "}
+                      {note.fromCustomer ? (
+                        <span className="font-bold text-brand">Dere</span>
+                      ) : (
+                        note.author
+                      )}
                     </p>
                     <p className="mt-0.5 text-meta whitespace-pre-wrap text-ink">
                       {note.body}
@@ -94,6 +107,12 @@ export function PortalIssueList({
                 </li>
               ))}
             </ol>
+          ) : null}
+
+          {canComment ? (
+            <div className="border-t border-hair pt-3">
+              <PortalIssueComment issueId={issue.id} />
+            </div>
           ) : null}
         </li>
       ))}

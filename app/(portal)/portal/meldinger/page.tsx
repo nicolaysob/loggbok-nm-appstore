@@ -43,7 +43,7 @@ export default async function PortalMessageArchivePage({
               {period.label}
             </h1>
             <p className="text-body text-ink-2">
-              Signerte meldinger denne måneden.
+              Meldinger dere har sendt, som vi har tatt tak i.
             </p>
           </div>
         </div>
@@ -98,7 +98,7 @@ export default async function PortalMessageArchivePage({
       <MonthFolderList
         folders={folders}
         hrefFor={(param) => `/portal/meldinger?maaned=${param}`}
-        emptyText="Ingen signerte meldinger ennå."
+        emptyText="Ingen tidligere meldinger ennå."
         countLabel={(count) =>
           count === 1 ? "1 melding" : `${count} meldinger`
         }

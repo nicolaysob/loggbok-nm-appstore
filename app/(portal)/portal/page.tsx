@@ -121,7 +121,7 @@ export default async function CustomerPortalPage() {
               id: true,
               body: true,
               createdAt: true,
-              user: { select: { name: true } },
+              user: { select: { name: true, role: true } },
             },
           },
         },
@@ -335,6 +335,7 @@ export default async function CustomerPortalPage() {
             </Link>
           </h2>
           <PortalIssueList
+            canComment
             issues={openIssues.map((issue) => ({
               id: issue.id,
               description: issue.description,
@@ -347,6 +348,7 @@ export default async function CustomerPortalPage() {
                 body: note.body,
                 at: `${formatDate(note.createdAt)} · ${formatTime(note.createdAt)}`,
                 author: note.user.name,
+                fromCustomer: note.user.role === "CUSTOMER",
               })),
             }))}
           />
@@ -388,10 +390,10 @@ export default async function CustomerPortalPage() {
         <h2 className={sectionHeadClass}>
           <span>Utført arbeid</span>
           <Link
-            href="/portal/aktivitet"
+            href="/portal/rapport"
             className="text-eyebrow uppercase text-ink-2"
           >
-            Arkiv ›
+            Alle måneder ›
           </Link>
         </h2>
         <ActivityList

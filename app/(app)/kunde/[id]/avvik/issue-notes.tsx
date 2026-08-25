@@ -12,6 +12,8 @@ export type IssueNoteItem = {
   /** Ferdig formatert «14. aug. 2026 · 14:20» */
   at: string;
   author: string;
+  /** Skrevet av kunden — skal skille seg ut for de ansatte */
+  fromCustomer: boolean;
 };
 
 export function IssueNotes({
@@ -48,11 +50,20 @@ export function IssueNotes({
             <li key={note.id} className="flex gap-2.5">
               <span
                 aria-hidden
-                className="mt-1.5 size-1.5 shrink-0 rounded-full bg-edge"
+                className={`mt-1.5 size-1.5 shrink-0 rounded-full ${
+                  note.fromCustomer ? "bg-brand" : "bg-edge"
+                }`}
               />
               <div className="min-w-0 flex-1">
                 <p className="text-micro tabular-nums text-ink-3">
-                  {note.at} · {note.author}
+                  {note.at} ·{" "}
+                  {note.fromCustomer ? (
+                    <span className="font-bold text-brand">
+                      {note.author} (kunden)
+                    </span>
+                  ) : (
+                    note.author
+                  )}
                 </p>
                 <p className="mt-0.5 text-meta whitespace-pre-wrap text-ink">
                   {note.body}
