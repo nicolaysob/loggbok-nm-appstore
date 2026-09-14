@@ -87,7 +87,13 @@ export function CustomerWorkList({
           {searching ? "Ingen treff." : "Ingen kunder."}
         </p>
       ) : (
-        <CustomerPickList customers={filtered} canLog={canLog} />
+        <CustomerPickList
+          customers={filtered}
+          canLog={canLog}
+          // Søk og oppfølging er korte lister man vil se hele — der grupperer
+          // vi ikke. «Alle» er den lange, og der samles stedene under eieren.
+          grouped={!searching && filter === "all"}
+        />
       )}
     </div>
   );
