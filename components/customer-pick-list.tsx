@@ -15,11 +15,23 @@ type Entry =
       places: CustomerOverviewRow[];
     };
 
+/** Eldst først — det vi ikke har vært på lengst skal ligge øverst. */
+function byLastVisit(a: CustomerOverviewRow, b: CustomerOverviewRow) {
+  if (!a.lastVisit && !b.lastVisit) {
+    return a.name.localeCompare(b.name, "nb-NO");
+  }
+  if (!a.lastVisit) return -1;
+  if (!b.lastVisit) return 1;
+  return a.lastVisit.getTime() - b.lastVisit.getTime();
+}
+
 /**
  * Stedene til én eier legger seg under én rad. Et bygg med fire kundekort
  * skal ikke fylle fire skjermlengder i lista de ansatte bruker hver dag.
- * Rekkefølgen fra sorteringen består — eieren havner der sitt fremste sted
- * ville havnet, så noe som haster ikke synker.
+ *
+ * Mappene ligger øverst, resten under sortert på sist loggført. Det som
+ * haster ligger i Oppfølging-fanen — denne lista er til å finne fram i, og
+ * da er fast rekkefølge verdt mer enn at et avvik flytter en rad oppover.
  */
 function groupByOwner(customers: CustomerOverviewRow[]): Entry[] {
   const entries: Entry[] = [];
@@ -48,11 +60,27 @@ function groupByOwner(customers: CustomerOverviewRow[]): Entry[] {
   }
 
   // En eier med bare ett sted er ingen gruppe — da er raden bare et ekstra trykk
-  return entries.map((entry) =>
+  const flattened: Entry[] = entries.map((entry) =>
     entry.kind === "owner" && entry.places.length === 1
       ? { kind: "place", customer: entry.places[0] }
       : entry,
   );
+
+  const folders = flattened.filter(
+    (entry): entry is Extract<Entry, { kind: "owner" }> =>
+      entry.kind === "owner",
+  );
+  const singles = flattened.filter(
+    (entry): entry is Extract<Entry, { kind: "place" }> =>
+      entry.kind === "place",
+  );
+
+  for (const folder of folders) {
+    folder.places.sort(byLastVisit);
+  }
+  singles.sort((a, b) => byLastVisit(a.customer, b.customer));
+
+  return [...folders, ...singles];
 }
 
 export function CustomerPickList({
