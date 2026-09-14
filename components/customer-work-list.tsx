@@ -20,9 +20,15 @@ export function CustomerWorkList({
 
   const filtered = useMemo(() => {
     const needle = query.trim().toLocaleLowerCase("nb-NO");
+    // Søket treffer både stedsnavn og eier — skriver du «sande» får du alle
+    // stedene til Sande Meieri, selv om du ikke husker hva byggene heter
     const pool = needle
-      ? customers.filter((customer) =>
-          customer.name.toLocaleLowerCase("nb-NO").includes(needle),
+      ? customers.filter(
+          (customer) =>
+            customer.name.toLocaleLowerCase("nb-NO").includes(needle) ||
+            (customer.ownerLabel ?? "")
+              .toLocaleLowerCase("nb-NO")
+              .includes(needle),
         )
       : filter === "attention"
         ? customers.filter(needsAttention)

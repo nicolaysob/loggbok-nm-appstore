@@ -10,22 +10,29 @@ export type CustomerFormValues = {
   name: string;
   contractType: ContractType | "";
   active: boolean;
+  ownerId: string;
 };
+
+export type OwnerOption = { id: string; name: string };
 
 export const emptyCustomer: CustomerFormValues = {
   name: "",
   contractType: "",
   active: true,
+  ownerId: "",
 };
 
 export function CustomerForm({
   action,
   values,
   submitLabel,
+  owners,
 }: {
   action: (state: FormState, formData: FormData) => Promise<FormState>;
   values: CustomerFormValues;
   submitLabel: string;
+  /** Eiere å velge blant — tom liste skjuler feltet helt */
+  owners: OwnerOption[];
 }) {
   const [state, formAction] = useActionState<FormState, FormData>(
     action,
@@ -43,6 +50,24 @@ export function CustomerForm({
           className={inputClass}
         />
       </Field>
+
+      {owners.length > 0 ? (
+        <Field label="Eier" htmlFor="ownerId" errors={state?.errors?.ownerId}>
+          <select
+            id="ownerId"
+            name="ownerId"
+            defaultValue={values.ownerId}
+            className={inputClass}
+          >
+            <option value="">Ingen — frittstående kunde</option>
+            {owners.map((owner) => (
+              <option key={owner.id} value={owner.id}>
+                {owner.name}
+              </option>
+            ))}
+          </select>
+        </Field>
+      ) : null}
 
       <Field
         label="Kontraktstype"

@@ -4,7 +4,10 @@ import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { requireCustomer, requireStaff } from "@/lib/dal";
-import { notifyStaffNewCustomerMessage } from "@/lib/onesignal-server";
+import {
+  notifyCustomerMessageReply,
+  notifyStaffNewCustomerMessage,
+} from "@/lib/onesignal-server";
 import { customerMessageSchema, type FormState } from "@/lib/validation";
 
 export async function createCustomerMessage(
@@ -73,4 +76,53 @@ export async function signCustomerMessage(messageId: string): Promise<void> {
   revalidatePath(`/kunde/${message.customerId}`);
   revalidatePath(`/kunde/${message.customerId}/meldingsarkiv`);
   revalidatePath("/");
+}
+
+export async function replyCustomerMessage(
+  messageId: string,
+  _prevState: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  const user = await requireStaff();
+
+  const result = customerMessageSchema.safeParse({
+    body: formData.get("body"),
+  });
+  if (!result.success) {
+    return { errors: z.flattenError(result.error).fieldErrors };
+  }
+
+  const message = await db.customerMessage.findUnique({
+    where: { id: messageId },
+    select: {
+      id: true,
+      customerId: true,
+      userId: true,
+      readAt: true,
+    },
+  });
+  if (!message) return { message: "Meldingen finnes ikke." };
+  if (message.readAt) {
+    return { message: "Meldingen er allerede signert og ligger i arkivet." };
+  }
+
+  await db.customerMessageReply.create({
+    data: {
+      messageId: message.id,
+      userId: user.id,
+      body: result.data.body,
+    },
+  });
+
+  await notifyCustomerMessageReply({
+    customerId: message.customerId,
+    preview: result.data.body,
+  });
+
+  revalidatePath("/portal");
+  revalidatePath("/portal/meldinger");
+  revalidatePath(`/kunde/${message.customerId}`);
+  revalidatePath(`/kunde/${message.customerId}/meldingsarkiv`);
+  revalidatePath("/");
+  return { message: "Svaret er sendt." };
 }

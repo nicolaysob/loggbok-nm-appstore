@@ -15,7 +15,7 @@ import { primaryAreaId } from "@/lib/customer";
 import { photosFromFormData } from "@/lib/photos";
 import { issueSchema, type FormState } from "@/lib/validation";
 import { issueStatusLabels } from "@/lib/labels";
-import { notifyStaffNewIssueComment } from "@/lib/onesignal-server";
+import { notifyCustomerIssueUpdate, notifyStaffNewIssueComment } from "@/lib/onesignal-server";
 
 function revalidateIssue(customerId: string) {
   revalidatePath(`/kunde/${customerId}`);
@@ -91,6 +91,11 @@ export async function addIssueNote(
 
   await db.issueNote.create({
     data: { issueId, userId: user.id, body },
+  });
+
+  await notifyCustomerIssueUpdate({
+    customerId: issue.area.customerId,
+    preview: body,
   });
 
   revalidateIssue(issue.area.customerId);

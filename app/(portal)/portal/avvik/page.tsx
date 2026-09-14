@@ -1,5 +1,6 @@
 import { db } from "@/lib/db";
-import { requireCustomer } from "@/lib/dal";
+import { redirect } from "next/navigation";
+import { portalScope } from "@/lib/portal-scope";
 import { listCustomerClosedIssueMonths } from "@/lib/customer-activity";
 import { calendarMonth, parseYearMonth } from "@/lib/period";
 import { formatDate, formatTime } from "@/lib/time";
@@ -11,8 +12,12 @@ import { PortalIssueList } from "@/components/portal-issue-list";
 export default async function PortalIssueArchivePage({
   searchParams,
 }: PageProps<"/portal/avvik">) {
-  const user = await requireCustomer();
-  const { maaned } = await searchParams;
+  const { maaned, sted } = await searchParams;
+  const scope = await portalScope(sted);
+  // Avvik og meldinger hører til ett sted — eieren velger sted først
+  if (scope.kind === "owner") redirect("/portal");
+  const user = { customerId: scope.customerId };
+  const stedQuery = scope.owner ? `&sted=${scope.customerId}` : "";
   const parsed = parseYearMonth(
     typeof maaned === "string" ? maaned : undefined,
   );
@@ -162,7 +167,7 @@ export default async function PortalIssueArchivePage({
         </h2>
         <MonthFolderList
           folders={folders}
-          hrefFor={(param) => `/portal/avvik?maaned=${param}`}
+          hrefFor={(param) => `/portal/avvik?maaned=${param}${stedQuery}`}
           emptyText="Ingen utbedrede avvik ennå."
           countLabel={(count) => (count === 1 ? "1 avvik" : `${count} avvik`)}
         />

@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { requireCustomer } from "@/lib/dal";
+import { ownerPlaces, portalScope } from "@/lib/portal-scope";
 import { getCustomerReport } from "@/lib/customer-report";
 import { listCustomerActivityMonths } from "@/lib/customer-activity";
 import { calendarMonth, parseYearMonth } from "@/lib/period";
@@ -9,15 +9,83 @@ import { BackLink } from "@/components/back-link";
 import { ActivityList } from "@/components/activity-list";
 import { MonthFolderList } from "@/components/month-folder-list";
 import { PrintButton } from "@/components/print-button";
+import { OwnerReport } from "../owner-report";
 
 export default async function PortalReportPage({
   searchParams,
 }: PageProps<"/portal/rapport">) {
-  const user = await requireCustomer();
-  const { maaned } = await searchParams;
+  const { maaned, sted } = await searchParams;
+  const scope = await portalScope(sted);
   const parsed = parseYearMonth(
     typeof maaned === "string" ? maaned : undefined,
   );
+
+  // Eier uten valgt sted får én samlet rapport for alle stedene
+  if (scope.kind === "owner") {
+    const places = await ownerPlaces(scope.owner.id);
+
+    if (!parsed) {
+      // Månedsmappene er unionen av alle stedenes måneder
+      const perPlace = await Promise.all(
+        places.map((place) => listCustomerActivityMonths(place.id)),
+      );
+      const merged = new Map<string, { year: number; month: number; param: string; label: string; count: number; isCurrent: boolean }>();
+      for (const folders of perPlace) {
+        for (const folder of folders) {
+          const seen = merged.get(folder.param);
+          if (seen) seen.count += folder.count;
+          else merged.set(folder.param, { ...folder });
+        }
+      }
+      const folders = [...merged.values()].sort(
+        (a, b) => b.year - a.year || b.month - a.month,
+      );
+
+      return (
+        <div className="flex animate-rise flex-col gap-6">
+          <div className="flex flex-col gap-4">
+            <BackLink fallback="/portal" />
+            <div className="flex flex-col gap-1">
+              <h1 className="text-display text-ink">Månedsrapport</h1>
+              <p className="text-body text-ink-2">
+                Én rapport for alle {places.length} stedene, spesifisert per
+                sted. Kan skrives ut eller lagres som PDF.
+              </p>
+            </div>
+          </div>
+
+          <MonthFolderList
+            folders={folders}
+            hrefFor={(param) => `/portal/rapport?maaned=${param}`}
+            emptyText="Ingen registreringer ennå."
+            countLabel={(count) =>
+              count === 1 ? "1 registrering" : `${count} registreringer`
+            }
+          />
+        </div>
+      );
+    }
+
+    const period = calendarMonth(parsed.year, parsed.month);
+    const reports = await Promise.all(
+      places.map(async (place) => ({
+        id: place.id,
+        name: place.name,
+        report: await getCustomerReport(place.id, period),
+      })),
+    );
+
+    return (
+      <OwnerReport
+        ownerName={scope.owner.name}
+        monthLabel={period.label}
+        places={reports}
+      />
+    );
+  }
+
+  const user = { customerId: scope.customerId };
+  const stedQuery = scope.owner ? `&sted=${scope.customerId}` : "";
 
   if (!parsed) {
     const folders = await listCustomerActivityMonths(user.customerId);
@@ -37,7 +105,7 @@ export default async function PortalReportPage({
 
         <MonthFolderList
           folders={folders}
-          hrefFor={(param) => `/portal/rapport?maaned=${param}`}
+          hrefFor={(param) => `/portal/rapport?maaned=${param}${stedQuery}`}
           emptyText="Ingen registreringer ennå."
           countLabel={(count) =>
             count === 1 ? "1 registrering" : `${count} registreringer`

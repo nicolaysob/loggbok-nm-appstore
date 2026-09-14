@@ -4,6 +4,8 @@ import { db } from "@/lib/db";
 export type CustomerOverviewRow = {
   id: string;
   name: string;
+  /** Eierens visningsnavn — null for frittstående kunder, som de fleste er */
+  ownerLabel: string | null;
   openIssues: number;
   unreadMessages: number;
   openTodos: number;
@@ -16,6 +18,7 @@ export async function getCustomerOverview(): Promise<CustomerOverviewRow[]> {
     select: {
       id: true,
       name: true,
+      owner: { select: { name: true, shortName: true } },
       areas: {
         orderBy: { createdAt: "asc" },
         take: 1,
@@ -83,6 +86,9 @@ export async function getCustomerOverview(): Promise<CustomerOverviewRow[]> {
     .map((customer) => ({
       id: customer.id,
       name: customer.name,
+      ownerLabel: customer.owner
+        ? customer.owner.shortName?.trim() || customer.owner.name
+        : null,
       openIssues: openIssuesByCustomer.get(customer.id) ?? 0,
       unreadMessages: customer._count.messages,
       openTodos: customer._count.todos,

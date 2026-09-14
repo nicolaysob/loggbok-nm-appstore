@@ -1,17 +1,23 @@
 import { db } from "@/lib/db";
-import { requireCustomer } from "@/lib/dal";
+import { redirect } from "next/navigation";
+import { portalScope } from "@/lib/portal-scope";
 import { listCustomerMessageMonths } from "@/lib/customer-activity";
 import { calendarMonth, parseYearMonth } from "@/lib/period";
-import { formatDate } from "@/lib/time";
+import { formatDate, formatTime } from "@/lib/time";
 import { cardStaticClass } from "@/lib/ui";
 import { BackLink } from "@/components/back-link";
 import { MonthFolderList } from "@/components/month-folder-list";
+import { MessageReplyList } from "@/components/message-reply-list";
 
 export default async function PortalMessageArchivePage({
   searchParams,
 }: PageProps<"/portal/meldinger">) {
-  const user = await requireCustomer();
-  const { maaned } = await searchParams;
+  const { maaned, sted } = await searchParams;
+  const scope = await portalScope(sted);
+  // Avvik og meldinger hører til ett sted — eieren velger sted først
+  if (scope.kind === "owner") redirect("/portal");
+  const user = { customerId: scope.customerId };
+  const stedQuery = scope.owner ? `&sted=${scope.customerId}` : "";
   const parsed = parseYearMonth(
     typeof maaned === "string" ? maaned : undefined,
   );
@@ -31,6 +37,15 @@ export default async function PortalMessageArchivePage({
         createdAt: true,
         readAt: true,
         signedBy: { select: { name: true } },
+        replies: {
+          orderBy: { createdAt: "asc" },
+          select: {
+            id: true,
+            body: true,
+            createdAt: true,
+            user: { select: { name: true } },
+          },
+        },
       },
     });
 
@@ -65,6 +80,14 @@ export default async function PortalMessageArchivePage({
                 <p className="text-body whitespace-pre-wrap text-ink">
                   {message.body}
                 </p>
+                <MessageReplyList
+                  replies={message.replies.map((reply) => ({
+                    id: reply.id,
+                    body: reply.body,
+                    at: `${formatDate(reply.createdAt)} · ${formatTime(reply.createdAt)}`,
+                    author: reply.user.name,
+                  }))}
+                />
                 {message.readAt && message.signedBy && (
                   <p className="text-meta font-medium text-ok">
                     Signert av {message.signedBy.name} ·{" "}
@@ -97,7 +120,7 @@ export default async function PortalMessageArchivePage({
 
       <MonthFolderList
         folders={folders}
-        hrefFor={(param) => `/portal/meldinger?maaned=${param}`}
+        hrefFor={(param) => `/portal/meldinger?maaned=${param}${stedQuery}`}
         emptyText="Ingen tidligere meldinger ennå."
         countLabel={(count) =>
           count === 1 ? "1 melding" : `${count} meldinger`

@@ -65,9 +65,30 @@ enum JobScheduleKind {
 }
 
 // Kunde
+// Eier — binder flere kundekort til samme kontaktperson. Brukes til
+// gruppering og til én felles portalinnlogging. Kontrakter og fakturering
+// ligger fortsatt på hvert enkelt kundekort.
+model Owner {
+  id            String  @id @default(cuid())
+  name          String
+  // Kort visningsnavn i felt — fullt firmanavn tar for mye plass på telefon
+  shortName     String?
+  contactPerson String?
+  email         String?
+  phone         String?
+
+  customers   Customer[]
+  portalUsers User[]     @relation("OwnerPortalUser")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 model Customer {
   id            String       @id @default(cuid())
   name          String
+  // Valgfri eier — null betyr frittstående kunde, som de fleste er
+  ownerId       String?
   contactPerson String?
   email         String?
   phone         String?
@@ -77,6 +98,7 @@ model Customer {
   annualValue   Decimal      @db.Decimal(10, 2)
   active        Boolean      @default(true)
 
+  owner      Owner?  @relation(fields: [ownerId], references: [id], onDelete: SetNull)
   areas      Area[]
   portalUsers User[]
   messages   CustomerMessage[]
@@ -85,6 +107,8 @@ model Customer {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([ownerId])
 }
 
 // Internt gjøremål på en kunde — vises aldri i kundeportalen.
@@ -122,6 +146,7 @@ model CustomerMessage {
   customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
   user     User     @relation("CustomerMessageSender", fields: [userId], references: [id], onDelete: Cascade)
   signedBy User?    @relation("CustomerMessageSigner", fields: [signedByUserId], references: [id], onDelete: SetNull)
+  replies  CustomerMessageReply[]
 
   createdAt DateTime @default(now())
 
@@ -129,6 +154,22 @@ model CustomerMessage {
   @@index([customerId, readAt])
   @@index([userId])
   @@index([signedByUserId])
+}
+
+// Svar fra N&M på en kundemelding — kunden ser det i portalen
+model CustomerMessageReply {
+  id        String @id @default(cuid())
+  messageId String
+  userId    String
+  body      String
+
+  message CustomerMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  user    User            @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  createdAt DateTime @default(now())
+
+  @@index([messageId, createdAt])
+  @@index([userId])
 }
 
 // Område — en kunde kan ha flere
@@ -278,10 +319,13 @@ model User {
   canHours     Boolean @default(true)
   canTodos     Boolean @default(true)
   canCalendar  Boolean @default(true)
-  // Kun for CUSTOMER — hvilken kundeportalen viser
+  // Kun for CUSTOMER — hvilken kundeportalen viser. Enten ett kundekort
+  // (customerId) eller en eier med flere kundekort (ownerId), aldri begge.
   customerId   String?
+  ownerId      String?
 
   customer       Customer?         @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  owner          Owner?            @relation("OwnerPortalUser", fields: [ownerId], references: [id], onDelete: Restrict)
   logEntries     LogEntry[]
   issues         Issue[]
   issueNotes     IssueNote[]
@@ -290,6 +334,7 @@ model User {
   timeClocks     TimeClock[]
   messages       CustomerMessage[] @relation("CustomerMessageSender")
   signedMessages CustomerMessage[] @relation("CustomerMessageSigner")
+  messageReplies CustomerMessageReply[]
   todosCreated   Todo[]            @relation("TodoCreator")
   todosCompleted Todo[]            @relation("TodoCompleter")
 
@@ -297,6 +342,7 @@ model User {
   updatedAt DateTime @updatedAt
 
   @@index([customerId])
+  @@index([ownerId])
 }
 
 // Åpen stempling — én per bruker. Slettes når man avslutter eller avbryter.

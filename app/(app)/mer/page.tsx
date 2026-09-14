@@ -38,6 +38,7 @@ export default async function MorePage() {
           <SettingsGroup title="Oppsett">
             <SettingsLink href="/ukeplan" label="Ukeplan" />
             <SettingsLink href="/kunder" label="Kunder" />
+            <SettingsLink href="/eiere" label="Eiere" />
             <SettingsLink href="/brukere" label="Brukere" />
             <SettingsLink href="/oppdragstyper" label="Typer" />
           </SettingsGroup>

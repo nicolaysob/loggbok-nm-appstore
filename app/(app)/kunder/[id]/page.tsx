@@ -15,7 +15,7 @@ export default async function CustomerAdminPage({
   await requireAdmin();
   const { id } = await params;
 
-  const [customer, jobTypes] = await Promise.all([
+  const [customer, jobTypes, owners] = await Promise.all([
     db.customer.findUnique({
       where: { id },
       include: {
@@ -49,6 +49,10 @@ export default async function CustomerAdminPage({
       orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
       select: { id: true, name: true },
     }),
+    db.owner.findMany({
+      orderBy: { name: "asc" },
+      select: { id: true, name: true },
+    }),
   ]);
 
   if (!customer) notFound();
@@ -69,7 +73,9 @@ export default async function CustomerAdminPage({
             name: customer.name,
             contractType: customer.contractType,
             active: customer.active,
+            ownerId: customer.ownerId ?? "",
           }}
+          owners={owners}
           submitLabel="Lagre kunde"
         />
 

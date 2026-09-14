@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { db } from "@/lib/db";
-import { requireCustomer } from "@/lib/dal";
+import { ownerPlaces, portalScope } from "@/lib/portal-scope";
 import { primaryAreaId } from "@/lib/customer";
 import {
   getCustomerActivity,
@@ -21,6 +21,8 @@ import { BrandIcon } from "@/components/brand";
 import { PortalIssueList } from "@/components/portal-issue-list";
 import { ProfileMenu } from "@/components/profile-menu";
 import { PortalMessageForm } from "./message-form";
+import { OwnerPlaces } from "./owner-places";
+import { MessageReplyList } from "@/components/message-reply-list";
 
 const MONTH_SHORT = [
   "jan",
@@ -37,8 +39,27 @@ const MONTH_SHORT = [
   "des",
 ] as const;
 
-export default async function CustomerPortalPage() {
-  const user = await requireCustomer();
+export default async function CustomerPortalPage({
+  searchParams,
+}: PageProps<"/portal">) {
+  const { sted } = await searchParams;
+  const scope = await portalScope(sted);
+  const now0 = new Date();
+
+  // Eier uten valgt sted: vis stedslista i stedet for ett kundekort
+  if (scope.kind === "owner") {
+    const places = await ownerPlaces(scope.owner.id);
+    return (
+      <OwnerPlaces
+        ownerName={scope.owner.name}
+        userName={scope.userName}
+        places={places}
+        thisMonth={formatMonthYear(now0)}
+      />
+    );
+  }
+
+  const user = { customerId: scope.customerId, name: scope.userName };
 
   const customer = await db.customer.findUnique({
     where: { id: user.customerId },
@@ -133,6 +154,15 @@ export default async function CustomerPortalPage() {
           id: true,
           body: true,
           createdAt: true,
+          replies: {
+            orderBy: { createdAt: "asc" },
+            select: {
+              id: true,
+              body: true,
+              createdAt: true,
+              user: { select: { name: true } },
+            },
+          },
         },
       }),
     getCustomerActivity(customer.id, {
@@ -191,7 +221,30 @@ export default async function CustomerPortalPage() {
           />
         </div>
 
-        <h1 className="mt-6 text-display text-ink">{customer.name}</h1>
+        {scope.owner ? (
+          <Link
+            href="/portal"
+            className="mt-5 inline-flex min-h-11 items-center gap-1.5 text-meta font-semibold text-ink-2 transition-colors active:text-ink"
+          >
+            <svg
+              aria-hidden
+              viewBox="0 0 24 24"
+              className="size-5"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="m15 5-7 7 7 7" />
+            </svg>
+            Alle steder
+          </Link>
+        ) : null}
+
+        <h1 className={`text-display text-ink ${scope.owner ? "mt-1.5" : "mt-6"}`}>
+          {customer.name}
+        </h1>
 
         <div className="hero-season mt-4 rounded-3xl bg-hero px-5 py-5 text-white">
           <p className="text-eyebrow uppercase text-white/50">Sist utført</p>
@@ -284,7 +337,7 @@ export default async function CustomerPortalPage() {
         {/* Rapporten er det styret faktisk skal bruke — den skal ikke ligge
             gjemt nederst under hele tidslinja. */}
         <Link
-          href="/portal/rapport"
+          href={`/portal/rapport${scope.owner ? `?sted=${customer.id}` : ""}`}
           className="mt-2.5 flex min-h-[4.5rem] items-center gap-3.5 rounded-2xl border border-hair bg-surface px-4 py-3.5 shadow-card transition-colors active:bg-sunken"
         >
           <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-brand-soft text-brand">
@@ -375,11 +428,21 @@ export default async function CustomerPortalPage() {
                 className={`flex flex-col gap-1.5 px-4 py-3.5 ${cardStaticClass}`}
               >
                 <span className="text-micro text-ink-3">
-                  Sendt {formatDate(message.createdAt)} · ikke lest ennå
+                  {message.replies.length > 0
+                    ? `Sendt ${formatDate(message.createdAt)} · svar fra N&M`
+                    : `Sendt ${formatDate(message.createdAt)} · ikke lest ennå`}
                 </span>
                 <p className="text-body whitespace-pre-wrap text-ink">
                   {message.body}
                 </p>
+                <MessageReplyList
+                  replies={message.replies.map((reply) => ({
+                    id: reply.id,
+                    body: reply.body,
+                    at: `${formatDate(reply.createdAt)} · ${formatTime(reply.createdAt)}`,
+                    author: reply.user.name,
+                  }))}
+                />
               </li>
             ))}
           </ul>

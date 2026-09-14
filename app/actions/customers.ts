@@ -7,6 +7,12 @@ import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/dal";
 import { customerSchema, type FormState } from "@/lib/validation";
 
+/** Tom streng fra select-en betyr «ingen eier» */
+function readOwnerId(formData: FormData): string | null {
+  const value = String(formData.get("ownerId") ?? "").trim();
+  return value === "" ? null : value;
+}
+
 function readCustomerForm(formData: FormData) {
   return {
     name: formData.get("name"),
@@ -33,6 +39,7 @@ export async function createCustomer(
       name: result.data.name,
       contractType: result.data.contractType,
       active: result.data.active,
+      ownerId: readOwnerId(formData),
       annualValue: 0,
       areas: { create: { name: result.data.name } },
     },
@@ -60,11 +67,14 @@ export async function updateCustomer(
       name: result.data.name,
       contractType: result.data.contractType,
       active: result.data.active,
+      ownerId: readOwnerId(formData),
     },
   });
 
   revalidatePath("/kunder");
   revalidatePath(`/kunder/${id}`);
+  revalidatePath("/eiere");
+  revalidatePath("/");
   return { message: "Kunden er lagret." };
 }
 

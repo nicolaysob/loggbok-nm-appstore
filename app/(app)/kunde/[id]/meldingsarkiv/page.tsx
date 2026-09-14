@@ -3,10 +3,11 @@ import { db } from "@/lib/db";
 import { requireStaff } from "@/lib/dal";
 import { listCustomerMessageMonths } from "@/lib/customer-activity";
 import { calendarMonth, parseYearMonth } from "@/lib/period";
-import { formatDate } from "@/lib/time";
+import { formatDate, formatTime } from "@/lib/time";
 import { cardStaticClass } from "@/lib/ui";
 import { BackLink } from "@/components/back-link";
 import { MonthFolderList } from "@/components/month-folder-list";
+import { MessageReplyList } from "@/components/message-reply-list";
 
 export default async function MessageArchivePage({
   params,
@@ -43,6 +44,15 @@ export default async function MessageArchivePage({
         readAt: true,
         user: { select: { name: true } },
         signedBy: { select: { name: true } },
+        replies: {
+          orderBy: { createdAt: "asc" },
+          select: {
+            id: true,
+            body: true,
+            createdAt: true,
+            user: { select: { name: true } },
+          },
+        },
       },
     });
 
@@ -79,6 +89,14 @@ export default async function MessageArchivePage({
                 <p className="text-body whitespace-pre-wrap text-ink">
                   {message.body}
                 </p>
+                <MessageReplyList
+                  replies={message.replies.map((reply) => ({
+                    id: reply.id,
+                    body: reply.body,
+                    at: `${formatDate(reply.createdAt)} · ${formatTime(reply.createdAt)}`,
+                    author: reply.user.name,
+                  }))}
+                />
                 {message.readAt && message.signedBy && (
                   <p className="text-meta font-medium text-ok">
                     Signert av {message.signedBy.name} ·{" "}

@@ -1,3 +1,4 @@
+import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/dal";
 import { createCustomer } from "@/app/actions/customers";
 import { BackLink } from "@/components/back-link";
@@ -5,6 +6,11 @@ import { CustomerForm, emptyCustomer } from "../customer-form";
 
 export default async function NewCustomerPage() {
   await requireAdmin();
+
+  const owners = await db.owner.findMany({
+    orderBy: { name: "asc" },
+    select: { id: true, name: true },
+  });
 
   return (
     <div className="mx-auto flex w-full max-w-lg animate-rise flex-col gap-6">
@@ -16,6 +22,7 @@ export default async function NewCustomerPage() {
       <CustomerForm
         action={createCustomer}
         values={emptyCustomer}
+        owners={owners}
         submitLabel="Opprett kunde"
       />
     </div>

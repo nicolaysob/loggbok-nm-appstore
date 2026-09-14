@@ -26,6 +26,23 @@ export function CustomerPickList({
               <span className="block truncate text-heading">
                 {customer.name}
               </span>
+              {customer.ownerLabel ? (
+                <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-brand-soft px-2 py-0.5 text-micro font-bold text-brand">
+                  <svg
+                    aria-hidden
+                    viewBox="0 0 24 24"
+                    className="size-3"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.4"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M4 21V8l8-5 8 5v13" />
+                    <path d="M9 21v-6h6v6" />
+                  </svg>
+                  {customer.ownerLabel}
+                </span>
+              ) : null}
               <span className="mt-1 block truncate text-meta text-ink-2">
                 Sist besøk: {formatLastVisit(customer.lastVisit).toLowerCase()}
               </span>

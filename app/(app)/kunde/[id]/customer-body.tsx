@@ -9,7 +9,9 @@ import {
 } from "@/lib/customer-activity";
 import { cardStaticClass, eyebrowClass, sectionHeadClass } from "@/lib/ui";
 import { ActivityList } from "@/components/activity-list";
+import { MessageReplyList } from "@/components/message-reply-list";
 import { IssueList } from "./avvik/issue-list";
+import { ReplyMessageForm } from "./reply-message-form";
 import { SignMessageButton } from "./sign-message-button";
 import { TodoList } from "./todo-list";
 
@@ -65,6 +67,15 @@ export async function CustomerBody({
           body: true,
           createdAt: true,
           user: { select: { name: true } },
+          replies: {
+            orderBy: { createdAt: "asc" },
+            select: {
+              id: true,
+              body: true,
+              createdAt: true,
+              user: { select: { name: true } },
+            },
+          },
         },
       }),
       getCustomerActivity(customerId, {
@@ -121,6 +132,15 @@ export async function CustomerBody({
                 <p className="mt-1.5 text-micro text-ink-3">
                   {formatDate(message.createdAt)} · {message.user.name}
                 </p>
+                <MessageReplyList
+                  replies={message.replies.map((reply) => ({
+                    id: reply.id,
+                    body: reply.body,
+                    at: `${formatDate(reply.createdAt)} · ${formatTime(reply.createdAt)}`,
+                    author: reply.user.name,
+                  }))}
+                />
+                <ReplyMessageForm messageId={message.id} />
                 <SignMessageButton messageId={message.id} />
               </article>
             ))}

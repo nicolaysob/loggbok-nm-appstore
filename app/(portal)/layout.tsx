@@ -1,13 +1,19 @@
-import { requireCustomer } from "@/lib/dal";
+import { redirect } from "next/navigation";
+import { requireUser } from "@/lib/dal";
 import { PullToRefresh } from "@/components/pull-to-refresh";
 import { ProfileCorner } from "@/components/profile-menu";
+import { OneSignalInit } from "@/components/onesignal-init";
 
 export default async function PortalLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const user = await requireCustomer();
+  // Portalbrukeren henger enten på ett kundekort eller på en eier med flere.
+  // Layouten trenger bare å vite at det ER en portalbruker — hvilket sted som
+  // vises avgjøres per side med portalScope().
+  const user = await requireUser();
+  if (user.role !== "CUSTOMER") redirect("/");
   const initial = user.name.charAt(0).toUpperCase();
   const links = [
     { href: "/personvern", label: "Personvern" },
@@ -28,6 +34,7 @@ export default async function PortalLayout({
         </div>
         <PullToRefresh>{children}</PullToRefresh>
       </main>
+      <OneSignalInit externalUserId={user.id} audience="customer" />
     </div>
   );
 }

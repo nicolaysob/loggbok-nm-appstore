@@ -26,6 +26,18 @@ async function staffExternalIds(excludeUserIds: string[] = []): Promise<string[]
   return staff.map((user) => user.id).filter((id) => !exclude.has(id));
 }
 
+async function customerExternalIds(customerId: string): Promise<string[]> {
+  const users = await db.user.findMany({
+    where: {
+      active: true,
+      role: "CUSTOMER",
+      customerId,
+    },
+    select: { id: true },
+  });
+  return users.map((user) => user.id);
+}
+
 /**
  * Sender web-push til ansatte via OneSignal REST API.
  * Krever ONESIGNAL_REST_API_KEY i miljøvariabler (Vercel + .env).
@@ -137,6 +149,38 @@ export async function notifyStaffNewIssueComment(input: {
     title: `Kommentar på avvik · ${input.customerName}`,
     body: preview,
     url: `/kunde/${input.customerId}/avvik`,
+  });
+}
+
+export async function notifyCustomerMessageReply(input: {
+  customerId: string;
+  preview: string;
+}): Promise<void> {
+  const preview =
+    input.preview.length > 120
+      ? `${input.preview.slice(0, 117)}…`
+      : input.preview;
+
+  await sendPushToExternalIds(await customerExternalIds(input.customerId), {
+    title: "Svar fra N&M",
+    body: preview,
+    url: "/portal",
+  });
+}
+
+export async function notifyCustomerIssueUpdate(input: {
+  customerId: string;
+  preview: string;
+}): Promise<void> {
+  const preview =
+    input.preview.length > 120
+      ? `${input.preview.slice(0, 117)}…`
+      : input.preview;
+
+  await sendPushToExternalIds(await customerExternalIds(input.customerId), {
+    title: "Oppdatering på avvik",
+    body: preview,
+    url: "/portal/avvik",
   });
 }
 

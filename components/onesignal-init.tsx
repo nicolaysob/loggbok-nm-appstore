@@ -61,8 +61,10 @@ function shouldAskForPush(): boolean {
  */
 export function OneSignalInit({
   externalUserId,
+  audience = "staff",
 }: {
   externalUserId?: string | null;
+  audience?: "staff" | "customer";
 }) {
   const started = useRef(false);
   const [ready, setReady] = useState(false);
@@ -119,9 +121,7 @@ export function OneSignalInit({
     };
   }, []);
 
-  // Koble innlogget ansatt først når SDK er klar.
-  // Kunder skal ikke OneSignal.login — det ville stjele push-abonnementet
-  // hvis samme telefon brukes til både portal og internapp.
+  // Koble innlogget bruker når SDK er klar, så varsler treffer riktig konto.
   useEffect(() => {
     if (!ready || !externalUserId) return;
     void OneSignal.login(externalUserId).catch((error) => {
@@ -134,7 +134,7 @@ export function OneSignalInit({
     setShowDialog(false);
   }
 
-  // Ingen prompt uten innlogget ansatt (kundeportalen skal ikke spørre)
+  // Ingen prompt uten innlogget bruker
   if (!showDialog || !externalUserId) return null;
 
   return (
@@ -152,8 +152,9 @@ export function OneSignalInit({
           Få varsel på telefonen?
         </h2>
         <p className="mt-2 text-body text-ink-2">
-          Vi kan si ifra når kunden sender melding eller det legges inn et
-          gjøremål.
+          {audience === "customer"
+            ? "Vi kan si ifra når N&M svarer på en melding eller oppdaterer et avvik."
+            : "Vi kan si ifra når kunden sender melding eller det legges inn et gjøremål."}
         </p>
         <button
           type="button"

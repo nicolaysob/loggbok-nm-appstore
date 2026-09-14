@@ -67,7 +67,7 @@ export default function PrivacyPage() {
               <li>utføre og dokumentere vaktmestertjenester</li>
               <li>kommunisere med kunde om anlegget</li>
               <li>føre timer for lønn der det er aktuelt</li>
-              <li>varsle ansatte om nye meldinger eller gjøremål</li>
+              <li>varsle ansatte og kunder om meldinger og oppdateringer</li>
             </ul>
             <p>
               Grunnlaget er i hovedsak avtaleforhold (oppdrag med kunde) og
