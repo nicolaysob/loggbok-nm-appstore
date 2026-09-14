@@ -31,11 +31,29 @@ async function adminCountExcluding(userId: string) {
   });
 }
 
+/**
+ * Ett felt i skjemaet, to slags mål: «customer:<id>» er ett sted, «owner:<id>»
+ * er en eier som ser alle sine steder. Én nedtrekksliste er lettere å velge i
+ * enn to som utelukker hverandre.
+ */
+function readPortalTarget(formData: FormData) {
+  const raw = String(formData.get("portalTarget") ?? "");
+  if (raw.startsWith("customer:")) {
+    return { customerId: raw.slice("customer:".length), ownerId: undefined };
+  }
+  if (raw.startsWith("owner:")) {
+    return { customerId: undefined, ownerId: raw.slice("owner:".length) };
+  }
+  return { customerId: undefined, ownerId: undefined };
+}
+
 export async function createUser(
   _prevState: FormState,
   formData: FormData,
 ): Promise<FormState> {
   await requireAdmin();
+
+  const target = readPortalTarget(formData);
 
   const result = createUserSchema.safeParse({
     name: formData.get("name"),
@@ -43,7 +61,8 @@ export async function createUser(
     password: formData.get("password"),
     role: formData.get("role"),
     payType: formData.get("payType") || undefined,
-    customerId: formData.get("customerId") || undefined,
+    customerId: target.customerId,
+    ownerId: target.ownerId,
   });
   if (!result.success) {
     return { errors: z.flattenError(result.error).fieldErrors };
@@ -57,13 +76,23 @@ export async function createUser(
     return { errors: { username: ["Brukernavnet er opptatt."] } };
   }
 
-  if (result.data.role === "CUSTOMER" && result.data.customerId) {
-    const customer = await db.customer.findUnique({
-      where: { id: result.data.customerId },
-      select: { id: true },
-    });
-    if (!customer) {
-      return { errors: { customerId: ["Ugyldig kunde."] } };
+  if (result.data.role === "CUSTOMER") {
+    if (result.data.customerId) {
+      const customer = await db.customer.findUnique({
+        where: { id: result.data.customerId },
+        select: { id: true },
+      });
+      if (!customer) {
+        return { errors: { portalTarget: ["Ugyldig kunde."] } };
+      }
+    } else if (result.data.ownerId) {
+      const owner = await db.owner.findUnique({
+        where: { id: result.data.ownerId },
+        select: { id: true },
+      });
+      if (!owner) {
+        return { errors: { portalTarget: ["Ugyldig eier."] } };
+      }
     }
   }
 
@@ -80,7 +109,11 @@ export async function createUser(
           ? "FIXED"
           : (result.data.payType as PayType),
       customerId:
-        result.data.role === "CUSTOMER" ? result.data.customerId! : null,
+        result.data.role === "CUSTOMER"
+          ? (result.data.customerId ?? null)
+          : null,
+      ownerId:
+        result.data.role === "CUSTOMER" ? (result.data.ownerId ?? null) : null,
       active: true,
     },
   });
@@ -102,7 +135,7 @@ export async function setUserRole(userId: string, role: Role) {
 
   await db.user.update({
     where: { id: userId },
-    data: { role, customerId: null },
+    data: { role, customerId: null, ownerId: null },
   });
   revalidateUsers();
 }

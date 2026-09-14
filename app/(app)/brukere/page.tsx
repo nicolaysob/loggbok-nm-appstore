@@ -5,7 +5,7 @@ import { UsersManager } from "./users-manager";
 export default async function UsersPage() {
   const admin = await requireAdmin();
 
-  const [users, customers] = await Promise.all([
+  const [users, customers, owners] = await Promise.all([
     db.user.findMany({
       orderBy: [{ active: "desc" }, { name: "asc" }],
       select: {
@@ -21,10 +21,15 @@ export default async function UsersPage() {
         canTodos: true,
         canCalendar: true,
         customer: { select: { name: true } },
+        owner: { select: { name: true } },
       },
     }),
     db.customer.findMany({
       where: { active: true },
+      orderBy: { name: "asc" },
+      select: { id: true, name: true },
+    }),
+    db.owner.findMany({
       orderBy: { name: "asc" },
       select: { id: true, name: true },
     }),
@@ -36,6 +41,7 @@ export default async function UsersPage() {
 
       <UsersManager
         customers={customers}
+        owners={owners}
         users={users.map((user) => ({
           id: user.id,
           name: user.name,
@@ -44,6 +50,7 @@ export default async function UsersPage() {
           payType: user.payType,
           active: user.active,
           customerName: user.customer?.name ?? null,
+          ownerName: user.owner?.name ?? null,
           isSelf: user.id === admin.id,
           canLog: user.canLog,
           canIssues: user.canIssues,

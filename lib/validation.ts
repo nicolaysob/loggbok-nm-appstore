@@ -135,14 +135,17 @@ export const createUserSchema = z
     role: z.enum(Role, { error: "Velg rolle" }),
     payType: z.enum(PayType, { error: "Velg lønnstype" }).optional(),
     customerId: z.string().optional(),
+    ownerId: z.string().optional(),
   })
   .superRefine((value, ctx) => {
     if (value.role === "CUSTOMER") {
-      if (!value.customerId) {
+      // En kundekonto hører enten til ett sted eller til en eier som ser
+      // alle sine steder — aldri begge, og aldri ingen av delene
+      if (!value.customerId && !value.ownerId) {
         ctx.addIssue({
           code: "custom",
-          path: ["customerId"],
-          message: "Velg kunde for kundekonto",
+          path: ["portalTarget"],
+          message: "Velg hvilket sted eller hvilken eier kontoen hører til",
         });
       }
     } else if (!value.payType) {

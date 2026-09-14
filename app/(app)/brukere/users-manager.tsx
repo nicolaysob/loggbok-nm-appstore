@@ -28,6 +28,7 @@ import { Feedback, Field, SubmitButton, inputClass } from "@/components/form";
 import { outlineActionClass, solidActionClass } from "@/lib/ui";
 
 export type CustomerOption = { id: string; name: string };
+export type OwnerOption = { id: string; name: string };
 
 export type UserRow = {
   id: string;
@@ -37,22 +38,25 @@ export type UserRow = {
   payType: PayType;
   active: boolean;
   customerName: string | null;
+  ownerName: string | null;
   isSelf: boolean;
 } & AccessFlags;
 
 export function UsersManager({
   users,
   customers,
+  owners,
 }: {
   users: UserRow[];
   customers: CustomerOption[];
+  owners: OwnerOption[];
 }) {
   const staff = users.filter((user) => user.role !== "CUSTOMER");
   const customerUsers = users.filter((user) => user.role === "CUSTOMER");
 
   return (
     <div className="flex flex-col gap-8">
-      <CreateUserForm customers={customers} />
+      <CreateUserForm customers={customers} owners={owners} />
 
       <section className="flex flex-col gap-3">
         <h2 className="text-heading text-ink">Ansatte</h2>
@@ -117,11 +121,13 @@ function UserCard({ user }: { user: UserRow }) {
           </span>
           <span className="block text-meta tabular-nums text-ink-2">
             {user.username}
-            {user.role === "CUSTOMER" && user.customerName
-              ? ` · ${user.customerName}`
-              : user.role !== "CUSTOMER"
-                ? ` · ${payTypeLabels[user.payType]}`
-                : ""}
+            {user.role === "CUSTOMER"
+              ? user.ownerName
+                ? ` · ${user.ownerName} — alle steder`
+                : user.customerName
+                  ? ` · ${user.customerName}`
+                  : ""
+              : ` · ${payTypeLabels[user.payType]}`}
           </span>
         </span>
         <span
@@ -198,10 +204,20 @@ function UserCard({ user }: { user: UserRow }) {
             </>
           )}
 
-          {user.role === "CUSTOMER" && user.customerName && (
+          {user.role === "CUSTOMER" && (user.ownerName || user.customerName) && (
             <p className="text-body text-ink-2">
-              Kundekonto for{" "}
-              <span className="font-semibold">{user.customerName}</span>
+              {user.ownerName ? (
+                <>
+                  Eierkonto for{" "}
+                  <span className="font-semibold">{user.ownerName}</span> — ser
+                  alle stedene under eieren.
+                </>
+              ) : (
+                <>
+                  Kundekonto for{" "}
+                  <span className="font-semibold">{user.customerName}</span>
+                </>
+              )}
             </p>
           )}
 
@@ -246,7 +262,13 @@ function UserCard({ user }: { user: UserRow }) {
   );
 }
 
-function CreateUserForm({ customers }: { customers: CustomerOption[] }) {
+function CreateUserForm({
+  customers,
+  owners,
+}: {
+  customers: CustomerOption[];
+  owners: OwnerOption[];
+}) {
   const [state, formAction] = useActionState<FormState, FormData>(
     createUser,
     undefined,
@@ -323,25 +345,36 @@ function CreateUserForm({ customers }: { customers: CustomerOption[] }) {
 
       {role === "CUSTOMER" ? (
         <Field
-          label="Kunde"
-          htmlFor="customerId"
-          errors={state?.errors?.customerId}
+          label="Gir tilgang til"
+          htmlFor="portalTarget"
+          errors={state?.errors?.portalTarget}
         >
           <select
-            id="customerId"
-            name="customerId"
+            id="portalTarget"
+            name="portalTarget"
             required
             defaultValue=""
             className={inputClass}
           >
             <option value="" disabled>
-              Velg kunde
+              Velg sted eller eier
             </option>
-            {customers.map((customer) => (
-              <option key={customer.id} value={customer.id}>
-                {customer.name}
-              </option>
-            ))}
+            {owners.length > 0 ? (
+              <optgroup label="Eiere — ser alle sine steder">
+                {owners.map((owner) => (
+                  <option key={owner.id} value={`owner:${owner.id}`}>
+                    {owner.name}
+                  </option>
+                ))}
+              </optgroup>
+            ) : null}
+            <optgroup label="Enkeltsteder">
+              {customers.map((customer) => (
+                <option key={customer.id} value={`customer:${customer.id}`}>
+                  {customer.name}
+                </option>
+              ))}
+            </optgroup>
           </select>
         </Field>
       ) : (
