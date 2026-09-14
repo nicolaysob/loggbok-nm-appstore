@@ -19,6 +19,7 @@ import {
 function revalidateUsers() {
   revalidatePath("/brukere");
   revalidatePath("/");
+  revalidatePath("/portal");
 }
 
 async function adminCountExcluding(userId: string) {
@@ -120,6 +121,54 @@ export async function createUser(
 
   revalidateUsers();
   return { message: "Bruker opprettet." };
+}
+
+/**
+ * Flytter en kundekonto mellom ett sted og en eier i ettertid. Kontoen
+ * beholder brukernavn og passord — det er bare hva den ser som endres, så
+ * kontaktpersonen slipper ny innlogging når bygg nummer to kommer til.
+ */
+export async function setUserPortalTarget(
+  userId: string,
+  _prevState: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  await requireAdmin();
+
+  const user = await db.user.findUnique({
+    where: { id: userId },
+    select: { role: true },
+  });
+  if (!user || user.role !== "CUSTOMER") {
+    return { message: "Bare kundekontoer kan flyttes." };
+  }
+
+  const { customerId, ownerId } = readPortalTarget(formData);
+  if (!customerId && !ownerId) {
+    return { errors: { portalTarget: ["Velg et sted eller en eier"] } };
+  }
+
+  if (customerId) {
+    const customer = await db.customer.findUnique({
+      where: { id: customerId },
+      select: { id: true },
+    });
+    if (!customer) return { errors: { portalTarget: ["Ugyldig kunde."] } };
+  } else {
+    const owner = await db.owner.findUnique({
+      where: { id: ownerId },
+      select: { id: true },
+    });
+    if (!owner) return { errors: { portalTarget: ["Ugyldig eier."] } };
+  }
+
+  await db.user.update({
+    where: { id: userId },
+    data: { customerId: customerId ?? null, ownerId: ownerId ?? null },
+  });
+
+  revalidateUsers();
+  return { message: "Tilgangen er flyttet." };
 }
 
 export async function setUserRole(userId: string, role: Role) {

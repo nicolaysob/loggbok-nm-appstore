@@ -9,6 +9,7 @@ import {
   setUserAccess,
   setUserActive,
   setUserPayType,
+  setUserPortalTarget,
   setUserRole,
 } from "@/app/actions/users";
 import {
@@ -37,10 +38,58 @@ export type UserRow = {
   role: Role;
   payType: PayType;
   active: boolean;
+  customerId: string | null;
+  ownerId: string | null;
   customerName: string | null;
   ownerName: string | null;
   isSelf: boolean;
 } & AccessFlags;
+
+/**
+ * Ett felt, to slags mål. Verdien bærer med seg hva den peker på, slik at
+ * skjemaet slipper to lister som utelukker hverandre.
+ */
+function PortalTargetSelect({
+  id,
+  customers,
+  owners,
+  defaultValue = "",
+}: {
+  id: string;
+  customers: CustomerOption[];
+  owners: OwnerOption[];
+  defaultValue?: string;
+}) {
+  return (
+    <select
+      id={id}
+      name="portalTarget"
+      required
+      defaultValue={defaultValue}
+      className={inputClass}
+    >
+      <option value="" disabled>
+        Velg sted eller eier
+      </option>
+      {owners.length > 0 ? (
+        <optgroup label="Eiere — ser alle sine steder">
+          {owners.map((owner) => (
+            <option key={owner.id} value={`owner:${owner.id}`}>
+              {owner.name}
+            </option>
+          ))}
+        </optgroup>
+      ) : null}
+      <optgroup label="Enkeltsteder">
+        {customers.map((customer) => (
+          <option key={customer.id} value={`customer:${customer.id}`}>
+            {customer.name}
+          </option>
+        ))}
+      </optgroup>
+    </select>
+  );
+}
 
 export function UsersManager({
   users,
@@ -67,7 +116,12 @@ export function UsersManager({
         ) : (
           <ul className="flex flex-col gap-3">
             {staff.map((user) => (
-              <UserCard key={user.id} user={user} />
+              <UserCard
+                key={user.id}
+                user={user}
+                customers={customers}
+                owners={owners}
+              />
             ))}
           </ul>
         )}
@@ -82,7 +136,12 @@ export function UsersManager({
         ) : (
           <ul className="flex flex-col gap-3">
             {customerUsers.map((user) => (
-              <UserCard key={user.id} user={user} />
+              <UserCard
+                key={user.id}
+                user={user}
+                customers={customers}
+                owners={owners}
+              />
             ))}
           </ul>
         )}
@@ -91,8 +150,64 @@ export function UsersManager({
   );
 }
 
-function UserCard({ user }: { user: UserRow }) {
+function PortalTargetForm({
+  user,
+  customers,
+  owners,
+}: {
+  user: UserRow;
+  customers: CustomerOption[];
+  owners: OwnerOption[];
+}) {
+  const [state, formAction] = useActionState<FormState, FormData>(
+    setUserPortalTarget.bind(null, user.id),
+    undefined,
+  );
+
+  const current = user.ownerId
+    ? `owner:${user.ownerId}`
+    : user.customerId
+      ? `customer:${user.customerId}`
+      : "";
+
+  return (
+    <form action={formAction} className="flex flex-col gap-3">
+      <Field
+        label="Gir tilgang til"
+        htmlFor={`portalTarget-${user.id}`}
+        errors={state?.errors?.portalTarget}
+      >
+        <PortalTargetSelect
+          id={`portalTarget-${user.id}`}
+          customers={customers}
+          owners={owners}
+          defaultValue={current}
+        />
+      </Field>
+      <p className="text-micro text-ink-3">
+        {user.ownerName
+          ? `Ser nå alle stedene under ${user.ownerName}.`
+          : "Velger du en eier, ser kontoen alle stedene under eieren. Brukernavn og passord er de samme som før."}
+      </p>
+      <div className="flex items-center gap-3">
+        <SubmitButton variant="outline">Flytt tilgangen</SubmitButton>
+        <Feedback message={state?.message} />
+      </div>
+    </form>
+  );
+}
+
+function UserCard({
+  user,
+  customers,
+  owners,
+}: {
+  user: UserRow;
+  customers: CustomerOption[];
+  owners: OwnerOption[];
+}) {
   const [open, setOpen] = useState(false);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [deleteState, deleteAction] = useActionState<FormState, FormData>(
     async (_prev) => deleteUser(user.id),
     undefined,
@@ -204,21 +319,12 @@ function UserCard({ user }: { user: UserRow }) {
             </>
           )}
 
-          {user.role === "CUSTOMER" && (user.ownerName || user.customerName) && (
-            <p className="text-body text-ink-2">
-              {user.ownerName ? (
-                <>
-                  Eierkonto for{" "}
-                  <span className="font-semibold">{user.ownerName}</span> — ser
-                  alle stedene under eieren.
-                </>
-              ) : (
-                <>
-                  Kundekonto for{" "}
-                  <span className="font-semibold">{user.customerName}</span>
-                </>
-              )}
-            </p>
+          {user.role === "CUSTOMER" && (
+            <PortalTargetForm
+              user={user}
+              customers={customers}
+              owners={owners}
+            />
           )}
 
           {!user.isSelf && (
@@ -234,25 +340,42 @@ function UserCard({ user }: { user: UserRow }) {
 
           <ResetPasswordForm userId={user.id} />
 
+          {/*
+            Bekreftelsen ligger inne i appen. window.confirm er upålitelig i
+            WebView-en appen kjører i — der gjorde knappen ingenting.
+          */}
           {!user.isSelf && (
-            <form
-              action={deleteAction}
-              onSubmit={(event) => {
-                if (
-                  !confirm(
-                    `Slette brukeren «${user.name}» for godt?\n\nDette kan ikke angres.`,
-                  )
-                ) {
-                  event.preventDefault();
-                }
-              }}
-            >
-              <button
-                type="submit"
-                className="min-h-12 w-full rounded-2xl bg-surface px-4 text-meta font-semibold text-danger active:bg-danger-soft"
-              >
-                Slett bruker
-              </button>
+            <form action={deleteAction} className="flex flex-col gap-2">
+              {confirmingDelete ? (
+                <>
+                  <p className="text-meta text-ink-2">
+                    Slette «{user.name}» for godt? Dette kan ikke angres.
+                  </p>
+                  <div className="flex gap-2">
+                    <button
+                      type="submit"
+                      className="min-h-12 flex-1 rounded-xl bg-danger px-4 text-meta font-bold text-white active:opacity-85"
+                    >
+                      Ja, slett
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setConfirmingDelete(false)}
+                      className="min-h-12 flex-1 rounded-xl border-[1.5px] border-edge px-4 text-meta font-semibold text-ink active:bg-sunken"
+                    >
+                      Behold
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setConfirmingDelete(true)}
+                  className="min-h-12 w-full rounded-2xl bg-surface px-4 text-meta font-semibold text-danger active:bg-danger-soft"
+                >
+                  Slett bruker
+                </button>
+              )}
               <Feedback message={deleteState?.message} />
             </form>
           )}
@@ -349,33 +472,11 @@ function CreateUserForm({
           htmlFor="portalTarget"
           errors={state?.errors?.portalTarget}
         >
-          <select
+          <PortalTargetSelect
             id="portalTarget"
-            name="portalTarget"
-            required
-            defaultValue=""
-            className={inputClass}
-          >
-            <option value="" disabled>
-              Velg sted eller eier
-            </option>
-            {owners.length > 0 ? (
-              <optgroup label="Eiere — ser alle sine steder">
-                {owners.map((owner) => (
-                  <option key={owner.id} value={`owner:${owner.id}`}>
-                    {owner.name}
-                  </option>
-                ))}
-              </optgroup>
-            ) : null}
-            <optgroup label="Enkeltsteder">
-              {customers.map((customer) => (
-                <option key={customer.id} value={`customer:${customer.id}`}>
-                  {customer.name}
-                </option>
-              ))}
-            </optgroup>
-          </select>
+            customers={customers}
+            owners={owners}
+          />
         </Field>
       ) : (
         <Field label="Lønn" htmlFor="payType" errors={state?.errors?.payType}>
