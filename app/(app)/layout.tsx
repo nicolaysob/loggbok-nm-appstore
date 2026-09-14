@@ -44,6 +44,7 @@ export default async function AppLayout({ children }: LayoutProps<"/">) {
             title: "Oppsett",
             links: [
               { href: "/kunder", label: "Kunder" },
+              { href: "/eiere", label: "Eiere" },
               { href: "/brukere", label: "Brukere" },
               { href: "/oppdragstyper", label: "Typer" },
             ],

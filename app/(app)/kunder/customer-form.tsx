@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useActionState } from "react";
 import type { ContractType } from "@/generated/prisma/enums";
 import { contractTypeOptions } from "@/lib/labels";
@@ -31,7 +32,7 @@ export function CustomerForm({
   action: (state: FormState, formData: FormData) => Promise<FormState>;
   values: CustomerFormValues;
   submitLabel: string;
-  /** Eiere å velge blant — tom liste skjuler feltet helt */
+  /** Eiere å velge blant — tom liste peker videre til der de opprettes */
   owners: OwnerOption[];
 }) {
   const [state, formAction] = useActionState<FormState, FormData>(
@@ -51,6 +52,11 @@ export function CustomerForm({
         />
       </Field>
 
+      {/*
+        Feltet står alltid her. Uten eiere i basen ble det tidligere borte helt,
+        og da fantes det ingen spor av at eier var mulig — man lette etter et
+        felt som aldri kom. Nå peker tomrommet videre til der eiere opprettes.
+      */}
       {owners.length > 0 ? (
         <Field label="Eier" htmlFor="ownerId" errors={state?.errors?.ownerId}>
           <select
@@ -66,8 +72,26 @@ export function CustomerForm({
               </option>
             ))}
           </select>
+          <p className="text-micro text-ink-3">
+            Eier brukes når samme kontaktperson har flere bygg.{" "}
+            <Link href="/eiere" className="font-semibold text-brand underline">
+              Endre eiere
+            </Link>
+          </p>
         </Field>
-      ) : null}
+      ) : (
+        <div className="flex flex-col gap-1">
+          <span className="text-meta font-semibold text-ink">Eier</span>
+          <p className="rounded-xl border border-hair bg-sunken px-4 py-3 text-meta text-ink-2">
+            Ingen eiere opprettet ennå. Hører bygget til noen som eier flere
+            steder,{" "}
+            <Link href="/eiere" className="font-semibold text-brand underline">
+              opprett eieren først
+            </Link>{" "}
+            — så dukker den opp i lista her.
+          </p>
+        </div>
+      )}
 
       <Field
         label="Kontraktstype"
