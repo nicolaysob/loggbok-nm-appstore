@@ -191,10 +191,12 @@ export async function notifyCustomerMessageReply(input: {
       ? `${input.preview.slice(0, 117)}…`
       : input.preview;
 
+  // ?sted peker eieren rett på bygget det gjelder. En vanlig kundebruker har
+  // bare ett kort, og ignorerer parameteren.
   await sendPushToExternalIds(await customerExternalIds(input.customerId), {
     title: "Svar fra N&M",
     body: preview,
-    url: "/portal",
+    url: `/portal?sted=${input.customerId}`,
   });
 }
 
@@ -210,7 +212,7 @@ export async function notifyCustomerIssueUpdate(input: {
   await sendPushToExternalIds(await customerExternalIds(input.customerId), {
     title: "Oppdatering på avvik",
     body: preview,
-    url: "/portal/avvik",
+    url: `/portal/avvik?sted=${input.customerId}`,
   });
 }
 
