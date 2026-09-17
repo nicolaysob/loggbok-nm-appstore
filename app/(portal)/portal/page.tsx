@@ -19,6 +19,7 @@ import { cardStaticClass, eyebrowClass, sectionHeadClass } from "@/lib/ui";
 import { ActivityList } from "@/components/activity-list";
 import { BrandIcon } from "@/components/brand";
 import { PortalIssueList } from "@/components/portal-issue-list";
+import { PortalMessageReply } from "@/components/portal-message-reply";
 import { ProfileMenu } from "@/components/profile-menu";
 import { PortalMessageForm } from "./message-form";
 import { OwnerPlaces } from "./owner-places";
@@ -39,10 +40,20 @@ const MONTH_SHORT = [
   "des",
 ] as const;
 
+/**
+ * Hvem ballen ligger hos. Etter at kunden fikk svare i tråden kan siste ord
+ * være hennes eget — da er «svar fra N&M» direkte misvisende.
+ */
+function messageStatus(replies: { user: { role: string } }[]): string {
+  const last = replies.at(-1);
+  if (!last) return "ikke lest ennå";
+  return last.user.role === "CUSTOMER" ? "venter på oss" : "svar fra N&M";
+}
+
 export default async function CustomerPortalPage({
   searchParams,
 }: PageProps<"/portal">) {
-  const { sted } = await searchParams;
+  const { sted, svar } = await searchParams;
   const scope = await portalScope(sted);
   const now0 = new Date();
 
@@ -164,7 +175,7 @@ export default async function CustomerPortalPage({
               id: true,
               body: true,
               createdAt: true,
-              user: { select: { name: true } },
+              user: { select: { name: true, role: true } },
             },
           },
         },
@@ -422,6 +433,11 @@ export default async function CustomerPortalPage({
             Tidligere ›
           </Link>
         </h2>
+        {svar === "sendt" ? (
+          <p className="mb-2.5 rounded-xl bg-brand-soft px-3.5 py-2.5 text-meta font-bold text-brand">
+            Svaret er sendt. Meldingen ligger hos oss igjen.
+          </p>
+        ) : null}
         <PortalMessageForm customerId={customer.id} />
 
         {openMessages.length > 0 ? (
@@ -432,9 +448,9 @@ export default async function CustomerPortalPage({
                 className={`flex flex-col gap-1.5 px-4 py-3.5 ${cardStaticClass}`}
               >
                 <span className="text-micro text-ink-3">
-                  {message.replies.length > 0
-                    ? `Sendt ${formatDate(message.createdAt)} · svar fra N&M`
-                    : `Sendt ${formatDate(message.createdAt)} · ikke lest ennå`}
+                  {`Sendt ${formatDate(message.createdAt)} · ${messageStatus(
+                    message.replies,
+                  )}`}
                 </span>
                 <p className="text-body whitespace-pre-wrap text-ink">
                   {message.body}
@@ -444,9 +460,11 @@ export default async function CustomerPortalPage({
                     id: reply.id,
                     body: reply.body,
                     at: `${formatDate(reply.createdAt)} · ${formatTime(reply.createdAt)}`,
-                    author: reply.user.name,
+                    author:
+                      reply.user.role === "CUSTOMER" ? "Dere" : reply.user.name,
                   }))}
                 />
+                <PortalMessageReply messageId={message.id} />
               </li>
             ))}
           </ul>

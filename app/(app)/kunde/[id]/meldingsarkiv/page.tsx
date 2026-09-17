@@ -8,6 +8,7 @@ import { cardStaticClass } from "@/lib/ui";
 import { BackLink } from "@/components/back-link";
 import { MonthFolderList } from "@/components/month-folder-list";
 import { MessageReplyList } from "@/components/message-reply-list";
+import { ReplyMessageForm } from "../reply-message-form";
 
 export default async function MessageArchivePage({
   params,
@@ -103,6 +104,7 @@ export default async function MessageArchivePage({
                     {formatDate(message.readAt)}
                   </p>
                 )}
+                <ReplyMessageForm messageId={message.id} />
               </li>
             ))}
           </ul>

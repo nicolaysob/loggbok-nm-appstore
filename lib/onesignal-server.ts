@@ -27,11 +27,21 @@ async function staffExternalIds(excludeUserIds: string[] = []): Promise<string[]
 }
 
 async function customerExternalIds(customerId: string): Promise<string[]> {
+  // Eieren skal ha varselet også. Hun henger på eieren, ikke på kundekortet,
+  // og fikk derfor ingenting før dette — heller ikke svar på egne meldinger.
+  const customer = await db.customer.findUnique({
+    where: { id: customerId },
+    select: { ownerId: true },
+  });
+
   const users = await db.user.findMany({
     where: {
       active: true,
       role: "CUSTOMER",
-      customerId,
+      OR: [
+        { customerId },
+        ...(customer?.ownerId ? [{ ownerId: customer.ownerId }] : []),
+      ],
     },
     select: { id: true },
   });
@@ -130,6 +140,26 @@ export async function notifyStaffNewCustomerMessage(input: {
 
   await notifyStaffPush({
     title: `Melding fra ${input.customerName}`,
+    body: preview,
+    url: `/kunde/${input.customerId}`,
+  });
+}
+
+export async function notifyStaffCustomerReply(input: {
+  customerId: string;
+  customerName: string;
+  preview: string;
+  reopened: boolean;
+}): Promise<void> {
+  const preview =
+    input.preview.length > 120
+      ? `${input.preview.slice(0, 117)}…`
+      : input.preview;
+
+  await notifyStaffPush({
+    title: input.reopened
+      ? `Åpnet igjen · ${input.customerName}`
+      : `Svar fra ${input.customerName}`,
     body: preview,
     url: `/kunde/${input.customerId}`,
   });

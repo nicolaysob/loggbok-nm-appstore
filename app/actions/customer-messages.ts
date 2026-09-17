@@ -2,11 +2,13 @@
 
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import { requireStaff } from "@/lib/dal";
 import { verifyPortalWrite } from "@/lib/portal-scope";
 import {
   notifyCustomerMessageReply,
+  notifyStaffCustomerReply,
   notifyStaffNewCustomerMessage,
 } from "@/lib/onesignal-server";
 import { customerMessageSchema, type FormState } from "@/lib/validation";
@@ -110,10 +112,9 @@ export async function replyCustomerMessage(
     },
   });
   if (!message) return { message: "Meldingen finnes ikke." };
-  if (message.readAt) {
-    return { message: "Meldingen er allerede signert og ligger i arkivet." };
-  }
 
+  // Signert betyr «vi har tatt tak i det», ikke at tråden er stengt. Svaret
+  // legger seg på meldingen der den står — vi åpner den ikke igjen selv.
   await db.customerMessageReply.create({
     data: {
       messageId: message.id,
@@ -132,5 +133,75 @@ export async function replyCustomerMessage(
   revalidatePath(`/kunde/${message.customerId}`);
   revalidatePath(`/kunde/${message.customerId}/meldingsarkiv`);
   revalidatePath("/");
+  return { message: "Svaret er sendt." };
+}
+
+/**
+ * Kundens svar i samme tråd. Var meldingen signert, åpnes den igjen — ellers
+ * blir oppfølgingen liggende i arkivet, der ingen av oss ser etter. Det var
+ * nettopp den fella som gjorde at en melding ble borte for kunden.
+ */
+export async function replyCustomerMessageFromPortal(
+  messageId: string,
+  _prevState: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  const result = customerMessageSchema.safeParse({
+    body: formData.get("body"),
+  });
+  if (!result.success) {
+    return { errors: z.flattenError(result.error).fieldErrors };
+  }
+
+  const message = await db.customerMessage.findUnique({
+    where: { id: messageId },
+    select: {
+      id: true,
+      customerId: true,
+      readAt: true,
+      customer: { select: { name: true } },
+    },
+  });
+  if (!message) return { message: "Meldingen finnes ikke." };
+
+  const access = await verifyPortalWrite(message.customerId);
+  if (!access) return { message: "Meldingen finnes ikke." };
+
+  await db.customerMessageReply.create({
+    data: {
+      messageId: message.id,
+      userId: access.userId,
+      body: result.data.body,
+    },
+  });
+
+  const reopened = message.readAt !== null;
+  if (reopened) {
+    await db.customerMessage.update({
+      where: { id: message.id },
+      data: { readAt: null, signedByUserId: null },
+    });
+  }
+
+  await notifyStaffCustomerReply({
+    customerId: message.customerId,
+    customerName: message.customer.name,
+    preview: result.data.body,
+    reopened,
+  });
+
+  revalidatePath("/portal");
+  revalidatePath("/portal/meldinger");
+  revalidatePath(`/kunde/${message.customerId}`);
+  revalidatePath(`/kunde/${message.customerId}/meldingsarkiv`);
+  revalidatePath("/");
+
+  // Meldingen flyttet ut av arkivet og tilbake til forsiden. Da må kunden
+  // flyttes med den — ellers står hun igjen i en tom måned og lurer på hvor
+  // det ble av svaret sitt.
+  if (reopened) {
+    redirect(`/portal?sted=${message.customerId}&svar=sendt`);
+  }
+
   return { message: "Svaret er sendt." };
 }

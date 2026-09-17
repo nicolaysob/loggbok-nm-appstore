@@ -8,6 +8,7 @@ import { cardStaticClass } from "@/lib/ui";
 import { BackLink } from "@/components/back-link";
 import { MonthFolderList } from "@/components/month-folder-list";
 import { MessageReplyList } from "@/components/message-reply-list";
+import { PortalMessageReply } from "@/components/portal-message-reply";
 
 export default async function PortalMessageArchivePage({
   searchParams,
@@ -43,7 +44,7 @@ export default async function PortalMessageArchivePage({
             id: true,
             body: true,
             createdAt: true,
-            user: { select: { name: true } },
+            user: { select: { name: true, role: true } },
           },
         },
       },
@@ -85,7 +86,8 @@ export default async function PortalMessageArchivePage({
                     id: reply.id,
                     body: reply.body,
                     at: `${formatDate(reply.createdAt)} · ${formatTime(reply.createdAt)}`,
-                    author: reply.user.name,
+                    author:
+                      reply.user.role === "CUSTOMER" ? "Dere" : reply.user.name,
                   }))}
                 />
                 {message.readAt && message.signedBy && (
@@ -94,6 +96,7 @@ export default async function PortalMessageArchivePage({
                     {formatDate(message.readAt)}
                   </p>
                 )}
+                <PortalMessageReply messageId={message.id} />
               </li>
             ))}
           </ul>
