@@ -74,6 +74,10 @@ export default async function CustomerPortalPage({
     );
   }
 
+  // Eieren må ta stedet med seg videre. Uten ?sted vet undersidene ikke hvilket
+  // bygg hun står i, og sender henne tilbake til stedslista.
+  const stedQuery = scope.owner ? `?sted=${customer.id}` : "";
+
   const areaId = await primaryAreaId(customer.id);
   const now = new Date();
   const yearStart = new Date(Date.UTC(now.getUTCFullYear(), 0, 1));
@@ -337,7 +341,7 @@ export default async function CustomerPortalPage({
         {/* Rapporten er det styret faktisk skal bruke — den skal ikke ligge
             gjemt nederst under hele tidslinja. */}
         <Link
-          href={`/portal/rapport${scope.owner ? `?sted=${customer.id}` : ""}`}
+          href={`/portal/rapport${stedQuery}`}
           className="mt-2.5 flex min-h-[4.5rem] items-center gap-3.5 rounded-2xl border border-hair bg-surface px-4 py-3.5 shadow-card transition-colors active:bg-sunken"
         >
           <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-brand-soft text-brand">
@@ -381,7 +385,7 @@ export default async function CustomerPortalPage({
           <h2 className={sectionHeadClass}>
             <span>Åpne avvik</span>
             <Link
-              href="/portal/avvik"
+              href={`/portal/avvik${stedQuery}`}
               className="text-eyebrow uppercase text-ink-2"
             >
               Alle ›
@@ -412,7 +416,7 @@ export default async function CustomerPortalPage({
         <h2 className={sectionHeadClass}>
           <span>Meld fra til oss</span>
           <Link
-            href="/portal/meldinger"
+            href={`/portal/meldinger${stedQuery}`}
             className="text-eyebrow uppercase text-ink-2"
           >
             Tidligere ›
@@ -453,7 +457,7 @@ export default async function CustomerPortalPage({
         <h2 className={sectionHeadClass}>
           <span>Utført arbeid</span>
           <Link
-            href="/portal/rapport"
+            href={`/portal/rapport${stedQuery}`}
             className="text-eyebrow uppercase text-ink-2"
           >
             Alle måneder ›
