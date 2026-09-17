@@ -3,7 +3,8 @@
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
-import { requireCustomer, requireStaff } from "@/lib/dal";
+import { requireStaff } from "@/lib/dal";
+import { verifyPortalWrite } from "@/lib/portal-scope";
 import {
   notifyCustomerMessageReply,
   notifyStaffNewCustomerMessage,
@@ -14,8 +15,6 @@ export async function createCustomerMessage(
   _prevState: FormState,
   formData: FormData,
 ): Promise<FormState> {
-  const user = await requireCustomer();
-
   const result = customerMessageSchema.safeParse({
     body: formData.get("body"),
   });
@@ -23,8 +22,17 @@ export async function createCustomerMessage(
     return { errors: z.flattenError(result.error).fieldErrors };
   }
 
+  // Stedet kommer fra skjemaet, ikke fra user.customerId — en eierbruker har
+  // ingen, og skrev derfor ut i løse lufta før dette
+  const access = await verifyPortalWrite(
+    String(formData.get("customerId") ?? ""),
+  );
+  if (!access) {
+    return { message: "Du har ikke tilgang til dette stedet." };
+  }
+
   const customer = await db.customer.findUnique({
-    where: { id: user.customerId },
+    where: { id: access.customerId },
     select: { id: true, name: true },
   });
   if (!customer) {
@@ -34,7 +42,7 @@ export async function createCustomerMessage(
   await db.customerMessage.create({
     data: {
       customerId: customer.id,
-      userId: user.id,
+      userId: access.userId,
       body: result.data.body,
     },
   });

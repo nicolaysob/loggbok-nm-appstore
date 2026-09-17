@@ -11,7 +11,7 @@ import {
   textareaClass,
 } from "@/lib/ui";
 
-export function PortalMessageForm() {
+export function PortalMessageForm({ customerId }: { customerId: string }) {
   const formRef = useRef<HTMLFormElement>(null);
   const [state, formAction, pending] = useActionState<FormState, FormData>(
     createCustomerMessage,
@@ -30,6 +30,7 @@ export function PortalMessageForm() {
       action={formAction}
       className={`flex flex-col gap-3 p-4 ${cardStaticClass}`}
     >
+      <input type="hidden" name="customerId" value={customerId} />
       <textarea
         id="body"
         name="body"

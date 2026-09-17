@@ -80,6 +80,35 @@ export async function portalScope(
   return { kind: "owner", owner, userName: user.name };
 }
 
+/**
+ * Har den innloggede portalbrukeren lov til å skrive på dette kundekortet?
+ *
+ * Kundebrukeren har sitt ene kort; eierbrukeren har alle kortene under eieren.
+ * Brukes av skrivehandlingene — de kan ikke lene seg på user.customerId, for
+ * eieren har ingen. Returnerer null i stedet for å redirecte, så handlingen
+ * kan svare med en feilmelding i skjemaet.
+ */
+export async function verifyPortalWrite(
+  customerId: string,
+): Promise<{ userId: string; customerId: string } | null> {
+  const user = await requireUser();
+  if (user.role !== "CUSTOMER") redirect("/");
+
+  if (user.customerId) {
+    return user.customerId === customerId
+      ? { userId: user.id, customerId }
+      : null;
+  }
+
+  if (!user.ownerId) return null;
+
+  const owned = await db.customer.findFirst({
+    where: { id: customerId, ownerId: user.ownerId },
+    select: { id: true },
+  });
+  return owned ? { userId: user.id, customerId: owned.id } : null;
+}
+
 export type OwnerPlace = {
   id: string;
   name: string;

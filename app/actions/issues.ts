@@ -7,10 +7,10 @@ import type { IssueStatus } from "@/generated/prisma/enums";
 import { db } from "@/lib/db";
 import {
   requireAdmin,
-  requireCustomer,
   requireStaff,
   requireStaffAccess,
 } from "@/lib/dal";
+import { verifyPortalWrite } from "@/lib/portal-scope";
 import { primaryAreaId } from "@/lib/customer";
 import { photosFromFormData } from "@/lib/photos";
 import { issueSchema, type FormState } from "@/lib/validation";
@@ -111,26 +111,29 @@ export async function addCustomerIssueNote(
   _prevState: FormState,
   formData: FormData,
 ): Promise<FormState> {
-  const user = await requireCustomer();
-
   const body = String(formData.get("body") ?? "").trim();
   if (!body) {
     return { errors: { body: ["Skriv en kommentar"] } };
   }
 
-  // Kunden skal bare kunne kommentere på sine egne avvik
   const issue = await db.issue.findUnique({
     where: { id: issueId },
     select: {
       area: { select: { customerId: true, customer: { select: { name: true } } } },
     },
   });
-  if (!issue || issue.area.customerId !== user.customerId) {
+  if (!issue) {
+    return { message: "Avviket finnes ikke." };
+  }
+
+  // Kunden kommenterer på sitt eget sted, eieren på alle sine
+  const access = await verifyPortalWrite(issue.area.customerId);
+  if (!access) {
     return { message: "Avviket finnes ikke." };
   }
 
   await db.issueNote.create({
-    data: { issueId, userId: user.id, body },
+    data: { issueId, userId: access.userId, body },
   });
 
   // Må await-es — void på Vercel dreper kallet før push rekker å gå ut

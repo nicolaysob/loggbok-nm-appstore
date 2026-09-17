@@ -418,7 +418,7 @@ export default async function CustomerPortalPage({
             Tidligere ›
           </Link>
         </h2>
-        <PortalMessageForm />
+        <PortalMessageForm customerId={customer.id} />
 
         {openMessages.length > 0 ? (
           <ul className="mt-2.5 flex flex-col gap-2.5">
