@@ -200,6 +200,22 @@ export async function notifyCustomerMessageReply(input: {
   });
 }
 
+export async function notifyCustomerNewIssue(input: {
+  customerId: string;
+  preview: string;
+}): Promise<void> {
+  const preview =
+    input.preview.length > 120
+      ? `${input.preview.slice(0, 117)}…`
+      : input.preview;
+
+  await sendPushToExternalIds(await customerExternalIds(input.customerId), {
+    title: "Nytt avvik registrert",
+    body: preview,
+    url: `/portal/avvik?sted=${input.customerId}`,
+  });
+}
+
 export async function notifyCustomerIssueUpdate(input: {
   customerId: string;
   preview: string;

@@ -15,7 +15,11 @@ import { primaryAreaId } from "@/lib/customer";
 import { photosFromFormData } from "@/lib/photos";
 import { issueSchema, type FormState } from "@/lib/validation";
 import { issueStatusLabels } from "@/lib/labels";
-import { notifyCustomerIssueUpdate, notifyStaffNewIssueComment } from "@/lib/onesignal-server";
+import {
+  notifyCustomerIssueUpdate,
+  notifyCustomerNewIssue,
+  notifyStaffNewIssueComment,
+} from "@/lib/onesignal-server";
 
 function revalidateIssue(customerId: string) {
   revalidatePath(`/kunde/${customerId}`);
@@ -61,6 +65,12 @@ export async function createIssue(
         create: photoResult.photos,
       },
     },
+  });
+
+  // Må await-es før redirect — redirect kaster, og pushen rekker ikke ut
+  await notifyCustomerNewIssue({
+    customerId,
+    preview: result.data.description,
   });
 
   revalidatePath(`/kunde/${customerId}`);
