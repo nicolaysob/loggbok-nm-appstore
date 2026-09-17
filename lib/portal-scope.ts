@@ -114,6 +114,8 @@ export type OwnerPlace = {
   name: string;
   lastVisit: Date | null;
   openIssues: number;
+  /** Meldinger stedet har sendt som vi ennå ikke har kvittert ut */
+  openMessages: number;
 };
 
 /** Stedene under en eier, med nok status til å se hvor det brenner. */
@@ -124,6 +126,7 @@ export async function ownerPlaces(ownerId: string): Promise<OwnerPlace[]> {
     select: {
       id: true,
       name: true,
+      _count: { select: { messages: { where: { readAt: null } } } },
       areas: {
         select: {
           logEntries: {
@@ -151,6 +154,7 @@ export async function ownerPlaces(ownerId: string): Promise<OwnerPlace[]> {
         (sum, area) => sum + area._count.issues,
         0,
       ),
+      openMessages: customer._count.messages,
     };
   });
 }

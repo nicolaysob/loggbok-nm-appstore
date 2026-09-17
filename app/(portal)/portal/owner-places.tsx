@@ -146,6 +146,15 @@ export function OwnerPlaces({
                         ? ` · ${place.openIssues === 1 ? "1 åpent avvik" : `${place.openIssues} åpne avvik`}`
                         : " · alt i orden"}
                     </span>
+                    {/* Kvittering på at meldingen faktisk ligger hos oss —
+                        uten den ser stedet helt urørt ut rett etter sending */}
+                    {place.openMessages > 0 ? (
+                      <span className="mt-1.5 inline-flex min-h-6 items-center rounded-full bg-brand-soft px-2.5 text-micro font-bold text-brand">
+                        {place.openMessages === 1
+                          ? "1 melding hos oss"
+                          : `${place.openMessages} meldinger hos oss`}
+                      </span>
+                    ) : null}
                   </span>
                   <Chevron />
                 </Link>
